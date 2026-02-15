@@ -275,13 +275,13 @@ export const Profile = () => {
                         </div>
 
                         {/* Name & Username & Buttons & Bio */}
-                        <div className="flex-1 flex flex-col gap-4">
+                        <div className="flex-1 flex flex-col gap-4 text-center sm:text-left">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 pb-1">
                                 <div>
                                     <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1">
                                         {profile.full_name || profile.username}
                                     </h1>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-center sm:justify-start gap-2">
                                         <p className="text-primary font-bold text-sm uppercase tracking-widest">@{profile.username}</p>
                                         <span className="text-outline-variant opacity-30">•</span>
                                         <div className="flex items-center gap-1.5">
@@ -295,7 +295,7 @@ export const Profile = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center sm:justify-start gap-3">
                                     {isOwnProfile ? (
                                         <Button
                                             onClick={() => setEditMode(!editMode)}
@@ -321,7 +321,7 @@ export const Profile = () => {
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.98 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="space-y-4 surface-1 p-5 rounded-3xl border border-outline/10 mb-2"
+                                    className="space-y-4 surface-1 p-5 rounded-3xl border border-outline/10 mb-2 text-left"
                                 >
                                     <div>
                                         <label className="block text-xs font-bold text-on-surface mb-1.5 ml-1">{t('profile_page.full_name')}</label>
@@ -368,14 +368,14 @@ export const Profile = () => {
                                     </div>
                                 </motion.div>
                             ) : (
-                                <p className="text-on-surface text-base lg:text-lg leading-relaxed max-w-2xl font-medium">
+                                <p className="text-on-surface text-base lg:text-lg leading-relaxed max-w-2xl font-medium mx-auto sm:mx-0">
                                     {profile.bio || t('profile_page.no_bio')}
                                 </p>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-xs text-on-surface-variant font-bold uppercase tracking-wider mt-2 px-1">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-on-surface-variant font-bold uppercase tracking-wider mt-2 px-1">
                         <div className="flex items-center gap-2">
                             <Calendar size={18} className="text-primary" />
                             <span>
