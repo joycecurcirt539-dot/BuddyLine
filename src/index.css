@@ -281,3 +281,16 @@ body::before {
   color: #F8FAFC;
   /* Bright Slate for dark mode */
 }
+
+@layer utilities {
+  .mask-logo {
+    mask-image: url(/logo.svg);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-image: url(/logo.svg);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+  }
+}
