@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Avatar } from '../ui/Avatar';
-import { MessageCircle, Heart, Share2, Send, ChevronDown, ChevronUp, Trash2, Eye } from 'lucide-react';
+import { MessageCircle, Heart, Share2, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { clsx } from 'clsx';
+import { EmojiPicker } from '../ui/EmojiPicker';
 
 export interface Post {
     id: string;
@@ -52,6 +53,8 @@ export const PostCard = ({ post, onDelete }: { post: Post; onDelete?: (id: strin
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
     const [commentsCount, setCommentsCount] = useState(0);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const commentInputRef = useRef<HTMLInputElement>(null);
 
     // Views state
     const [viewsCount, setViewsCount] = useState(post.views_count || 0);
@@ -216,6 +219,25 @@ export const PostCard = ({ post, onDelete }: { post: Post; onDelete?: (id: strin
         setShowComments(prev => !prev);
     };
 
+    const handleEmojiSelect = (emoji: string) => {
+        const input = commentInputRef.current;
+        if (!input) return;
+
+        const start = input.selectionStart || 0;
+        const end = input.selectionEnd || 0;
+        const text = newComment;
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+
+        setNewComment(before + emoji + after);
+
+        // Reset focus and cursor position after state update
+        setTimeout(() => {
+            input.focus();
+            input.setSelectionRange(start + emoji.length, start + emoji.length);
+        }, 0);
+    };
+
     const isOwnPost = user?.id === post.user_id;
 
     return (
@@ -357,14 +379,37 @@ export const PostCard = ({ post, onDelete }: { post: Post; onDelete?: (id: strin
                                     size="sm"
                                     className="ring-2 ring-primary/5 flex-shrink-0"
                                 />
-                                <div className="flex-1 flex gap-2">
+                                <div className="flex-1 flex gap-2 relative">
                                     <input
+                                        ref={commentInputRef}
                                         type="text"
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder={t('post.comment_placeholder')}
                                         className="flex-1 px-4 py-2.5 bg-surface-container rounded-2xl border border-outline-variant/10 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm font-medium text-on-surface placeholder:text-on-surface-variant/40"
                                     />
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        className={clsx(
+                                            "p-2 text-on-surface-variant/40 hover:text-primary transition-colors",
+                                            showEmojiPicker && "text-primary"
+                                        )}
+                                        title={t('post.add_emoji', 'Add emoji')}
+                                    >
+                                        <Smile size={20} />
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {showEmojiPicker && (
+                                            <EmojiPicker
+                                                onSelect={handleEmojiSelect}
+                                                onClose={() => setShowEmojiPicker(false)}
+                                                className="absolute bottom-full mb-2 right-0"
+                                            />
+                                        )}
+                                    </AnimatePresence>
                                     <button
                                         type="submit"
                                         disabled={!newComment.trim() || commentLoading}

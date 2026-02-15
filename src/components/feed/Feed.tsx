@@ -4,12 +4,13 @@ import { PostCard } from './PostCard';
 import type { Post } from './PostCard';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
-import { Send, Image as ImageIcon, X } from 'lucide-react';
+import { Send, Image as ImageIcon, X, Smile } from 'lucide-react';
 import { clsx } from 'clsx';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '../ui/Avatar';
 import { compressImage } from '../../utils/compressImage';
+import { EmojiPicker } from '../ui/EmojiPicker';
 
 export const Feed = () => {
     const { t } = useTranslation();
@@ -19,7 +20,9 @@ export const Feed = () => {
     const [loading, setLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const fetchPosts = useCallback(async () => {
         const { data, error } = await supabase
@@ -40,6 +43,25 @@ export const Feed = () => {
             setPosts(formattedPosts as Post[]);
         }
     }, []);
+
+    const handleEmojiSelect = (emoji: string) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = newPostContent;
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+
+        setNewPostContent(before + emoji + after);
+
+        // Reset focus and cursor position after state update
+        setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(start + emoji.length, start + emoji.length);
+        }, 0);
+    };
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -122,6 +144,7 @@ export const Feed = () => {
 
             setNewPostContent('');
             removeImage();
+            setShowEmojiPicker(false);
             await fetchPosts();
         } catch (error: unknown) {
             console.error('Error creating post:', error);
@@ -195,6 +218,7 @@ export const Feed = () => {
                         <Avatar src={user?.user_metadata?.avatar_url} size="sm" className="md:w-14 md:h-14 ring-4 ring-primary/5 shadow-xl hidden xs:block" />
                         <div className="flex-1">
                             <textarea
+                                ref={textareaRef}
                                 className="w-full resize-none border-none focus:ring-0 focus:outline-none text-on-surface placeholder-on-surface-variant/40 text-xl md:text-2xl font-black italic tracking-tighter mb-2 md:mb-4 bg-transparent min-h-[100px] md:min-h-[120px] scrollbar-hide"
                                 placeholder={t('home.placeholder')}
                                 value={newPostContent}
@@ -251,6 +275,31 @@ export const Feed = () => {
                                     >
                                         <ImageIcon size={20} className="md:w-[22px] md:h-[22px] group-hover/btn:scale-110 transition-transform" />
                                     </button>
+
+                                    {/* Emoji Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        className={clsx(
+                                            "p-2.5 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 border border-outline-variant/5 group/btn flex-1 sm:flex-initial flex items-center justify-center",
+                                            showEmojiPicker
+                                                ? "text-primary bg-primary/10 border-primary/20"
+                                                : "text-on-surface-variant hover:text-primary bg-surface-container-low hover:bg-primary/5"
+                                        )}
+                                        title={t('post.add_emoji', 'Add emoji')}
+                                    >
+                                        <Smile size={20} className="md:w-[22px] md:h-[22px] group-hover/btn:scale-110 transition-transform" />
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {showEmojiPicker && (
+                                            <EmojiPicker
+                                                onSelect={handleEmojiSelect}
+                                                onClose={() => setShowEmojiPicker(false)}
+                                                className="absolute bottom-full mb-4 left-0"
+                                            />
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
                                 <Button

@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Message, Chat } from '../../hooks/useChat';
-import { Send, MoreVertical, Phone, Video, Plus, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Send, MoreVertical, Phone, Video, Plus, ArrowLeft, MessageCircle, Smile } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '../ui/Avatar';
 import { MessageBubble } from './MessageBubble';
 import { usePresence } from '../../hooks/usePresence';
 import type { TFunction } from 'i18next';
+import { EmojiPicker } from '../ui/EmojiPicker';
 
 interface ChatWindowProps {
     chat: Chat | null;
@@ -38,7 +39,9 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
     const { user } = useAuth();
     const { onlineUsers } = usePresence();
     const [newMessage, setNewMessage] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,6 +56,26 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
         if (!newMessage.trim()) return;
         onSendMessage(newMessage);
         setNewMessage('');
+        setShowEmojiPicker(false);
+    };
+
+    const handleEmojiSelect = (emoji: string) => {
+        const input = inputRef.current;
+        if (!input) return;
+
+        const start = input.selectionStart || 0;
+        const end = input.selectionEnd || 0;
+        const text = newMessage;
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+
+        setNewMessage(before + emoji + after);
+
+        // Reset focus and cursor position after state update
+        setTimeout(() => {
+            input.focus();
+            input.setSelectionRange(start + emoji.length, start + emoji.length);
+        }, 0);
     };
 
     if (!chat) {
@@ -168,12 +191,37 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                         </button>
 
                         <input
+                            ref={inputRef}
                             type="text"
                             placeholder={t('chat.type_placeholder')}
                             className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none font-bold uppercase italic tracking-tight py-2"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                         />
+
+                        <div className="relative flex items-center">
+                            <button
+                                type="button"
+                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                className={clsx(
+                                    "p-3 text-on-surface-variant/40 hover:text-primary rounded-2xl transition-all active:scale-90",
+                                    showEmojiPicker && "text-primary"
+                                )}
+                                title={t('post.add_emoji', 'Add emoji')}
+                            >
+                                <Smile size={24} />
+                            </button>
+
+                            <AnimatePresence>
+                                {showEmojiPicker && (
+                                    <EmojiPicker
+                                        onSelect={handleEmojiSelect}
+                                        onClose={() => setShowEmojiPicker(false)}
+                                        className="absolute bottom-full mb-6 right-0"
+                                    />
+                                )}
+                            </AnimatePresence>
+                        </div>
 
                         <motion.button
                             whileHover={{ scale: 1.05 }}
