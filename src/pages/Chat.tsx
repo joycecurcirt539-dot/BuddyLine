@@ -117,7 +117,7 @@ export const Chat = () => {
                         loading={messagesLoading}
                         onSendMessage={sendMessage}
                         onDeleteMessage={deleteMessage}
-                        onBack={() => selectChat(null as unknown as ChatType)}
+                        onBack={handleBack}
                     />
                 </motion.div>
 

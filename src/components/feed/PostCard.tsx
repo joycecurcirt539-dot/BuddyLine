@@ -389,24 +389,24 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="relative z-10"
+                        className="relative z-10 w-full overflow-x-hidden"
                     >
-                        <div className="pt-4 mt-4 border-t border-outline-variant/10">
+                        <div className="pt-4 mt-4 border-t border-outline-variant/10 px-1">
                             {/* Comment Input */}
-                            <form onSubmit={handleAddComment} className="flex gap-3 mb-4">
+                            <form onSubmit={handleAddComment} className="flex gap-2 sm:gap-3 mb-4 items-center">
                                 <Avatar
                                     src={user?.user_metadata?.avatar_url}
                                     size="sm"
                                     className="ring-2 ring-primary/5 flex-shrink-0"
                                 />
-                                <div className="flex-1 flex gap-2 relative">
+                                <div className="flex-1 flex gap-1 sm:gap-2 relative min-w-0">
                                     <input
                                         ref={commentInputRef}
                                         type="text"
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder={t('post.comment_placeholder')}
-                                        className="flex-1 px-4 py-2.5 bg-surface-container rounded-2xl border border-outline-variant/10 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm font-medium text-on-surface placeholder:text-on-surface-variant/40"
+                                        className="flex-1 w-full min-w-0 px-3 sm:px-4 py-2.5 bg-surface-container rounded-2xl border border-outline-variant/10 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm font-medium text-on-surface placeholder:text-on-surface-variant/40"
                                     />
 
                                     <button
@@ -434,7 +434,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                                         type="submit"
                                         disabled={!newComment.trim() || commentLoading}
                                         title={t('post.comment_placeholder')}
-                                        className="p-2.5 bg-primary text-on-primary rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:scale-100 shadow-md"
+                                        className="p-2.5 bg-primary text-on-primary rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:scale-100 shadow-md flex-shrink-0"
                                     >
                                         <Send size={16} />
                                     </button>
