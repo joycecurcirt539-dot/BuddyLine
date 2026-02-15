@@ -362,8 +362,15 @@ export const ChatWindow = ({
 
                     <form
                         onSubmit={handleSubmit}
+                        autoComplete="off"
                         className="relative flex gap-2 items-center bg-surface/60 backdrop-blur-3xl border border-outline-variant/20 rounded-[32px] p-2 pl-3 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/5"
                     >
+                        {/* TRAP: Fake inputs to capture browser autofill attempts */}
+                        <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', height: 0, width: 0, overflow: 'hidden' }}>
+                            <input type="text" name="fake_username_trap" autoComplete="username" tabIndex={-1} />
+                            <input type="password" name="fake_password_trap" autoComplete="new-password" tabIndex={-1} />
+                        </div>
+
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -386,14 +393,22 @@ export const ChatWindow = ({
 
                         <input
                             ref={inputRef}
-                            type="text"
-                            name="buddyline-chat-input"
+                            type="search" // 'search' often bypasses address autofill
+                            name={`chat-input-${chat.id}`} // Dynamic name per chat prevents learning
+                            id="buddyline-chat-input-secure"
                             autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="sentences"
                             spellCheck="false"
+                            data-form-type="other"
+                            data-lpignore="true" // LastPass ignore
                             placeholder={t('chat.type_placeholder')}
                             className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2 min-w-0"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
+                            // ReadOnly hack: Safari/Chrome sometimes won't autofill readonly fields
+                            readOnly={!newMessage && !selectedImage && document.activeElement !== inputRef.current}
+                            onFocus={(e) => e.target.removeAttribute('readonly')}
                         />
 
                         <div className="relative flex items-center shrink-0">
