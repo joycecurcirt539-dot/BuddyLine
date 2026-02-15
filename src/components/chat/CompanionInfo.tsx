@@ -14,13 +14,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
+import type { Profile } from '../../hooks/useFriends';
 
 interface CompanionInfoProps {
-    participant: {
-        id: string;
-        username: string;
-        full_name: string;
-        avatar_url: string;
+    participant: Profile & {
         status?: 'online' | 'offline' | 'away' | string;
         bio?: string;
         created_at?: string;
