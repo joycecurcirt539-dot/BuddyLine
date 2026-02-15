@@ -194,12 +194,12 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                             ref={inputRef}
                             type="text"
                             placeholder={t('chat.type_placeholder')}
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none font-bold uppercase italic tracking-tight py-2"
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                         />
 
-                        <div className="relative flex items-center">
+                        <div className="relative flex items-center shrink-0">
                             <button
                                 type="button"
                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -229,14 +229,14 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                             type="submit"
                             disabled={!newMessage.trim()}
                             className={clsx(
-                                "rounded-2xl w-14 h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0",
+                                "rounded-2xl w-12 h-12 lg:w-14 lg:h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0",
                                 newMessage.trim()
                                     ? "bg-primary text-on-primary shadow-primary/30"
                                     : "bg-surface-container-high text-on-surface-variant/20 cursor-not-allowed shadow-none"
                             )}
                         >
                             <Send
-                                size={24}
+                                size={22}
                                 className={clsx(
                                     "transition-all duration-500",
                                     newMessage.trim() && "rotate-[-12deg] translate-x-0.5 -translate-y-0.5"

@@ -339,7 +339,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         onClick={handleToggleLike}
                         disabled={likeLoading}
                         className={clsx(
-                            "flex items-center gap-2 px-5 py-2.5 rounded-2xl transition-all duration-300 group/like active:scale-95 border shadow-sm",
+                            "flex items-center gap-2 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl transition-all duration-300 group/like active:scale-95 border shadow-sm",
                             liked
                                 ? "bg-red-500/10 text-red-500 border-red-500/20"
                                 : "bg-surface-container-low text-on-surface-variant hover:text-red-500 hover:bg-red-500/5 border-outline-variant/5"
@@ -359,7 +359,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                     <button
                         onClick={handleToggleComments}
                         className={clsx(
-                            "flex items-center gap-2 px-5 py-2.5 rounded-2xl transition-all duration-300 group/discuss active:scale-95 border shadow-sm",
+                            "flex items-center gap-2 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl transition-all duration-300 group/discuss active:scale-95 border shadow-sm",
                             showComments
                                 ? "bg-primary/10 text-primary border-primary/20"
                                 : "bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-primary/5 border-outline-variant/5"

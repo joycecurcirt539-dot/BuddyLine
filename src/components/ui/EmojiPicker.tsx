@@ -153,6 +153,7 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
                         <button
                             onClick={() => setSearch('')}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface transition-colors"
+                            title={t('common.clear', 'Clear')}
                         >
                             <X size={14} />
                         </button>
