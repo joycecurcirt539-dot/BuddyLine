@@ -63,10 +63,10 @@ export const Avatar = ({ src, alt, size = 'md', className, status }: AvatarProps
             {status && (
                 <span
                     className={cn(
-                        'absolute bottom-0 right-0 block rounded-full ring-2 ring-surface transition-all duration-300',
-                        size === 'sm' ? 'w-2.5 h-2.5 translate-x-0.5 translate-y-0.5' :
+                        'absolute top-0 right-0 block rounded-full ring-2 ring-surface transition-all duration-300 z-10',
+                        size === 'sm' ? 'w-2.5 h-2.5 -translate-x-0.5 translate-y-0.5' :
                             size === '2xl' ? 'w-6 h-6 lg:w-8 lg:h-8 border-4 translate-x-1 translate-y-1' :
-                                'w-3.5 h-3.5 translate-x-0.5 translate-y-0.5',
+                                'w-3.5 h-3.5 -translate-x-0.5 translate-y-0.5',
                         statusColors[status],
                         status === 'online' && 'shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse'
                     )}

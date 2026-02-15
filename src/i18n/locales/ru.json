@@ -237,5 +237,15 @@
     "discovery_panel": {
         "title": "Уже с нами",
         "add_friend": "Добавить в друзья"
+    },
+    "emoji": {
+        "category": {
+            "smileys": "Смайлы",
+            "animals": "Животные",
+            "food": "Еда",
+            "activities": "Активность",
+            "objects": "Объекты",
+            "symbols": "Символы"
+        }
     }
 }
