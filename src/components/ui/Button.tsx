@@ -1,5 +1,3 @@
-import React from 'react';
-import { clsx } from 'clsx';
 import { useDesignSystem } from '../../hooks/useDesignSystem';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -10,8 +8,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', loading, children, disabled, ...props }, ref) => {
-        const design = useDesignSystem();
-        const isMaterial = design.system === 'material';
 
         const variants = {
             primary: 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm',

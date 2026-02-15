@@ -1,13 +1,10 @@
 import { Plus } from 'lucide-react';
-import { clsx } from 'clsx';
-import { useDesignSystem } from '../../hooks/useDesignSystem';
 
 interface FABProps {
     onClick: () => void;
 }
 
 export const FAB = ({ onClick }: FABProps) => {
-    const design = useDesignSystem();
 
     return (
         <button
