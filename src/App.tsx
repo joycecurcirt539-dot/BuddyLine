@@ -9,6 +9,7 @@ import { Home } from './pages/Home';
 import { Chat } from './pages/Chat';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
+import { InstallPrompt } from './components/ui/InstallPrompt';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <InstallPrompt />
         </AuthProvider>
       </ThemeProvider>
     </Router>

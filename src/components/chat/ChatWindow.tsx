@@ -276,7 +276,7 @@ export const ChatWindow = ({
             </div>
 
             {/* Messages Cascade */}
-            <div className="flex-1 overflow-y-auto px-6 space-y-6 pb-6 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-6 space-y-6 pb-6">
                 <div className="h-4" /> {/* Top Padding */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 text-on-surface-variant/40">
