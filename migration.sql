@@ -73,32 +73,36 @@ alter table public.messages enable row level security;
 alter table public.posts enable row level security;
 alter table public.comments enable row level security;
 -- Profiles policies
-create policy "Public profiles are viewable by everyone" on public.profiles for
+create policy "view_profiles" on public.profiles for
 select using (true);
-create policy "Users can insert their own profile" on public.profiles for
+create policy "insert_own_profile" on public.profiles for
 insert with check (auth.uid() = id);
-create policy "Users can update own profile" on public.profiles for
+create policy "update_own_profile" on public.profiles for
 update using (auth.uid() = id);
 -- Posts policies
-create policy "Posts are viewable by everyone" on public.posts for
+create policy "view_posts" on public.posts for
 select using (true);
-create policy "Users can insert their own posts" on public.posts for
+create policy "insert_own_posts" on public.posts for
 insert with check (auth.uid() = user_id);
-create policy "Users can update their own posts" on public.posts for
+create policy "update_own_posts" on public.posts for
 update using (auth.uid() = user_id);
-create policy "Users can delete their own posts" on public.posts for delete using (auth.uid() = user_id);
+create policy "delete_own_posts" on public.posts for delete using (auth.uid() = user_id);
 -- Friendships policies
-create policy "Users can view their own friendships" on public.friendships for
+create policy "view_own_friendships" on public.friendships for
 select using (
         auth.uid() = user_id
         or auth.uid() = friend_id
     );
-create policy "Users can insert their own friendships" on public.friendships for
+create policy "insert_friendships" on public.friendships for
 insert with check (auth.uid() = user_id);
-create policy "Users can update their own friendships" on public.friendships for
+create policy "update_friendships" on public.friendships for
 update using (auth.uid() = user_id);
 -- Chats policies
-create policy "Users can view chats they are members of" on public.chats for
+-- Allow creating chats
+create policy "create_chats" on public.chats for
+insert with check (auth.uid() is not null);
+-- Allow viewing chats you are in
+create policy "view_chats" on public.chats for
 select using (
         exists (
             select 1
@@ -107,8 +111,33 @@ select using (
                 and user_id = auth.uid()
         )
     );
+-- Chat Members policies
+-- Allow adding members (including self)
+create policy "add_members" on public.chat_members for
+insert with check (true);
+-- Allow viewing members of your chats
+create policy "view_members" on public.chat_members for
+select using (
+        chat_id in (
+            select chat_id
+            from public.chat_members
+            where user_id = auth.uid()
+        )
+    );
 -- Messages policies
-create policy "Users can view messages in their chats" on public.messages for
+-- Allow sending messages to your chats
+create policy "send_messages" on public.messages for
+insert with check (
+        auth.uid() = sender_id
+        and exists (
+            select 1
+            from public.chat_members
+            where chat_id = public.messages.chat_id
+                and user_id = auth.uid()
+        )
+    );
+-- Allow viewing messages in your chats
+create policy "view_messages" on public.messages for
 select using (
         exists (
             select 1
@@ -117,20 +146,12 @@ select using (
                 and user_id = auth.uid()
         )
     );
-create policy "Users can insert messages in their chats" on public.messages for
-insert with check (
-        exists (
-            select 1
-            from public.chat_members
-            where chat_id = public.messages.chat_id
-                and user_id = auth.uid()
-        )
-        and sender_id = auth.uid()
-    );
+-- Allow deleting own messages
+create policy "delete_own_messages" on public.messages for delete using (auth.uid() = sender_id);
 -- Comments policies
-create policy "Comments are viewable by everyone" on public.comments for
+create policy "view_comments" on public.comments for
 select using (true);
-create policy "Users can insert their own comments" on public.comments for
+create policy "insert_own_comments" on public.comments for
 insert with check (auth.uid() = user_id);
 -- Storage (Avatars)
 -- Note: You must create a bucket named 'avatars' in the Supabase Dashboard -> Storage
