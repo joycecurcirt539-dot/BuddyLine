@@ -68,14 +68,21 @@ export const Feed = () => {
 
         // Compress to ~150KB
         const compressed = await compressImage(file, 150);
-        console.log(`Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressed.size / 1024).toFixed(0)}KB`);
 
-        const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
+        // Log skip vs compress
+        if (compressed === file) {
+            console.log(`[Upload] Using original file: ${(file.size / 1024).toFixed(0)}KB`);
+        } else {
+            console.log(`[Upload] Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressed.size / 1024).toFixed(0)}KB (${compressed.type})`);
+        }
+
+        const extension = compressed.type.split('/')[1] || 'jpg';
+        const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${extension}`;
 
         const { error } = await supabase.storage
             .from('post-images')
             .upload(fileName, compressed, {
-                contentType: 'image/jpeg',
+                contentType: compressed.type,
                 upsert: false,
             });
 
@@ -211,7 +218,11 @@ export const Feed = () => {
                                         <X size={16} />
                                     </button>
                                     <div className="absolute bottom-3 left-3 px-3 py-1 bg-black/60 text-white text-[10px] font-bold rounded-full backdrop-blur-sm uppercase tracking-wider">
-                                        {selectedImage && `${(selectedImage.size / 1024).toFixed(0)}KB → ~150KB`}
+                                        {selectedImage && (
+                                            selectedImage.size <= 150 * 1024
+                                                ? `${(selectedImage.size / 1024).toFixed(0)}KB (Original)`
+                                                : `${(selectedImage.size / 1024).toFixed(0)}KB → ~150KB`
+                                        )}
                                     </div>
                                 </div>
                             )}
