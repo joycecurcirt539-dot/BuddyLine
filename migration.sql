@@ -64,6 +64,13 @@ create table if not exists public.comments (
     content text not null,
     created_at timestamp with time zone default timezone('utc'::text, now())
 );
+-- Helper function to avoid infinite recursion in RLS
+create or replace function get_my_chat_ids() returns setof uuid language sql security definer
+set search_path = public stable as $$
+select chat_id
+from chat_members
+where user_id = auth.uid();
+$$;
 -- RLS Policies
 alter table public.profiles enable row level security;
 alter table public.friendships enable row level security;
@@ -98,55 +105,39 @@ insert with check (auth.uid() = user_id);
 create policy "update_friendships" on public.friendships for
 update using (auth.uid() = user_id);
 -- Chats policies
--- Allow creating chats
 create policy "create_chats" on public.chats for
 insert with check (auth.uid() is not null);
--- Allow viewing chats you are in
+-- View chats using helper to avoid recursion
 create policy "view_chats" on public.chats for
 select using (
-        exists (
-            select 1
-            from public.chat_members
-            where chat_id = public.chats.id
-                and user_id = auth.uid()
+        id in (
+            select get_my_chat_ids()
         )
     );
 -- Chat Members policies
--- Allow adding members (including self)
 create policy "add_members" on public.chat_members for
 insert with check (true);
--- Allow viewing members of your chats
+-- View members using helper to avoid recursion
 create policy "view_members" on public.chat_members for
 select using (
         chat_id in (
-            select chat_id
-            from public.chat_members
-            where user_id = auth.uid()
+            select get_my_chat_ids()
         )
     );
 -- Messages policies
--- Allow sending messages to your chats
 create policy "send_messages" on public.messages for
 insert with check (
         auth.uid() = sender_id
-        and exists (
-            select 1
-            from public.chat_members
-            where chat_id = public.messages.chat_id
-                and user_id = auth.uid()
+        and chat_id in (
+            select get_my_chat_ids()
         )
     );
--- Allow viewing messages in your chats
 create policy "view_messages" on public.messages for
 select using (
-        exists (
-            select 1
-            from public.chat_members
-            where chat_id = public.messages.chat_id
-                and user_id = auth.uid()
+        chat_id in (
+            select get_my_chat_ids()
         )
     );
--- Allow deleting own messages
 create policy "delete_own_messages" on public.messages for delete using (auth.uid() = sender_id);
 -- Comments policies
 create policy "view_comments" on public.comments for
