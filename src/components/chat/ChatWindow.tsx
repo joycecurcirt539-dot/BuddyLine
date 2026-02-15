@@ -75,6 +75,29 @@ export const ChatWindow = ({
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        if (!messagesEndRef.current) return;
+
+        const observer = new ResizeObserver(() => {
+            scrollToBottom();
+        });
+
+        observer.observe(messagesEndRef.current.parentElement as Element);
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', scrollToBottom);
+            window.visualViewport.addEventListener('scroll', scrollToBottom);
+        }
+
+        return () => {
+            observer.disconnect();
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', scrollToBottom);
+                window.visualViewport.removeEventListener('scroll', scrollToBottom);
+            }
+        };
+    }, []);
+
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -364,6 +387,9 @@ export const ChatWindow = ({
                         <input
                             ref={inputRef}
                             type="text"
+                            name="buddyline-chat-input"
+                            autoComplete="off"
+                            spellCheck="false"
                             placeholder={t('chat.type_placeholder')}
                             className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2 min-w-0"
                             value={newMessage}
