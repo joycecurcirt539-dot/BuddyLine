@@ -53,8 +53,12 @@ export const Feed = () => {
         const text = newPostContent;
         const before = text.substring(0, start);
         const after = text.substring(end);
+        const updatedContent = before + emoji + after;
 
-        setNewPostContent(before + emoji + after);
+        setNewPostContent(updatedContent);
+
+        // Instant send
+        void performCreatePost(updatedContent, selectedImage);
 
         // Reset focus and cursor position after state update
         setTimeout(() => {
@@ -120,23 +124,22 @@ export const Feed = () => {
         return urlData.publicUrl;
     };
 
-    const handleCreatePost = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if ((!newPostContent.trim() && !selectedImage) || !user) return;
+    const performCreatePost = async (content: string, imageFile: File | null) => {
+        if ((!content.trim() && !imageFile) || !user || loading) return;
 
         setLoading(true);
         try {
             let imageUrl: string | null = null;
 
-            if (selectedImage) {
-                imageUrl = await uploadImage(selectedImage);
+            if (imageFile) {
+                imageUrl = await uploadImage(imageFile);
             }
 
             const { error } = await supabase
                 .from('posts')
                 .insert([{
                     user_id: user.id,
-                    content: newPostContent || '',
+                    content: content || '',
                     image_url: imageUrl
                 }]);
 
@@ -153,6 +156,11 @@ export const Feed = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleCreatePost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await performCreatePost(newPostContent, selectedImage);
     };
 
     const handleDeletePost = async (postId: string) => {

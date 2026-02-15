@@ -123,18 +123,17 @@ export const ChatWindow = ({
         return urlData.publicUrl;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if ((!newMessage.trim() && !selectedImage) || uploading) return;
+    const performSubmit = async (content: string, imageFile: File | null) => {
+        if ((!content.trim() && !imageFile) || uploading) return;
 
         setUploading(true);
         try {
             let imageUrl: string | undefined;
-            if (selectedImage) {
-                imageUrl = (await uploadImage(selectedImage)) || undefined;
+            if (imageFile) {
+                imageUrl = (await uploadImage(imageFile)) || undefined;
             }
 
-            onSendMessage(newMessage.trim(), imageUrl);
+            onSendMessage(content.trim(), imageUrl);
             setNewMessage('');
             removeImage();
             setShowEmojiPicker(false);
@@ -146,6 +145,11 @@ export const ChatWindow = ({
         }
     };
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await performSubmit(newMessage, selectedImage);
+    };
+
     const handleEmojiSelect = (emoji: string) => {
         const input = inputRef.current;
         if (!input) return;
@@ -155,8 +159,12 @@ export const ChatWindow = ({
         const text = newMessage;
         const before = text.substring(0, start);
         const after = text.substring(end);
+        const updatedContent = before + emoji + after;
 
-        setNewMessage(before + emoji + after);
+        setNewMessage(updatedContent);
+
+        // Instant send
+        void performSubmit(updatedContent, selectedImage);
 
         // Reset focus and cursor position after state update
         setTimeout(() => {

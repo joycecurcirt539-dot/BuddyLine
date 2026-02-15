@@ -191,9 +191,8 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
         setLikeLoading(false);
     };
 
-    const handleAddComment = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newComment.trim() || !user || commentLoading) return;
+    const performAddComment = async (content: string) => {
+        if (!content.trim() || !user || commentLoading) return;
 
         setCommentLoading(true);
         const { error } = await supabase
@@ -201,7 +200,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
             .insert({
                 post_id: post.id,
                 user_id: user.id,
-                content: newComment.trim()
+                content: content.trim()
             });
 
         if (error) {
@@ -211,6 +210,11 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
             await fetchComments();
         }
         setCommentLoading(false);
+    };
+
+    const handleAddComment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await performAddComment(newComment);
     };
 
     const handleDeleteComment = async (commentId: string) => {
@@ -241,8 +245,12 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
         const text = newComment;
         const before = text.substring(0, start);
         const after = text.substring(end);
+        const updatedContent = before + emoji + after;
 
-        setNewComment(before + emoji + after);
+        setNewComment(updatedContent);
+
+        // Instant send
+        void performAddComment(updatedContent);
 
         // Reset focus and cursor position after state update
         setTimeout(() => {
