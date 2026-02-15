@@ -118,10 +118,10 @@ export const Friends = () => {
         <div className="max-w-none flex gap-8 pb-20 px-4 sm:px-0">
             <div className="flex-1 min-w-0 space-y-6">
                 {/* Dual Search Header */}
-                <div className="bg-surface-container-low rounded-[32px] p-6 lg:p-8 border border-outline-variant/10 shadow-xl shadow-primary/5">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                <div className="bg-surface-container-low rounded-[32px] p-4 sm:p-6 lg:p-8 border border-outline-variant/10 shadow-xl shadow-primary/5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div>
-                            <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-2">
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1 sm:mb-2">
                                 {t('common.friends')}
                             </h1>
                             <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
@@ -129,11 +129,11 @@ export const Friends = () => {
                             </p>
                         </div>
 
-                        <div className="flex bg-surface-container rounded-2xl p-1 border border-outline-variant/5">
+                        <div className="flex bg-surface-container rounded-2xl p-1 border border-outline-variant/5 self-start sm:self-auto w-full sm:w-auto">
                             <button
                                 onClick={() => setActiveTab('friends')}
                                 className={clsx(
-                                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                                    "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all text-center",
                                     activeTab === 'friends'
                                         ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
                                         : "text-on-surface-variant hover:text-on-surface"
@@ -144,7 +144,7 @@ export const Friends = () => {
                             <button
                                 onClick={() => setActiveTab('requests')}
                                 className={clsx(
-                                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all relative",
+                                    "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all relative text-center",
                                     activeTab === 'requests'
                                         ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
                                         : "text-on-surface-variant hover:text-on-surface"
@@ -152,7 +152,7 @@ export const Friends = () => {
                             >
                                 {t('friends_page.tabs.invites', 'Invites')}
                                 {requests.length > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-tertiary text-on-tertiary rounded-full text-[10px] flex items-center justify-center border-2 border-surface animate-bounce">
+                                    <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-tertiary text-on-tertiary rounded-full text-[9px] sm:text-[10px] flex items-center justify-center border-2 border-surface animate-bounce">
                                         {requests.length}
                                     </span>
                                 )}
