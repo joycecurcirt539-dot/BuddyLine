@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { clsx } from 'clsx';
 import { EmojiPicker } from '../ui/EmojiPicker';
+import { getDateLocale } from '../../utils/dateLocale';
 
 export interface Post {
     id: string;
@@ -39,7 +40,7 @@ interface Comment {
 }
 
 export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?: (id: string) => void; index?: number }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
 
     // Likes state
@@ -290,7 +291,10 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                             </h3>
                         </Link>
                         <p className="text-[10px] font-bold text-primary/60 uppercase tracking-[0.2em]">
-                            {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(post.created_at), {
+                                addSuffix: true,
+                                locale: getDateLocale(i18n.language)
+                            })}
                         </p>
                     </div>
                 </div>
@@ -469,7 +473,10 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                                                         {comment.author.full_name || comment.author.username}
                                                     </Link>
                                                     <span className="text-[9px] text-on-surface-variant/40 font-medium">
-                                                        {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                                                        {formatDistanceToNow(new Date(comment.created_at), {
+                                                            addSuffix: true,
+                                                            locale: getDateLocale(i18n.language)
+                                                        })}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm text-on-surface/80 font-medium mt-0.5 leading-relaxed">

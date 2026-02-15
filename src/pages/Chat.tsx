@@ -13,9 +13,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { CompanionInfo } from '../components/chat/CompanionInfo';
+import { getDateLocale } from '../utils/dateLocale';
 
 export const Chat = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const { friends, blockUser } = useFriends();
     const { chats, activeChat, messages, loading, messagesLoading, selectChat, sendMessage, createDirectChat, deleteChat, deleteMessage } = useChat();
@@ -316,7 +317,10 @@ export const Chat = () => {
                                                         </h3>
                                                         {chat.updated_at && (
                                                             <span className="text-[9px] font-black text-primary uppercase tracking-widest opacity-60 shrink-0 ml-2">
-                                                                {formatDistanceToNow(new Date(chat.updated_at), { addSuffix: false })}
+                                                                {formatDistanceToNow(new Date(chat.updated_at), {
+                                                                    addSuffix: false,
+                                                                    locale: getDateLocale(i18n.language)
+                                                                })}
                                                             </span>
                                                         )}
                                                     </div>

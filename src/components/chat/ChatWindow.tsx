@@ -20,7 +20,7 @@ interface ChatWindowProps {
     onBack?: () => void;
 }
 
-const formatLastSeen = (dateString: string | null | undefined, t: TFunction) => {
+const formatLastSeen = (dateString: string | null | undefined, t: TFunction, lang: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     const now = new Date();
@@ -31,11 +31,11 @@ const formatLastSeen = (dateString: string | null | undefined, t: TFunction) => 
     if (diffMins < 1) return t('chat.status.just_now');
     if (diffMins < 60) return t('chat.status.minutes_ago', { count: diffMins });
     if (diffHours < 24) return t('chat.status.hours_ago', { count: diffHours });
-    return date.toLocaleDateString();
+    return date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US');
 };
 
 export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMessage, onBack }: ChatWindowProps) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const { onlineUsers } = usePresence();
     const [newMessage, setNewMessage] = useState('');
@@ -128,7 +128,7 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                                 <span className="text-[10px] font-black text-primary uppercase tracking-[0.1em] opacity-80">
                                     {isUserOnline
                                         ? t('chat.uplink_status.established')
-                                        : `${t('chat.status.last_seen')} ${formatLastSeen(otherParticipant.last_seen, t)}`}
+                                        : `${t('chat.status.last_seen')} ${formatLastSeen(otherParticipant.last_seen, t, i18n.language)}`}
                                 </span>
                             </div>
                         </div>
