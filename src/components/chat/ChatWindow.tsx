@@ -169,10 +169,7 @@ export const ChatWindow = ({
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await performSubmit(newMessage, selectedImage);
-    };
+
 
     const handleEmojiSelect = (emoji: string) => {
         const input = inputRef.current;
@@ -360,17 +357,9 @@ export const ChatWindow = ({
                     {/* Shadow/Glow base */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-primary/10 via-transparent to-tertiary/10 blur-xl rounded-[32px] opacity-50" />
 
-                    <form
-                        onSubmit={handleSubmit}
-                        autoComplete="off"
+                    <div
                         className="relative flex gap-2 items-center bg-surface/60 backdrop-blur-3xl border border-outline-variant/20 rounded-[32px] p-2 pl-3 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/5"
                     >
-                        {/* TRAP: Fake inputs to capture browser autofill attempts */}
-                        <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', height: 0, width: 0, overflow: 'hidden' }}>
-                            <input type="text" name="fake_username_trap" autoComplete="username" tabIndex={-1} />
-                            <input type="password" name="fake_password_trap" autoComplete="new-password" tabIndex={-1} />
-                        </div>
-
                         <input
                             ref={fileInputRef}
                             type="file"
@@ -393,22 +382,23 @@ export const ChatWindow = ({
 
                         <input
                             ref={inputRef}
-                            type="search" // 'search' often bypasses address autofill
-                            name={`chat-input-${chat.id}`} // Dynamic name per chat prevents learning
-                            id="buddyline-chat-input-secure"
+                            type="text"
+                            name="message_input_nologin"
                             autoComplete="off"
                             autoCorrect="off"
                             autoCapitalize="sentences"
                             spellCheck="false"
-                            data-form-type="other"
-                            data-lpignore="true" // LastPass ignore
+                            data-lpignore="true"
                             placeholder={t('chat.type_placeholder')}
                             className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2 min-w-0"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            // ReadOnly hack: Safari/Chrome sometimes won't autofill readonly fields
-                            readOnly={!newMessage && !selectedImage && document.activeElement !== inputRef.current}
-                            onFocus={(e) => e.target.removeAttribute('readonly')}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    performSubmit(newMessage, selectedImage);
+                                }
+                            }}
                         />
 
                         <div className="relative flex items-center shrink-0">
@@ -438,7 +428,8 @@ export const ChatWindow = ({
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            type="submit"
+                            type="button"
+                            onClick={() => performSubmit(newMessage, selectedImage)}
                             disabled={(!newMessage.trim() && !selectedImage) || uploading}
                             className={clsx(
                                 "rounded-2xl w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0",
@@ -455,7 +446,7 @@ export const ChatWindow = ({
                                 )}
                             />
                         </motion.button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </motion.div>
