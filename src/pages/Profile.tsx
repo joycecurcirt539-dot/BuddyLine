@@ -163,13 +163,16 @@ export const Profile = () => {
 
             const file = event.target.files[0];
             const fileExt = file.name.split('.').pop();
-            const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-            const filePath = `${fileName}`;
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${user?.id}/${fileName}`; // Structured path for RLS
 
             // Upload to 'avatars' bucket
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
-                .upload(filePath, file);
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
 
             if (uploadError) throw uploadError;
 
