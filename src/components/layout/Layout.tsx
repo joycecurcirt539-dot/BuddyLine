@@ -3,9 +3,11 @@ import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
+import { usePresence } from '../../hooks/usePresence';
 
 export const Layout = () => {
     const location = useLocation();
+    usePresence(); // Initialize global presence tracking
 
     const isChatOpen = location.pathname.startsWith('/chat') && new URLSearchParams(location.search).get('id');
     const isComposerOpen = new URLSearchParams(location.search).get('composer') === 'true';

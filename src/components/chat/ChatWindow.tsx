@@ -7,6 +7,8 @@ import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 import { Avatar } from '../ui/Avatar';
 import { MessageBubble } from './MessageBubble';
+import { usePresence } from '../../hooks/usePresence';
+import type { TFunction } from 'i18next';
 
 interface ChatWindowProps {
     chat: Chat | null;
@@ -17,9 +19,24 @@ interface ChatWindowProps {
     onBack?: () => void;
 }
 
+const formatLastSeen = (dateString: string | null | undefined, t: TFunction) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+
+    if (diffMins < 1) return t('chat.status.just_now');
+    if (diffMins < 60) return t('chat.status.minutes_ago', { count: diffMins });
+    if (diffHours < 24) return t('chat.status.hours_ago', { count: diffHours });
+    return date.toLocaleDateString();
+};
+
 export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMessage, onBack }: ChatWindowProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
+    const { onlineUsers } = usePresence();
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -47,6 +64,7 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
     }
 
     const otherParticipant = chat.participants.find(p => p.id !== user?.id) || chat.participants[0];
+    const isUserOnline = onlineUsers.has(otherParticipant.id);
 
     return (
         <motion.div
@@ -76,16 +94,18 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                         )}
                         <div className="relative group/avatar">
                             <div className="absolute -inset-1 bg-gradient-to-tr from-primary to-tertiary rounded-full opacity-0 group-hover/avatar:opacity-30 blur-md transition-opacity" />
-                            <Avatar src={otherParticipant.avatar_url} alt={otherParticipant.username} status={otherParticipant.status} size="md" className="ring-2 ring-surface relative z-10" />
+                            <Avatar src={otherParticipant.avatar_url} alt={otherParticipant.username} status={isUserOnline ? 'online' : 'offline'} size="md" className="ring-2 ring-surface relative z-10" />
                         </div>
                         <div>
                             <h2 className="font-black text-on-surface uppercase italic tracking-tight leading-none mb-1">
                                 {chat.name || otherParticipant.full_name || otherParticipant.username}
                             </h2>
                             <div className="flex items-center gap-2">
-                                <div className={clsx("w-1.5 h-1.5 rounded-full", otherParticipant.status === 'online' ? "bg-primary shadow-[0_0_8px_currentColor] animate-pulse" : "bg-outline-variant")} />
+                                <div className={clsx("w-1.5 h-1.5 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_8px_currentColor] animate-pulse" : "bg-outline-variant")} />
                                 <span className="text-[10px] font-black text-primary uppercase tracking-[0.1em] opacity-80">
-                                    {otherParticipant.status === 'online' ? t('chat.uplink_status.established') : t('chat.uplink_status.lost')}
+                                    {isUserOnline
+                                        ? t('chat.uplink_status.established')
+                                        : `${t('chat.status.last_seen')} ${formatLastSeen(otherParticipant.last_seen, t)}`}
                                 </span>
                             </div>
                         </div>

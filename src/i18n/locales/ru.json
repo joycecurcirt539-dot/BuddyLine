@@ -14,6 +14,15 @@
         "search": "Поиск...",
         "share": "Поделиться"
     },
+    "post": {
+        "comment_placeholder": "Написать комментарий...",
+        "no_comments": "Пока нет комментариев",
+        "delete": "Удалить пост",
+        "delete_confirm": "Вы уверены, что хотите удалить этот пост?",
+        "views": "Просмотры",
+        "add_image": "Добавить изображение",
+        "invalid_image": "Пожалуйста, выберите корректный файл изображения"
+    },
     "sidebar": {
         "buddyline": "BuddyLine",
         "private_circle": "Только друзья"
@@ -76,7 +85,11 @@
     "chat": {
         "status": {
             "online": "В сети",
-            "offline": "Не в сети"
+            "offline": "Не в сети",
+            "last_seen": "Был(а) в сети",
+            "just_now": "только что",
+            "minutes_ago": "{{count}}м назад",
+            "hours_ago": "{{count}}ч назад"
         },
         "back_to_chats": "Назад к чатам",
         "select_chat": "Выберите чат, чтобы начать общение",
@@ -222,6 +235,7 @@
         }
     },
     "discovery_panel": {
-        "title": "Уже с нами"
+        "title": "Уже с нами",
+        "add_friend": "Добавить в друзья"
     }
 }

@@ -14,6 +14,8 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
 
+import { usePresence } from '../hooks/usePresence';
+
 interface ProfileData {
     id: string;
     username: string;
@@ -22,6 +24,7 @@ interface ProfileData {
     bio?: string;
     created_at?: string;
     status?: string;
+    last_seen?: string | null;
 }
 
 export const Profile = () => {
@@ -30,6 +33,7 @@ export const Profile = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { createDirectChat } = useChat();
+    const { onlineUsers } = usePresence();
 
     // Determine if we're viewing our own profile
     const isOwnProfile = !id || id === user?.id;
@@ -199,7 +203,22 @@ export const Profile = () => {
         return <div className="text-center py-20 text-on-surface-variant">{t('profile_page.not_found')}</div>;
     }
 
+    const isUserOnline = onlineUsers.has(profile.id);
     const dateLocale = i18n.language.startsWith('ru') ? ru : enUS;
+
+    const formatLastSeen = (dateString: string | null | undefined) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+
+        if (diffMins < 1) return t('chat.status.just_now');
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return date.toLocaleDateString();
+    };
 
     return (
         <div className="w-full space-y-4 lg:space-y-6 mb-10">
@@ -230,7 +249,7 @@ export const Profile = () => {
                                 src={profile.avatar_url}
                                 alt={profile.username}
                                 size="2xl"
-                                status={profile.status as 'online' | 'offline' | 'away'}
+                                status={isUserOnline ? 'online' : 'offline'}
                                 className={clsx(
                                     "ring-[12px] ring-surface shadow-2xl transition-all duration-500",
                                     editMode && "brightness-75 group-hover/avatar:brightness-50"
@@ -262,7 +281,18 @@ export const Profile = () => {
                                     <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1">
                                         {profile.full_name || profile.username}
                                     </h1>
-                                    <p className="text-primary font-bold text-sm uppercase tracking-widest">@{profile.username}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-primary font-bold text-sm uppercase tracking-widest">@{profile.username}</p>
+                                        <span className="text-outline-variant opacity-30">•</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className={clsx("w-1.5 h-1.5 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_8px_currentColor] animate-pulse" : "bg-outline-variant")} />
+                                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.1em] opacity-80">
+                                                {isUserOnline
+                                                    ? t('chat.status.online')
+                                                    : `${t('chat.status.last_seen')} ${formatLastSeen(profile.last_seen)}`}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center gap-3">

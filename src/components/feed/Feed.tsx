@@ -1,14 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { PostCard } from './PostCard';
 import type { Post } from './PostCard';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
-import { Send, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Send, Image as ImageIcon, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '../ui/Avatar';
+import { compressImage } from '../../utils/compressImage';
 
 export const Feed = () => {
     const { t } = useTranslation();
@@ -16,7 +17,9 @@ export const Feed = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [newPostContent, setNewPostContent] = useState('');
     const [loading, setLoading] = useState(false);
-
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchPosts = useCallback(async () => {
         const { data, error } = await supabase
@@ -38,22 +41,81 @@ export const Feed = () => {
         }
     }, []);
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert(t('post.invalid_image'));
+            return;
+        }
+
+        setSelectedImage(file);
+        const reader = new FileReader();
+        reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+        reader.readAsDataURL(file);
+    };
+
+    const removeImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const uploadImage = async (file: File): Promise<string | null> => {
+        if (!user) return null;
+
+        // Compress to ~150KB
+        const compressed = await compressImage(file, 150);
+        console.log(`Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressed.size / 1024).toFixed(0)}KB`);
+
+        const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
+
+        const { error } = await supabase.storage
+            .from('post-images')
+            .upload(fileName, compressed, {
+                contentType: 'image/jpeg',
+                upsert: false,
+            });
+
+        if (error) {
+            console.error('Upload error:', error);
+            throw error;
+        }
+
+        const { data: urlData } = supabase.storage
+            .from('post-images')
+            .getPublicUrl(fileName);
+
+        return urlData.publicUrl;
+    };
+
     const handleCreatePost = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newPostContent.trim() || !user) return;
+        if ((!newPostContent.trim() && !selectedImage) || !user) return;
 
         setLoading(true);
         try {
+            let imageUrl: string | null = null;
+
+            if (selectedImage) {
+                imageUrl = await uploadImage(selectedImage);
+            }
+
             const { error } = await supabase
                 .from('posts')
                 .insert([{
                     user_id: user.id,
-                    content: newPostContent
+                    content: newPostContent || '',
+                    image_url: imageUrl
                 }]);
 
             if (error) throw error;
 
             setNewPostContent('');
+            removeImage();
+            await fetchPosts();
         } catch (error: unknown) {
             console.error('Error creating post:', error);
             const errorMessage = error instanceof Error ? error.message : t('common.error');
@@ -63,8 +125,21 @@ export const Feed = () => {
         }
     };
 
+    const handleDeletePost = async (postId: string) => {
+        if (!confirm(t('post.delete_confirm'))) return;
+        const { error } = await supabase
+            .from('posts')
+            .delete()
+            .eq('id', postId);
+
+        if (error) {
+            console.error('Error deleting post:', error);
+        } else {
+            setPosts(prev => prev.filter(p => p.id !== postId));
+        }
+    };
+
     useEffect(() => {
-        // Defer fetch to avoid synchronous setState warning
         const timer = setTimeout(() => {
             void fetchPosts();
         }, 0);
@@ -83,7 +158,11 @@ export const Feed = () => {
                     .single();
 
                 if (data) {
-                    setPosts((prev) => [data as Post, ...prev]);
+                    setPosts((prev) => {
+                        // Avoid duplicates
+                        if (prev.some(p => p.id === data.id)) return prev;
+                        return [data as Post, ...prev];
+                    });
                 }
             })
             .subscribe();
@@ -96,7 +175,7 @@ export const Feed = () => {
 
     return (
         <div className="w-full py-8 px-4 flex-1">
-            {/* Unified Post Creation: Launch Station */}
+            {/* Post Creation: Launch Station */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -115,27 +194,57 @@ export const Feed = () => {
                                 onChange={(e) => setNewPostContent(e.target.value)}
                             />
 
+                            {/* Image Preview */}
+                            {imagePreview && (
+                                <div className="relative mb-4 rounded-2xl overflow-hidden border border-outline-variant/10 shadow-lg">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="w-full max-h-[300px] object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={removeImage}
+                                        className="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors backdrop-blur-sm"
+                                        title={t('common.cancel')}
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="absolute bottom-3 left-3 px-3 py-1 bg-black/60 text-white text-[10px] font-bold rounded-full backdrop-blur-sm uppercase tracking-wider">
+                                        {selectedImage && `${(selectedImage.size / 1024).toFixed(0)}KB → ~150KB`}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 md:pt-6 border-t border-outline-variant/10 gap-4">
                                 <div className="flex gap-2 md:gap-3">
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageSelect}
+                                        className="hidden"
+                                        id="post-image-input"
+                                        title="Select image"
+                                    />
                                     <button
                                         type="button"
-                                        className="p-2.5 md:p-3 text-on-surface-variant hover:text-primary rounded-xl md:rounded-2xl bg-surface-container-low hover:bg-primary/5 transition-all duration-300 border border-outline-variant/5 group/btn flex-1 sm:flex-initial flex items-center justify-center"
-                                        title="Add image"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className={clsx(
+                                            "p-2.5 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 border border-outline-variant/5 group/btn flex-1 sm:flex-initial flex items-center justify-center",
+                                            selectedImage
+                                                ? "text-primary bg-primary/10 border-primary/20"
+                                                : "text-on-surface-variant hover:text-primary bg-surface-container-low hover:bg-primary/5"
+                                        )}
+                                        title={t('post.add_image')}
                                     >
                                         <ImageIcon size={20} className="md:w-[22px] md:h-[22px] group-hover/btn:scale-110 transition-transform" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="p-2.5 md:p-3 text-on-surface-variant hover:text-tertiary rounded-xl md:rounded-2xl bg-surface-container-low hover:bg-tertiary/5 transition-all duration-300 border border-outline-variant/5 group/btn flex-1 sm:flex-initial flex items-center justify-center"
-                                        title="Feeling lucky"
-                                    >
-                                        <Sparkles size={20} className="md:w-[22px] md:h-[22px] group-hover/btn:scale-110 transition-transform" />
                                     </button>
                                 </div>
 
                                 <Button
                                     type="submit"
-                                    disabled={!newPostContent.trim()}
+                                    disabled={!newPostContent.trim() && !selectedImage}
                                     loading={loading}
                                     className="px-6 md:px-10 py-3.5 md:py-4 rounded-2xl md:rounded-[24px] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-base md:text-lg font-black uppercase tracking-widest italic group/send"
                                 >
@@ -163,7 +272,7 @@ export const Feed = () => {
                         }}
                         style={{ willChange: "transform, opacity" }}
                     >
-                        <PostCard post={post} />
+                        <PostCard post={post} onDelete={handleDeletePost} />
                     </motion.div>
                 ))}
 

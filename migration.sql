@@ -114,6 +114,12 @@ select using (
             select get_my_chat_ids()
         )
     );
+-- Delete chats (only members can delete)
+create policy "delete_chats" on public.chats for delete using (
+    id in (
+        select get_my_chat_ids()
+    )
+);
 -- Chat Members policies
 create policy "add_members" on public.chat_members for
 insert with check (true);
@@ -124,6 +130,13 @@ select using (
             select get_my_chat_ids()
         )
     );
+-- Delete members (self-removal)
+create policy "delete_members" on public.chat_members for delete using (user_id = auth.uid());
+-- Delete friendships (either party)
+create policy "delete_friendships" on public.friendships for delete using (
+    auth.uid() = user_id
+    or auth.uid() = friend_id
+);
 -- Messages policies
 create policy "send_messages" on public.messages for
 insert with check (
@@ -160,3 +173,8 @@ values (new_chat_id, friend_id);
 return new_chat_id;
 end;
 $$;
+-- Enable Realtime for tables that use postgres_changes subscriptions
+alter publication supabase_realtime
+add table public.posts;
+alter publication supabase_realtime
+add table public.messages;

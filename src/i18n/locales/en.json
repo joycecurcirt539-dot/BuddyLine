@@ -26,6 +26,15 @@
             "subtitle": "Be the first to share something!"
         }
     },
+    "post": {
+        "comment_placeholder": "Write a comment...",
+        "no_comments": "No comments yet",
+        "delete": "Delete post",
+        "delete_confirm": "Are you sure you want to delete this post?",
+        "views": "Views",
+        "add_image": "Add image",
+        "invalid_image": "Please select a valid image file"
+    },
     "sidebar": {
         "buddyline": "BuddyLine",
         "private_circle": "Only Friends"
@@ -76,7 +85,11 @@
     "chat": {
         "status": {
             "online": "Online",
-            "offline": "Offline"
+            "offline": "Offline",
+            "last_seen": "Last seen",
+            "just_now": "just now",
+            "minutes_ago": "{{count}}m ago",
+            "hours_ago": "{{count}}h ago"
         },
         "back_to_chats": "Back to Chats",
         "select_chat": "Select a chat to start messaging",
@@ -222,6 +235,7 @@
         }
     },
     "discovery_panel": {
-        "title": "Already with us"
+        "title": "Already with us",
+        "add_friend": "Add Friend"
     }
 }

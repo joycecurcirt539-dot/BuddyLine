@@ -9,9 +9,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
+import { usePresence } from '../hooks/usePresence';
+
 export const Friends = () => {
     const { t } = useTranslation();
     const { friends, requests, loading, sendRequest, acceptRequest, rejectRequest, refresh } = useFriends();
+    const { onlineUsers } = usePresence();
     const [searchUsername, setSearchUsername] = useState('');
     const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -165,7 +168,7 @@ export const Friends = () => {
                                     className="bg-surface-container-low p-6 rounded-[32px] shadow-sm border border-outline-variant/10 flex items-center justify-between hover:shadow-xl hover:bg-surface-container transition-all group"
                                 >
                                     <div className="flex items-center gap-5">
-                                        <Avatar src={friend.avatar_url} alt={friend.username} status={friend.status} size="md" className="ring-4 ring-surface shadow-xl group-hover:ring-primary transition-all duration-500 group-hover:scale-110" />
+                                        <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-surface shadow-xl group-hover:ring-primary transition-all duration-500 group-hover:scale-110" />
                                         <div>
                                             <h3 className="font-black text-on-surface text-base tracking-tight group-hover:text-primary transition-colors uppercase italic">{friend.full_name || friend.username}</h3>
                                             <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-80">@{friend.username}</p>

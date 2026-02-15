@@ -8,6 +8,7 @@ export interface Profile {
     full_name: string;
     avatar_url: string;
     status: 'online' | 'offline';
+    last_seen: string | null;
 }
 
 export interface FriendRequest {
