@@ -1,0 +1,227 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "settings": "Settings",
+        "logout": "Log Out",
+        "home": "Home",
+        "friends": "Friends",
+        "messages": "Messages",
+        "profile": "Profile",
+        "save": "Save",
+        "cancel": "Cancel",
+        "back": "Back",
+        "search": "Search...",
+        "share": "Share"
+    },
+    "home": {
+        "feed_subtitle": "Your personalized feed",
+        "placeholder": "Share something legendary...",
+        "launch": "Launch Post",
+        "new_post": "New Post",
+        "mobile_placeholder": "What's happening?",
+        "post": "Post",
+        "empty": {
+            "title": "No posts yet.",
+            "subtitle": "Be the first to share something!"
+        }
+    },
+    "sidebar": {
+        "buddyline": "BuddyLine",
+        "private_circle": "Only Friends"
+    },
+    "settings": {
+        "title": "Settings",
+        "subtitle": "Manage your experience and preferences",
+        "appearance": {
+            "title": "Appearance",
+            "desc": "Customize how BuddyLine looks on your device.",
+            "light": "Light",
+            "dark": "Dark"
+        },
+        "language": {
+            "title": "Interface Language",
+            "desc": "Choose your preferred language for the interface.",
+            "en": "English",
+            "ru": "Russian"
+        },
+        "sections": {
+            "account": "Account Details",
+            "account_desc": "Profile and identity",
+            "notifications": "Bell Notifications",
+            "notifications_desc": "Stay in the loop",
+            "privacy": "Privacy & Security",
+            "privacy_desc": "Secure your circle"
+        },
+        "danger_zone": {
+            "title": "Danger Zone",
+            "sign_out": "Sign Out of BuddyLine"
+        },
+        "identity": {
+            "title": "Identity Node",
+            "subtitle": "Quantum profile management",
+            "personal_info": "Personal Info"
+        },
+        "visual": {
+            "title": "Visual Core",
+            "subtitle": "Holographic aesthetics",
+            "accent": "Accent Color"
+        },
+        "system": {
+            "title": "System Language",
+            "subtitle": "Universal communication"
+        },
+        "system_access": "System Access"
+    },
+    "chat": {
+        "status": {
+            "online": "Online",
+            "offline": "Offline"
+        },
+        "back_to_chats": "Back to Chats",
+        "select_chat": "Select a chat to start messaging",
+        "loading_messages": "Loading messages...",
+        "no_messages": "No messages yet. Say hello!",
+        "type_placeholder": "Type a message...",
+        "secrets": {
+            "title": "Secret Messages",
+            "subtitle": "Encrypted conversations that disappear",
+            "desc": "No trace left behind",
+            "button": "Access Vault"
+        },
+        "experiments": {
+            "title": "Experiments",
+            "live": "LIVE",
+            "ai_assistant": {
+                "name": "AI Assistant",
+                "desc": "Chat with BuddyBot"
+            },
+            "magic_themes": {
+                "name": "Magic Themes",
+                "desc": "Auto-changing styles"
+            },
+            "quick_replies": {
+                "name": "Quick Replies",
+                "desc": "Smart suggestions"
+            },
+            "coming_soon": "Coming Soon",
+            "voice_rooms": "Voice Rooms",
+            "in_development": "In Development",
+            "status_soon": "Soon"
+        },
+        "empty": {
+            "title": "No conversations yet",
+            "subtitle": "Start a new chat"
+        },
+        "shared_content": "Shared Content",
+        "view_all_shared": "View all shared",
+        "start_new": "Start New Communication",
+        "initiate_uplink": "Initiate Uplink",
+        "signal_node_active": "Signal Node: Active",
+        "add_data_stream": "Add data stream",
+        "delete_message": "Delete message",
+        "uplink_status": {
+            "established": "Uplink Established",
+            "lost": "Signal Lost"
+        },
+        "actions": {
+            "title": "Actions",
+            "mute": "Mute",
+            "unmute": "Unmute",
+            "delete_chat": "Delete Chat",
+            "block": "Block",
+            "delete_confirm": "Are you sure? This deletes the chat for everyone.",
+            "voice_call": "Voice Call",
+            "video_call": "Video Call"
+        }
+    },
+    "friends_page": {
+        "title": "Community",
+        "tabs": {
+            "buds": "Buds",
+            "invites": "Invites"
+        },
+        "expand": {
+            "title": "Expand Your Circle",
+            "placeholder": "Enter creator's handle...",
+            "invoke": "Invoke"
+        },
+        "empty": {
+            "title": "A Little Quiet Here",
+            "desc": "Search for creators to populate your feed."
+        },
+        "actions": {
+            "direct_chat": "Direct Chat",
+            "admit": "Admit",
+            "deny": "Deny",
+            "knocking": "is knocking at the gate"
+        },
+        "no_requests": "Clear Horizons (No Requests)",
+        "request_sent": "Request sent!"
+    },
+    "profile_page": {
+        "loading": "Loading profile...",
+        "not_found": "Profile not found",
+        "edit_profile": "Edit Profile",
+        "view_profile": "View Friend's Profile",
+        "full_name": "Full Name",
+        "username": "Username",
+        "bio": "Bio",
+        "save_changes": "Save Changes",
+        "placeholder_name": "Your name",
+        "placeholder_username": "Unique handle...",
+        "placeholder_bio": "Tell us about yourself...",
+        "avatar_presets": "What's your Buddy?",
+        "upload_new": "Upload Buddy",
+        "username_taken": "This username is already taken!",
+        "no_bio": "No bio yet. Click Edit Profile to add one!",
+        "joined": "Joined",
+        "recently": "Recently",
+        "experimental": {
+            "title": "Experimental Zone",
+            "subtitle": "Powered by BuddyLine Labs",
+            "desc": "Test drive the future. We're crafting digital alchemy, and you're invited to the lab.",
+            "custom_themes": "Custom Themes",
+            "voice_alchemy": "Voice Alchemy",
+            "coming_soon": "Coming Soon",
+            "in_testing": "In Testing"
+        },
+        "legacy": {
+            "title": "Your Legacy",
+            "empty_annals": "It's gone...",
+            "start_journey": "Start your journey on the feed"
+        }
+    },
+    "login_page": {
+        "title": "BuddyLine",
+        "welcome": "Welcome back, friend!",
+        "join_circle": "Join the private circle.",
+        "email": "Email Address",
+        "password": "Password",
+        "confirm_password": "Confirm Password",
+        "sign_in": "Sign In",
+        "sign_up": "Sign Up",
+        "create_account": "Create Account",
+        "no_account": "Don't have an account? ",
+        "already_member": "Already have an account? ",
+        "full_name": "Full Name",
+        "username": "Username",
+        "please_wait": "Please wait...",
+        "errors": {
+            "passwords_mismatch": "Passwords do not match",
+            "username_taken": "Username is already taken",
+            "invalid_username": "Invalid username or password",
+            "check_email": "Please check your email to confirm your account!",
+            "already_exists": "What are you doing? This username or email is already taken! 🤔"
+        },
+        "placeholders": {
+            "name": "John Doe",
+            "username": "buddy_123",
+            "email": "you@example.com",
+            "password": "••••••••"
+        }
+    },
+    "discovery_panel": {
+        "title": "Already with us"
+    }
+}

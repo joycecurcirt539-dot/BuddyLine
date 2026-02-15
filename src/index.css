@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary - Deep Indigo */
+  --color-primary: #4F46E5;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #EEF2FF;
+  --color-on-primary-container: #312E81;
+
+  /* Secondary - Slate */
+  --color-secondary: #64748B;
+  --color-on-secondary: #FFFFFF;
+  --color-secondary-container: #F1F5F9;
+  --color-on-secondary-container: #1E293B;
+
+  /* Surface System - LIGHT (Refined) */
+  --color-surface: #F8FAFF;
+  --color-on-surface: #0F172A;
+  --color-surface-variant: #E8EDF5;
+  --color-on-surface-variant: #475569;
+
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F1F5FF;
+  --color-surface-container: #E8EEF5;
+  --color-surface-container-high: #D1DBE8;
+  --color-surface-container-highest: #94A3B8;
+
+  --color-outline: #64748B;
+  --color-outline-variant: #CBD5E1;
+
+  /* Tertiary - Violet */
+  --color-tertiary: #7C3AED;
+  --color-on-tertiary: #FFFFFF;
+  --color-tertiary-container: #F5F3FF;
+  --color-on-tertiary-container: #4C1D95;
+
+  --radius-extra-large: 28px;
+  --radius-large: 18px;
+}
+
+.dark {
+  /* Primary - Soft Indigo */
+  --color-primary: #818CF8;
+  --color-on-primary: #1E1B4B;
+  --color-primary-container: #312E81;
+  --color-on-primary-container: #EEF2FF;
+
+  /* Secondary - Atmospheric Slate */
+  --color-secondary: #94A3B8;
+  --color-on-secondary: #0F172A;
+  --color-secondary-container: #1E293B;
+  --color-on-secondary-container: #F1F5F9;
+
+  /* Surface System - DARK */
+  --color-surface: #020617;
+  --color-on-surface: #F8FAFC;
+  --color-surface-variant: #1E293B;
+  --color-on-surface-variant: #94A3B8;
+
+  --color-surface-container-lowest: #020617;
+  --color-surface-container-low: #0F172A;
+  --color-surface-container: #1E293B;
+  --color-surface-container-high: #334155;
+  --color-surface-container-highest: #475569;
+
+  --color-outline: #64748B;
+  --color-outline-variant: #334155;
+
+  /* Tertiary - Radiant Violet */
+  --color-tertiary: #A78BFA;
+  --color-on-tertiary: #2E1065;
+  --color-tertiary-container: #4C1D95;
+  --color-on-tertiary-container: #F5F3FF;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* Material Design 3 Elevation */
+  --md-elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --md-elevation-2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --md-elevation-3: 0 4px 8px 3px rgb(0 0 0 / 0.15), 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --md-elevation-4: 0 6px 10px 4px rgb(0 0 0 / 0.15), 0 2px 3px 0 rgb(0 0 0 / 0.3);
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  @apply transition-colors duration-700 antialiased;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -20;
+  background: radial-gradient(circle at 0% 0%, var(--color-primary-container) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--color-tertiary-container) 0%, transparent 40%);
+  opacity: 0.5;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.dark body::before {
+  background: radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+  opacity: 1;
+}
+
+/* Material Design 3 Surface Levels / Containers */
+.surface-1 {
+  background-color: var(--color-surface-container-low);
+}
+
+.surface-2 {
+  background-color: var(--color-surface-container);
+}
+
+.surface-3 {
+  background-color: var(--color-surface-container-high);
+}
+
+.surface-4 {
+  background-color: var(--color-surface-container-highest);
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background-color: var(--color-surface-container-low);
+  @apply backdrop-blur-md border border-outline-variant/10;
+}
+
+.dark .glass {
+  background-color: var(--color-surface-container-lowest);
+  @apply backdrop-blur-md border border-outline-variant/10;
+}
+
+/* Liquid Glass Effect */
+.liquid-glass {
+  background: linear-gradient(135deg,
+      rgba(var(--color-surface-container-low), 0.4) 0%,
+      rgba(var(--color-surface-container-low), 0.1) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+.dark .liquid-glass {
+  background: linear-gradient(135deg,
+      rgba(var(--color-surface-container-lowest), 0.4) 0%,
+      rgba(var(--color-surface-container-lowest), 0.1) 100%);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Touch-friendly tap targets */
+@media (hover: none) and (pointer: coarse) {
+
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Material Design 3 Elevation Classes */
+.elevation-1 {
+  box-shadow: var(--md-elevation-1);
+}
+
+.elevation-2 {
+  box-shadow: var(--md-elevation-2);
+}
+
+.elevation-3 {
+  box-shadow: var(--md-elevation-3);
+}
+
+.elevation-4 {
+  box-shadow: var(--md-elevation-4);
+}
+
+/* Twitter/X hover effects */
+@media (hover: hover) {
+  .twitter-hover {
+    transition: background-color 0.2s ease;
+  }
+
+  .twitter-hover:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .dark .twitter-hover:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}
+
+/* Secret Panel Explicit Theme Styles */
+.secret-panel-bg {
+  background-color: #FFFFFF;
+  /* Bright white for light mode */
+  transition: background-color 0.5s ease;
+}
+
+.dark .secret-panel-bg {
+  background-color: #020617;
+  /* Deep slate-950 for dark mode */
+}
+
+/* Create Chat Button & Plus Icon Highlight */
+.create-chat-highlight {
+  background: #4F46E5;
+  /* Vibrant Indigo for light mode */
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.create-chat-highlight:hover {
+  background: #4338CA;
+  transform: scale(1.1) rotate(5deg);
+}
+
+.dark .create-chat-highlight {
+  background: #818CF8;
+  /* Soft Indigo for dark mode */
+  box-shadow: 0 10px 15px -3px rgba(129, 140, 248, 0.3);
+}
+
+.dark .create-chat-highlight:hover {
+  background: #6366F1;
+}
+
+.plus-icon-highlight {
+  color: #FFFFFF;
+  /* White icon for light mode */
+}
+
+.dark .plus-icon-highlight {
+  color: #020617;
+  /* Very dark icon for contrast in dark mode */
+}
+
+/* Explicit Branding & Title Styles */
+.branding-text-highlight {
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.dark .branding-text-highlight {
+  background: linear-gradient(135deg, #818CF8 0%, #A78BFA 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.logo-container-highlight {
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  box-shadow: 0 8px 20px -5px rgba(79, 70, 229, 0.4);
+}
+
+.dark .logo-container-highlight {
+  background: linear-gradient(135deg, #818CF8 0%, #A78BFA 100%);
+  box-shadow: 0 8px 20px -5px rgba(129, 140, 248, 0.3);
+}
+
+.page-title-highlight {
+  color: #1E293B;
+  /* Deep Slate for light mode */
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.dark .page-title-highlight {
+  color: #F8FAFC;
+  /* Bright Slate for dark mode */
+}
