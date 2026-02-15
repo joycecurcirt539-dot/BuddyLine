@@ -17,11 +17,7 @@ import { clsx } from 'clsx';
 import type { Profile } from '../../hooks/useFriends';
 
 interface CompanionInfoProps {
-    participant: Profile & {
-        status?: 'online' | 'offline' | 'away' | string;
-        bio?: string;
-        created_at?: string;
-    };
+    participant: Profile;
     isMuted?: boolean;
     onMuteToggle?: () => void;
     onDeleteChat?: () => void;

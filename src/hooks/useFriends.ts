@@ -10,6 +10,7 @@ export interface Profile {
     status: 'online' | 'offline';
     last_seen: string | null;
     is_verified: boolean;
+    bio?: string;
 }
 
 export interface FriendRequest {
