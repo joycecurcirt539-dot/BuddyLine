@@ -249,9 +249,6 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
 
         setNewComment(updatedContent);
 
-        // Instant send
-        void performAddComment(updatedContent);
-
         // Reset focus and cursor position after state update
         setTimeout(() => {
             input.focus();

@@ -163,9 +163,6 @@ export const ChatWindow = ({
 
         setNewMessage(updatedContent);
 
-        // Instant send
-        void performSubmit(updatedContent, selectedImage);
-
         // Reset focus and cursor position after state update
         setTimeout(() => {
             input.focus();

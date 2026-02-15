@@ -57,9 +57,6 @@ export const Feed = () => {
 
         setNewPostContent(updatedContent);
 
-        // Instant send
-        void performCreatePost(updatedContent, selectedImage);
-
         // Reset focus and cursor position after state update
         setTimeout(() => {
             textarea.focus();
