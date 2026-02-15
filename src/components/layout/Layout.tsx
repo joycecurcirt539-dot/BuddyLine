@@ -21,7 +21,7 @@ export const Layout = () => {
                 (isChatOpen || isComposerOpen) ? "pb-0" : "pb-16 lg:pb-0"
             )}>
                 <div className={clsx(
-                    "w-full h-full overflow-y-auto",
+                    "w-full h-full overflow-y-auto overflow-x-hidden",
                     isChatOpen ? "px-0 py-0" : "px-4 lg:px-8 py-4 lg:py-8"
                 )}>
                     <div className="h-full flex flex-col">

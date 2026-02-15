@@ -112,7 +112,6 @@ export const Settings = () => {
     }
 
     const categories = [
-        { id: 'profile', title: t('settings.identity.title'), desc: t('settings.identity.subtitle'), icon: UserIcon, color: 'text-primary', guestHidden: false },
         { id: 'appearance', title: t('settings.visual.title'), desc: t('settings.visual.subtitle'), icon: Palette, color: 'text-tertiary', guestHidden: false },
         { id: 'system', title: t('settings.system.title'), desc: t('settings.system.subtitle'), icon: Globe, color: 'text-blue-500', guestHidden: false },
         { id: 'notifications', title: t('settings.sections.notifications'), desc: t('settings.sections.notifications_desc'), icon: Bell, color: 'text-primary', guestHidden: true },
@@ -208,40 +207,7 @@ export const Settings = () => {
                             exit={{ opacity: 0, x: 10 }}
                             className="lg:hidden"
                         >
-                            {activeCategory === 'profile' && (
-                                isGuest ? <RegistrationForm /> : (
-                                    <div className="bg-surface/40 backdrop-blur-3xl rounded-[40px] p-6 border border-outline-variant/20 shadow-2xl space-y-8">
-                                        <div className="flex flex-col items-center gap-4">
-                                            <div className="relative cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                                <Avatar src={avatarUrl} alt={newUsername} size="2xl" className="ring-4 ring-primary/20 shadow-2xl" />
-                                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 hover:opacity-100 transition-opacity">
-                                                    <Camera className="text-white" />
-                                                </div>
-                                                <input type="file" ref={fileInputRef} onChange={handleUploadAvatar} className="hidden" title="Avatar" />
-                                            </div>
-                                            <h3 className="font-black text-on-surface uppercase italic tracking-tight text-lg">{t('settings.identity.title')}</h3>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <div className="space-y-1">
-                                                <label htmlFor="fullName-mob" className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-2">{t('profile_page.full_name')}</label>
-                                                <input id="fullName-mob" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-surface/30 border border-outline-variant/20 rounded-[20px] px-5 py-3.5 focus:ring-2 focus:ring-primary/30 outline-none font-bold text-on-surface" placeholder={t('profile_page.placeholder_name')} />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label htmlFor="username-mob" className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-2">{t('profile_page.username')}</label>
-                                                <input id="username-mob" type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className="w-full bg-surface/30 border border-outline-variant/20 rounded-[20px] px-5 py-3.5 focus:ring-2 focus:ring-primary/30 outline-none font-bold text-on-surface" placeholder={t('profile_page.placeholder_username')} />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label htmlFor="bio-mob" className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-2">{t('profile_page.bio')}</label>
-                                                <textarea id="bio-mob" value={bio} onChange={(e) => setBio(e.target.value)} rows={3} className="w-full bg-surface/30 border border-outline-variant/20 rounded-[20px] px-5 py-3.5 focus:ring-2 focus:ring-primary/30 outline-none font-bold text-on-surface resize-none" placeholder={t('profile_page.placeholder_bio')} />
-                                            </div>
-                                            <Button onClick={handleSaveProfile} className="w-full py-4 rounded-[20px] font-black uppercase tracking-widest shadow-xl">
-                                                <Sparkles size={18} className="mr-2" />
-                                                {t('profile_page.save_changes')}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )
-                            )}
+
                             {activeCategory === 'appearance' && <ThemeTogglePanel />}
                             {activeCategory === 'system' && <LanguageTogglePanel />}
                             {(activeCategory === 'notifications' || activeCategory === 'privacy' || activeCategory === 'account') && (
