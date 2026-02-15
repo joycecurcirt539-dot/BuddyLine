@@ -86,6 +86,7 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
                         {EMOJI_DATA.map((cat) => (
                             <button
                                 key={cat.id}
+                                type="button"
                                 title={t(`emoji.category.${cat.id}`, cat.id)}
                                 onClick={() => setActiveCategory(cat.id)}
                                 className={clsx(
@@ -101,6 +102,7 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
                     </div>
                     <button
                         onClick={onClose}
+                        type="button"
                         title={t('common.close', 'Close')}
                         className="p-2 ml-2 text-on-surface-variant/40 hover:text-on-surface transition-colors flex-shrink-0"
                     >
@@ -115,6 +117,7 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
                     {displayEmojis.map((emoji, i) => (
                         <button
                             key={`${activeCategory}-${i}`}
+                            type="button"
                             title={emoji}
                             onClick={() => onSelect(emoji)}
                             className="text-2xl p-2 hover:bg-surface-container rounded-xl transition-transform active:scale-125 hover:scale-110"
