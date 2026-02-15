@@ -409,7 +409,7 @@ export const PostCard = ({ post, onDelete }: { post: Post; onDelete?: (id: strin
                                             <EmojiPicker
                                                 onSelect={handleEmojiSelect}
                                                 onClose={() => setShowEmojiPicker(false)}
-                                                className="absolute top-full mt-2 right-0"
+                                                className="absolute bottom-full mb-2 right-0"
                                             />
                                         )}
                                     </AnimatePresence>
