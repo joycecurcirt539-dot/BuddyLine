@@ -296,4 +296,35 @@ body::before {
     -webkit-mask-size: contain;
     mask-size: contain;
   }
+
+  /* Premium Global Custom Scrollbar */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, var(--color-primary), var(--color-tertiary));
+    border-radius: 20px;
+    opacity: 0.1;
+  }
+
+  *:hover::-webkit-scrollbar-thumb {
+    opacity: 0.4;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+    opacity: 1;
+  }
+
+  /* Firefox support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
+  }
 }
