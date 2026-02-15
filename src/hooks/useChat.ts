@@ -110,10 +110,11 @@ export const useChat = () => {
     const sendMessage = async (content: string) => {
         if (!user || !activeChat) return;
 
-        // Optimistic update for better UX
-        const tempId = crypto.randomUUID();
+        // Generate ID client-side so it matches the optimistic update
+        const messageId = crypto.randomUUID();
+
         const optimisticMessage: Message = {
-            id: tempId,
+            id: messageId,
             chat_id: activeChat.id,
             sender_id: user.id,
             content,
@@ -126,6 +127,7 @@ export const useChat = () => {
         const { error } = await supabase
             .from('messages')
             .insert([{
+                id: messageId, // Explicitly use the generated ID
                 chat_id: activeChat.id,
                 sender_id: user.id,
                 content
@@ -134,7 +136,7 @@ export const useChat = () => {
         if (error) {
             console.error('Error sending message:', error.message, error.details, error.hint);
             // Remove optimistic message on error
-            setMessages(prev => prev.filter(m => m.id !== tempId));
+            setMessages(prev => prev.filter(m => m.id !== messageId));
             alert(`Failed to send message: ${error.message}`);
         }
     };
@@ -253,7 +255,10 @@ export const useChat = () => {
                 if (payload.eventType === 'INSERT') {
                     const newMessage = payload.new as Message;
                     setMessages(prev => {
-                        if (prev.some(m => m.id === newMessage.id)) return prev;
+                        // If message exists (from optimistic update), replace it to get correct timestamp/status
+                        if (prev.some(m => m.id === newMessage.id)) {
+                            return prev.map(m => m.id === newMessage.id ? newMessage : m);
+                        }
                         return [...prev, newMessage];
                     });
 
