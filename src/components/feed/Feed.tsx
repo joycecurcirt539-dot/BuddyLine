@@ -227,7 +227,7 @@ export const Feed = () => {
                         <div className="flex-1">
                             <textarea
                                 ref={textareaRef}
-                                className="w-full resize-none border-none focus:ring-0 focus:outline-none text-on-surface placeholder-on-surface-variant/40 text-xl md:text-2xl font-black italic tracking-tighter mb-2 md:mb-4 bg-transparent min-h-[100px] md:min-h-[120px] scrollbar-hide"
+                                className="w-full resize-none border-none focus:ring-0 focus:outline-none text-on-surface placeholder-on-surface-variant/40 text-xl md:text-2xl font-black tracking-tighter mb-2 md:mb-4 bg-transparent min-h-[100px] md:min-h-[120px] scrollbar-hide"
                                 placeholder={t('home.placeholder')}
                                 value={newPostContent}
                                 onChange={(e) => setNewPostContent(e.target.value)}

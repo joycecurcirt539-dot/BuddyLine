@@ -33,7 +33,7 @@ export const MessageBubble = ({ message, isOwn, onDelete }: MessageBubbleProps) 
                 {isOwn && (
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
                 )}
-                <p className="whitespace-pre-wrap text-sm lg:text-base font-medium leading-relaxed italic tracking-tight relative z-10">
+                <p className="whitespace-pre-wrap text-sm lg:text-base font-medium leading-relaxed tracking-tight relative z-10">
                     {message.content}
                 </p>
 
