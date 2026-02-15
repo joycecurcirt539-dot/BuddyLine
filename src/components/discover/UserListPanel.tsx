@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Avatar } from '../ui/Avatar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Search, UserPlus, Check, Clock, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useFriends } from '../../hooks/useFriends';
 import { usePresence } from '../../hooks/usePresence';
+import { useChat } from '../../hooks/useChat';
+import { MessageSquare } from 'lucide-react';
 
 interface Profile {
     id: string;
@@ -22,6 +24,8 @@ export const UserListPanel = () => {
     const { user } = useAuth();
     const { friends, sendRequest, refresh: refreshFriends } = useFriends();
     const { onlineUsers } = usePresence();
+    const { createDirectChat } = useChat();
+    const navigate = useNavigate();
     const [profiles, setProfiles] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -75,6 +79,13 @@ export const UserListPanel = () => {
         } else {
             setSentTo(prev => new Set(prev).add(profile.id));
             refreshFriends();
+        }
+    };
+
+    const handleMessage = async (profileId: string) => {
+        const result = await createDirectChat(profileId);
+        if (result.success) {
+            navigate(`/chat?id=${result.chatId}`);
         }
     };
 
@@ -148,27 +159,37 @@ export const UserListPanel = () => {
                                         </div>
                                     </Link>
 
-                                    {state === 'friend' ? (
-                                        <div className="p-2 text-primary/60" title={t('friends_page.tabs.buds')}>
-                                            <Check size={16} />
-                                        </div>
-                                    ) : state === 'sent' ? (
-                                        <div className="p-2 text-tertiary/60" title={t('friends_page.request_sent')}>
-                                            <Clock size={16} />
-                                        </div>
-                                    ) : state === 'sending' ? (
-                                        <div className="p-2 text-primary">
-                                            <Loader2 size={16} className="animate-spin" />
-                                        </div>
-                                    ) : (
+                                    <div className="flex items-center gap-1">
                                         <button
-                                            onClick={() => handleAddFriend(profile)}
+                                            onClick={() => handleMessage(profile.id)}
                                             className="p-2 text-primary opacity-0 group-hover:opacity-100 transition-all hover:bg-primary/10 rounded-full hover:scale-110 active:scale-90"
-                                            title={t('discovery_panel.add_friend')}
+                                            title={t('friends_page.actions.direct_chat')}
                                         >
-                                            <UserPlus size={18} />
+                                            <MessageSquare size={16} />
                                         </button>
-                                    )}
+
+                                        {state === 'friend' ? (
+                                            <div className="p-2 text-primary/60" title={t('friends_page.tabs.buds')}>
+                                                <Check size={16} />
+                                            </div>
+                                        ) : state === 'sent' ? (
+                                            <div className="p-2 text-tertiary/60" title={t('friends_page.request_sent')}>
+                                                <Clock size={16} />
+                                            </div>
+                                        ) : state === 'sending' ? (
+                                            <div className="p-2 text-primary">
+                                                <Loader2 size={16} className="animate-spin" />
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleAddFriend(profile)}
+                                                className="p-2 text-primary opacity-0 group-hover:opacity-100 transition-all hover:bg-primary/10 rounded-full hover:scale-110 active:scale-90"
+                                                title={t('discovery_panel.add_friend')}
+                                            >
+                                                <UserPlus size={18} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </motion.div>
                             );
                         })

@@ -3,12 +3,14 @@ import { useChat } from '../hooks/useChat';
 import type { Chat as ChatType } from '../hooks/useChat';
 import { ChatWindow } from '../components/chat/ChatWindow';
 import { Avatar } from '../components/ui/Avatar';
-import { Search, Plus, MessageSquare, X, UserPlus, Zap } from 'lucide-react';
+import { Search, Plus, MessageSquare, X, Zap, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFriends } from '../hooks/useFriends';
+import type { Profile } from '../hooks/useFriends';
 import { formatDistanceToNow } from 'date-fns';
 import { SecretPanel } from '../components/chat/SecretPanel';
 import { ExperimentsPanel } from '../components/chat/ExperimentsPanel';
+import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -25,6 +27,9 @@ export const Chat = () => {
     const [view, setView] = useState<'list' | 'chat'>('list');
     const [searchParams, setSearchParams] = useSearchParams();
     const [showNewChat, setShowNewChat] = useState(false);
+    const [newChatSearch, setNewChatSearch] = useState('');
+    const [newChatResults, setNewChatResults] = useState<Profile[]>([]);
+    const [searching, setSearching] = useState(false);
 
     // Filter chats
     const filteredChats = chats.filter(chat => {
@@ -56,12 +61,12 @@ export const Chat = () => {
         setView('chat');
     };
 
-    const handleStartNewChat = async (friendId: string) => {
+    const handleStartNewChat = async (targetUserId: string) => {
         if (isGuest) {
             alert(t('login_page.login_to_interact'));
             return;
         }
-        const result = await createDirectChat(friendId);
+        const result = await createDirectChat(targetUserId);
         if (result.success && result.chatId) {
             setShowNewChat(false);
             setSearchParams({ id: result.chatId });
@@ -69,6 +74,31 @@ export const Chat = () => {
             alert(result.error);
         }
     };
+
+    // Search for users to chat with
+    useEffect(() => {
+        const searchUsers = async () => {
+            if (!newChatSearch.trim()) {
+                setNewChatResults([]);
+                return;
+            }
+            setSearching(true);
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .or(`username.ilike.%${newChatSearch}%,full_name.ilike.%${newChatSearch}%`)
+                .neq('id', user?.id)
+                .limit(10);
+
+            if (!error && data) {
+                setNewChatResults(data);
+            }
+            setSearching(false);
+        };
+
+        const timer = setTimeout(searchUsers, 300);
+        return () => clearTimeout(timer);
+    }, [newChatSearch, user?.id]);
 
     const handleBack = () => {
         setView('list');
@@ -198,30 +228,71 @@ export const Chat = () => {
                                     <X size={20} className="group-hover:rotate-90 transition-transform" />
                                 </button>
                             </div>
-                            <div className="p-6 max-h-[400px] overflow-y-auto space-y-3">
-                                {friends.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-10 opacity-40">
-                                        <MessageSquare size={48} className="mb-4" />
-                                        <p className="font-bold">{t('friends_page.empty.title')}</p>
-                                    </div>
+                            <div className="px-8 pb-4">
+                                <div className="relative group/newsearch">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within/newsearch:text-primary transition-colors" size={16} />
+                                    <input
+                                        type="text"
+                                        placeholder={t('common.search')}
+                                        value={newChatSearch}
+                                        onChange={(e) => setNewChatSearch(e.target.value)}
+                                        className="w-full pl-11 pr-4 py-3 bg-surface/50 border border-outline-variant/10 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm font-bold"
+                                    />
+                                    {searching && <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-primary" />}
+                                </div>
+                            </div>
+
+                            <div className="p-6 pt-2 max-h-[400px] overflow-y-auto space-y-3 custom-scrollbar">
+                                {newChatSearch.trim() ? (
+                                    newChatResults.length === 0 && !searching ? (
+                                        <div className="flex flex-col items-center justify-center py-10 opacity-40">
+                                            <Search size={48} className="mb-4" />
+                                            <p className="font-bold">{t('common.no_results')}</p>
+                                        </div>
+                                    ) : (
+                                        newChatResults.map(profile => (
+                                            <motion.div
+                                                key={profile.id}
+                                                whileHover={{ x: 8 }}
+                                                onClick={() => handleStartNewChat(profile.id)}
+                                                className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
+                                            >
+                                                <Avatar src={profile.avatar_url} alt={profile.username} status={profile.status} size="md" className="ring-4 ring-surface shadow-xl" />
+                                                <div className="flex-1">
+                                                    <p className="font-black text-on-surface uppercase italic tracking-tight">{profile.full_name || profile.username}</p>
+                                                    <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{profile.username}</p>
+                                                </div>
+                                                <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
+                                                    <MessageSquare size={18} />
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    )
                                 ) : (
-                                    friends.map(friend => (
-                                        <motion.div
-                                            key={friend.id}
-                                            whileHover={{ x: 8 }}
-                                            onClick={() => handleStartNewChat(friend.id)}
-                                            className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
-                                        >
-                                            <Avatar src={friend.avatar_url} alt={friend.username} status={friend.status} size="md" className="ring-4 ring-surface shadow-xl" />
-                                            <div className="flex-1">
-                                                <p className="font-black text-on-surface uppercase italic tracking-tight">{friend.full_name || friend.username}</p>
-                                                <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{friend.username}</p>
-                                            </div>
-                                            <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
-                                                <UserPlus size={18} />
-                                            </div>
-                                        </motion.div>
-                                    ))
+                                    friends.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-10 opacity-40">
+                                            <MessageSquare size={48} className="mb-4" />
+                                            <p className="font-bold">{t('friends_page.empty.title')}</p>
+                                        </div>
+                                    ) : (
+                                        friends.map(friend => (
+                                            <motion.div
+                                                key={friend.id}
+                                                whileHover={{ x: 8 }}
+                                                onClick={() => handleStartNewChat(friend.id)}
+                                                className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
+                                            >
+                                                <Avatar src={friend.avatar_url} alt={friend.username} status={friend.status} size="md" className="ring-4 ring-surface shadow-xl" />
+                                                <div className="flex-1">
+                                                    <p className="font-black text-on-surface uppercase italic tracking-tight">{friend.full_name || friend.username}</p>
+                                                    <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{friend.username}</p>
+                                                </div>
+                                                <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
+                                                    <MessageSquare size={18} />
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    )
                                 )}
                             </div>
                         </motion.div>
