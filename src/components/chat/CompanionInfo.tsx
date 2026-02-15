@@ -8,6 +8,7 @@ import {
     Trash2,
     Slash,
     ChevronRight,
+    X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -30,12 +31,21 @@ interface CompanionInfoProps {
     onClose?: () => void;
 }
 
-export const CompanionInfo = ({ participant, isMuted, onMuteToggle, onDeleteChat, onBlockUser }: CompanionInfoProps) => {
+export const CompanionInfo = ({ participant, isMuted, onMuteToggle, onDeleteChat, onBlockUser, onClose }: CompanionInfoProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
     return (
-        <div className="h-full flex flex-col bg-surface/30 backdrop-blur-xl border-l border-outline-variant/10 overflow-y-auto scrollbar-hide">
+        <div className="h-full flex flex-col bg-surface/30 backdrop-blur-xl border-l border-outline-variant/10 overflow-y-auto scrollbar-hide relative">
+            {onClose && (
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-6 p-2 hover:bg-surface-container rounded-full transition-all z-20"
+                    title={t('common.cancel')}
+                >
+                    <X size={20} />
+                </button>
+            )}
             {/* Profile Header */}
             <div className="p-8 flex flex-col items-center border-b border-outline-variant/5">
                 <motion.div

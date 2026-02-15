@@ -10,6 +10,7 @@ import { MessageBubble } from './MessageBubble';
 import { usePresence } from '../../hooks/usePresence';
 import type { TFunction } from 'i18next';
 import { EmojiPicker } from '../ui/EmojiPicker';
+import { CompanionInfo } from './CompanionInfo';
 import { compressImage } from '../../utils/compressImage';
 import { supabase } from '../../lib/supabase';
 
@@ -20,6 +21,10 @@ interface ChatWindowProps {
     onSendMessage: (content: string, imageUrl?: string) => void;
     onDeleteMessage?: (messageId: string) => void;
     onBack?: () => void;
+    isMuted?: boolean;
+    onMuteToggle?: () => void;
+    onDeleteChat?: () => void;
+    onBlockUser?: () => void;
 }
 
 const formatLastSeen = (dateString: string | null | undefined, t: TFunction, lang: string) => {
@@ -36,7 +41,18 @@ const formatLastSeen = (dateString: string | null | undefined, t: TFunction, lan
     return date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US');
 };
 
-export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMessage, onBack }: ChatWindowProps) => {
+export const ChatWindow = ({
+    chat,
+    messages,
+    loading,
+    onSendMessage,
+    onDeleteMessage,
+    onBack,
+    isMuted,
+    onMuteToggle,
+    onDeleteChat,
+    onBlockUser
+}: ChatWindowProps) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const { onlineUsers } = usePresence();
@@ -45,6 +61,7 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [showCompanionInfo, setShowCompanionInfo] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -166,6 +183,37 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
             style={{ willChange: "transform, opacity" }}
             className="flex-1 flex flex-col h-full relative overflow-hidden bg-surface-container-lowest/30"
         >
+            {/* Companion Info Mobile Overlay */}
+            <AnimatePresence>
+                {showCompanionInfo && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm lg:hidden"
+                        onClick={() => setShowCompanionInfo(false)}
+                    >
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <CompanionInfo
+                                participant={otherParticipant}
+                                isMuted={isMuted}
+                                onMuteToggle={onMuteToggle}
+                                onDeleteChat={onDeleteChat}
+                                onBlockUser={onBlockUser}
+                                onClose={() => setShowCompanionInfo(false)}
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Window Atmosphere */}
             <div className="absolute inset-0 -z-10 pointer-events-none opacity-40">
                 <div className="absolute top-0 right-0 w-full h-1/4 bg-gradient-to-b from-primary/10 to-transparent" />
@@ -190,7 +238,7 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                             <Avatar src={otherParticipant.avatar_url} alt={otherParticipant.username} status={isUserOnline ? 'online' : 'offline'} size="md" className="ring-2 ring-surface relative z-10" />
                         </div>
                         <div>
-                            <h2 className="font-black text-on-surface uppercase italic tracking-tight leading-none mb-1">
+                            <h2 className="font-black text-on-surface uppercase italic tracking-tight leading-none mb-1 text-sm md:text-base truncate max-w-[120px] md:max-w-none">
                                 {chat.name || otherParticipant.full_name || otherParticipant.username}
                             </h2>
                             <div className="flex items-center gap-2">
@@ -203,11 +251,19 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                             </div>
                         </div>
                     </div>
-                    <div className="hidden md:flex items-center gap-2">
-                        <button title={t('chat.actions.voice_call')} className="p-3 hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60 hover:text-primary"><Phone size={20} /></button>
-                        <button title={t('chat.actions.video_call')} className="p-3 hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60 hover:text-tertiary"><Video size={20} /></button>
-                        <div className="w-[1px] h-8 bg-outline-variant/20 mx-1" />
-                        <button title={t('common.more')} className="p-3 hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60"><MoreVertical size={20} /></button>
+                    <div className="flex items-center gap-1 md:gap-2">
+                        <button title={t('chat.actions.voice_call')} className="hidden sm:p-3 sm:flex hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60 hover:text-primary"><Phone size={20} /></button>
+                        <button title={t('chat.actions.video_call')} className="hidden sm:p-3 sm:flex hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60 hover:text-tertiary"><Video size={20} /></button>
+                        <div className="hidden sm:block w-[1px] h-8 bg-outline-variant/20 mx-1 xl:hidden" />
+                        <button
+                            title={t('common.more')}
+                            onClick={() => setShowCompanionInfo(true)}
+                            className="p-3 hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60 xl:hidden"
+                        >
+                            <MoreVertical size={20} />
+                        </button>
+                        <div className="hidden xl:block w-[1px] h-8 bg-outline-variant/20 mx-1" />
+                        <button title={t('common.more')} className="hidden xl:p-3 xl:flex hover:bg-surface-container rounded-2xl transition-all hover:scale-110 active:scale-90 text-on-surface/60"><MoreVertical size={20} /></button>
                     </div>
                 </div>
             </div>

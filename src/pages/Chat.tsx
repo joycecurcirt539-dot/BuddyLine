@@ -119,6 +119,10 @@ export const Chat = () => {
                         onSendMessage={sendMessage}
                         onDeleteMessage={deleteMessage}
                         onBack={handleBack}
+                        isMuted={mutedChats.has(activeChat.id)}
+                        onMuteToggle={handleMuteToggle}
+                        onDeleteChat={handleDeleteChat}
+                        onBlockUser={handleBlockUser}
                     />
                 </motion.div>
 
