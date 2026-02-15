@@ -41,7 +41,7 @@ export const useChat = () => {
             .eq('user_id', user.id);
 
         if (membersError) {
-            console.error('Error fetching chat members:', membersError);
+            console.error('Error fetching chat members:', membersError.message, membersError.details, membersError.hint);
             return;
         }
 
@@ -65,7 +65,7 @@ export const useChat = () => {
             .in('id', chatIds);
 
         if (chatsError) {
-            console.error('Error fetching chats:', chatsError);
+            console.error('Error fetching chats:', chatsError.message, chatsError.details, chatsError.hint);
             return;
         }
 
@@ -94,7 +94,9 @@ export const useChat = () => {
             .eq('chat_id', chatId)
             .order('created_at', { ascending: true });
 
-        if (!error) {
+        if (error) {
+            console.error('Error fetching messages:', error.message, error.details, error.hint);
+        } else {
             setMessages(data as Message[]);
         }
         setMessagesLoading(false);
