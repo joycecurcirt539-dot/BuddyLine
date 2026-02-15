@@ -5,7 +5,7 @@ import { clsx } from 'clsx';
 import { Avatar } from '../ui/Avatar';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { BotBadge } from '../ui/BotBadge';
+import { UserBadge } from '../ui/UserBadge';
 
 export const Sidebar = () => {
     const { t } = useTranslation();
@@ -87,7 +87,7 @@ export const Sidebar = () => {
                     <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-on-surface truncate flex items-center gap-1.5">
                             {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-                            <BotBadge username={user?.user_metadata?.username || user?.email?.split('@')[0]} />
+                            <UserBadge username={user?.user_metadata?.username || user?.email?.split('@')[0]} isVerified={user?.user_metadata?.is_verified} />
                         </p>
                         <p className="text-[9px] text-on-surface-variant truncate">
                             {user?.email}

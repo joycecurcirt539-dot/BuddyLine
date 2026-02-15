@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Mail, Lock, User, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
     const { t } = useTranslation();
@@ -15,6 +16,7 @@ export const Login = () => {
     const [fullName, setFullName] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
+    const { continueAsGuest } = useAuth();
     const navigate = useNavigate();
 
     const handleAuth = async (e: React.FormEvent) => {
@@ -76,8 +78,14 @@ export const Login = () => {
                         ]);
                     if (profileError) console.error('Error creating profile:', profileError);
 
-                    // Show success message
+                    // Show success message and switch to login
                     setMessage(t('login_page.errors.check_email'));
+                    setIsLogin(true);
+                    setEmail('');
+                    setPassword('');
+                    setUsername('');
+                    setFullName('');
+                    setPasswordConfirm('');
                 }
             }
         } catch (error: unknown) {
@@ -116,86 +124,75 @@ export const Login = () => {
                     <form onSubmit={handleAuth} className="space-y-4">
                         {!isLogin && (
                             <>
-                                <div>
-                                    <label className="block text-sm font-bold text-on-surface mb-1 ml-1">{t('login_page.full_name')}</label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
-                                        <input
-                                            type="text"
-                                            required
-                                            value={fullName}
-                                            onChange={(e) => setFullName(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline/20 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-medium"
-                                            placeholder={t('login_page.placeholders.name')}
-                                        />
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">
+                                        <User size={20} />
                                     </div>
+                                    <input
+                                        type="text"
+                                        required={!isLogin}
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        placeholder={t('login_page.full_name')}
+                                        className="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface h-14"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-on-surface mb-1 ml-1">{t('login_page.username')}</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-black">@</span>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline/20 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-bold"
-                                            placeholder={t('login_page.placeholders.username')}
-                                        />
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">
+                                        <span className="font-black text-lg">@</span>
                                     </div>
+                                    <input
+                                        type="text"
+                                        required={!isLogin}
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        placeholder={t('login_page.username')}
+                                        className="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface h-14"
+                                    />
                                 </div>
                             </>
                         )}
-
-                        <div>
-                            <label className="block text-sm font-bold text-on-surface mb-1 ml-1">{t('login_page.email')}</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
-                                <input
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-surface border border-outline/20 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-medium"
-                                    placeholder={t('login_page.placeholders.email')}
-                                />
+                        <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">
+                                <Mail size={20} />
                             </div>
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder={t('login_page.email')}
+                                className="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface h-14"
+                            />
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-on-surface mb-1 ml-1">{t('login_page.password')}</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
+                        <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">
+                                <Lock size={20} />
+                            </div>
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder={t('login_page.password')}
+                                className="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface h-14"
+                            />
+                        </div>
+                        {!isLogin && (
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">
+                                    <Lock size={20} />
+                                </div>
                                 <input
                                     type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-surface border border-outline/20 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-medium"
-                                    placeholder={t('login_page.placeholders.password')}
-                                    minLength={6}
+                                    required={!isLogin}
+                                    value={passwordConfirm}
+                                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                                    placeholder={t('login_page.confirm_password')}
+                                    className="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface h-14"
                                 />
                             </div>
-                        </div>
-
-                        {!isLogin && (
-                            <div>
-                                <label className="block text-sm font-bold text-on-surface mb-1 ml-1">{t('login_page.confirm_password')}</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={20} />
-                                    <input
-                                        type="password"
-                                        required
-                                        value={passwordConfirm}
-                                        onChange={(e) => setPasswordConfirm(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 bg-surface border border-outline/20 rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-medium"
-                                        placeholder={t('login_page.placeholders.password')}
-                                        minLength={6}
-                                    />
-                                </div>
-                            </div>
                         )}
-
                         <button
                             type="submit"
                             disabled={loading}
@@ -204,6 +201,18 @@ export const Login = () => {
                             {loading ? <div className="flex items-center justify-center gap-2"><Loader2 className="animate-spin" size={20} /> {t('login_page.please_wait')}</div> : (isLogin ? t('login_page.sign_in') : t('login_page.create_account'))}
                         </button>
                     </form>
+
+                    <div className="mt-4">
+                        <button
+                            onClick={() => {
+                                continueAsGuest();
+                                navigate('/');
+                            }}
+                            className="w-full bg-surface-container-high text-on-surface py-3.5 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all border border-outline/10 h-14"
+                        >
+                            {t('login_page.continue_as_guest')}
+                        </button>
+                    </div>
 
                     <div className="mt-8 text-center">
                         <p className="text-on-surface-variant text-sm font-bold">

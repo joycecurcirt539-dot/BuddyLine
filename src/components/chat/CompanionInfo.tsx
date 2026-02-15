@@ -1,5 +1,5 @@
 import { Avatar } from '../ui/Avatar';
-import { BotBadge } from '../ui/BotBadge';
+import { UserBadge } from '../ui/UserBadge';
 import { Button } from '../ui/Button';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -64,7 +64,7 @@ export const CompanionInfo = ({ participant, isMuted, onMuteToggle, onDeleteChat
                 </motion.div>
                 <h3 className="text-xl font-black text-on-surface text-center uppercase tracking-tight italic flex items-center justify-center gap-2">
                     {participant.full_name || participant.username}
-                    <BotBadge username={participant.username} />
+                    <UserBadge username={participant.username} isVerified={participant.is_verified} />
                 </h3>
                 <p className="text-primary font-bold text-xs uppercase tracking-widest mt-1">
                     @{participant.username}

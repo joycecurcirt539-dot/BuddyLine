@@ -17,7 +17,7 @@ import { getDateLocale } from '../utils/dateLocale';
 
 export const Chat = () => {
     const { t, i18n } = useTranslation();
-    const { user } = useAuth();
+    const { user, isGuest } = useAuth();
     const { friends, blockUser } = useFriends();
     const { chats, activeChat, messages, loading, messagesLoading, selectChat, sendMessage, createDirectChat, deleteChat, deleteMessage } = useChat();
     const [mutedChats, setMutedChats] = useState<Set<string>>(new Set());
@@ -47,12 +47,20 @@ export const Chat = () => {
     }, [searchParams, chats, selectChat, activeChat]);
 
     const handleSelectChat = (chat: ChatType) => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
         selectChat(chat);
         setSearchParams({ id: chat.id });
         setView('chat');
     };
 
     const handleStartNewChat = async (friendId: string) => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
         const result = await createDirectChat(friendId);
         if (result.success && result.chatId) {
             setShowNewChat(false);
@@ -68,6 +76,10 @@ export const Chat = () => {
     };
 
     const handleDeleteChat = async () => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
         if (!activeChat) return;
         if (window.confirm(t('chat.actions.delete_confirm'))) {
             const result = await deleteChat(activeChat.id);
@@ -80,6 +92,10 @@ export const Chat = () => {
     };
 
     const handleBlockUser = async () => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
         if (!activeChat) return;
         const other = activeChat.participants.find(p => p.id !== user?.id) || activeChat.participants[0];
         if (window.confirm(`${t('chat.block_confirm') || 'Block'} ${other.full_name || other.username}?`)) {

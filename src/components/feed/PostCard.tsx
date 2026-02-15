@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { clsx } from 'clsx';
 import { EmojiPicker } from '../ui/EmojiPicker';
-import { BotBadge } from '../ui/BotBadge';
+import { UserBadge } from '../ui/UserBadge';
 import { getDateLocale } from '../../utils/dateLocale';
 
 export interface Post {
@@ -42,7 +42,7 @@ interface Comment {
 
 export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?: (id: string) => void; index?: number }) => {
     const { t, i18n } = useTranslation();
-    const { user } = useAuth();
+    const { user, isGuest } = useAuth();
 
     // Likes state
     const [liked, setLiked] = useState(false);
@@ -63,7 +63,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
 
     // Check if current user liked this post
     useEffect(() => {
-        if (!user) return;
+        if (!user || isGuest) return;
         const checkLike = async () => {
             const { data } = await supabase
                 .from('post_likes')
@@ -74,7 +74,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
             setLiked(!!data);
         };
         checkLike();
-    }, [user, post.id]);
+    }, [user, post.id, isGuest]);
 
     // Fetch comment count
     useEffect(() => {
@@ -92,7 +92,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
     const cardRef = useRef<HTMLDivElement>(null);
     const viewRecorded = useRef(false);
     useEffect(() => {
-        if (!user || viewRecorded.current) return;
+        if (!user || isGuest || viewRecorded.current) return;
         const el = cardRef.current;
         if (!el) return;
 
@@ -116,20 +116,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
         );
         observer.observe(el);
         return () => observer.disconnect();
-    }, [user, post.id]);
-
-    // Fetch latest view count
-    useEffect(() => {
-        const fetchViews = async () => {
-            const { data } = await supabase
-                .from('posts')
-                .select('views_count')
-                .eq('id', post.id)
-                .single();
-            if (data) setViewsCount(data.views_count || 0);
-        };
-        fetchViews();
-    }, [post.id]);
+    }, [user, post.id, isGuest]);
 
     const fetchComments = useCallback(async () => {
         const { data, error } = await supabase
@@ -148,6 +135,10 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
     }, [post.id]);
 
     const handleToggleLike = async () => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
         if (!user || likeLoading) return;
         setLikeLoading(true);
 
@@ -193,6 +184,10 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
     };
 
     const performAddComment = async (content: string) => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
         if (!content.trim() || !user || commentLoading) return;
 
         setCommentLoading(true);
@@ -294,7 +289,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         <Link to={`/profile/${post.user_id}`} className="group/name">
                             <h3 className="text-base font-black text-on-surface leading-tight tracking-tight uppercase italic group-hover/name:text-primary transition-colors flex items-center gap-2">
                                 {post.author.full_name || post.author.username}
-                                <BotBadge username={post.author.username} />
+                                <UserBadge username={post.author.username} isVerified={(post.author as any).is_verified} />
                             </h3>
                         </Link>
                         <p className="text-[10px] font-bold text-primary/60 uppercase tracking-[0.2em]">
@@ -472,7 +467,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                                                 <div className="flex items-center gap-2">
                                                     <Link to={`/profile/${comment.user_id}`} className="text-xs font-black text-on-surface uppercase tracking-tight hover:text-primary transition-colors flex items-center gap-2">
                                                         {comment.author.full_name || comment.author.username}
-                                                        <BotBadge username={comment.author.username} />
+                                                        <UserBadge username={comment.author.username} isVerified={(comment.author as any).is_verified} />
                                                     </Link>
                                                     <span className="text-[9px] text-on-surface-variant/40 font-medium">
                                                         {formatDistanceToNow(new Date(comment.created_at), {

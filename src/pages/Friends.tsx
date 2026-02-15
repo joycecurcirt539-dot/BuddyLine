@@ -1,244 +1,421 @@
 import { useState } from 'react';
 import { useFriends } from '../hooks/useFriends';
-import { Button } from '../components/ui/Button';
-import { Avatar } from '../components/ui/Avatar';
-import { UserPlus, Check, X, Search, Users, MessageCircle } from 'lucide-react';
+import { usePresence } from '../hooks/usePresence';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+    Users,
+    Search,
+    MessageCircle,
+    Check,
+    X,
+    Loader2,
+    AtSign,
+    User as UserIcon,
+    AlertCircle
+} from 'lucide-react';
+import { Avatar } from '../components/ui/Avatar';
+import { Button } from '../components/ui/Button';
+import { UserBadge } from '../components/ui/UserBadge';
+import { SearchOverlay } from '../components/ui/SearchOverlay';
+import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
-import { useTranslation } from 'react-i18next';
-
-import { usePresence } from '../hooks/usePresence';
+import { FriendsSidebar } from '../components/friends/FriendsSidebar';
+import { useAuth } from '../context/AuthContext';
 
 export const Friends = () => {
     const { t } = useTranslation();
-    const { friends, requests, loading, sendRequest, acceptRequest, rejectRequest, refresh } = useFriends();
+    const { isGuest } = useAuth();
+    const {
+        friends,
+        requests,
+        sentRequests,
+        loading,
+        sendRequest,
+        acceptRequest,
+        rejectRequest,
+        cancelRequest,
+        searchUsers,
+        refresh
+    } = useFriends();
     const { onlineUsers } = usePresence();
-    const [searchUsername, setSearchUsername] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchType, setSearchType] = useState<'username' | 'name'>('username');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showOverlay, setShowOverlay] = useState(false);
     const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
+    const [requestSubTab, setRequestSubTab] = useState<'incoming' | 'sent'>('incoming');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const navigate = useNavigate();
     const { createDirectChat } = useChat();
 
-    const handleSendRequest = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!searchUsername.trim()) return;
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
+        const q = searchQuery.trim();
+        if (!q) return;
 
-        setActionLoading('send');
-        const result = await sendRequest(searchUsername);
+        setIsSearching(true);
+        setShowOverlay(true);
+        const { data, error } = await searchUsers(q, searchType);
+        setIsSearching(false);
+
+        if (error) {
+            console.error('Search error:', error);
+        } else {
+            setSearchResults(data || []);
+        }
+    };
+
+    const handleSendRequest = async (username: string) => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
+        setActionLoading(username);
+        const result = await sendRequest(username);
         setActionLoading(null);
 
         if (result.error) {
-            alert(result.error);
+            if (result.error === 'already_exists') {
+                alert(result.details || t('friends_page.already_friends'));
+            } else {
+                alert(result.error);
+            }
         } else {
             alert(t('friends_page.request_sent'));
-            setSearchUsername('');
             refresh();
         }
     };
 
-    const handleAccept = async (id: string) => {
-        setActionLoading(id);
-        await acceptRequest(id);
+    const handleCancelRequest = async (id: string, username: string) => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
+        setActionLoading(username);
+        await cancelRequest(id);
         setActionLoading(null);
     };
 
-    const handleReject = async (id: string) => {
-        setActionLoading(id);
-        await rejectRequest(id);
-        setActionLoading(null);
-    };
-
-    const handleStartChat = async (friendId: string) => {
-        setActionLoading(friendId);
-        const result = await createDirectChat(friendId);
-        setActionLoading(null);
+    const handleChat = async (userId: string) => {
+        if (isGuest) {
+            alert(t('login_page.login_to_interact'));
+            return;
+        }
+        const result = await createDirectChat(userId);
         if (result.success) {
             navigate(`/chat?id=${result.chatId}`);
-        } else if (result.error) {
-            alert(result.error);
         }
     };
 
-    if (loading) return (
-        <div className="p-20 text-center flex flex-col items-center animate-pulse">
-            <div className="w-16 h-16 surface-1 rounded-full mb-4"></div>
-            <div className="w-48 h-5 surface-1 rounded-xl"></div>
-        </div>
-    );
-
     return (
-        <div className="w-full space-y-4">
-            <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ willChange: "transform, opacity" }}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-            >
-                <h1 className="text-lg lg:text-xl font-black text-on-surface uppercase tracking-tight">{t('friends_page.title')}</h1>
-                <div className="flex w-full sm:w-auto bg-surface-container-high/50 backdrop-blur-2xl rounded-[16px] p-1 border border-outline-variant/20 shadow-md">
-                    <button
-                        onClick={() => setActiveTab('friends')}
-                        className={clsx(
-                            "flex-1 px-4 py-1.5 rounded-[12px] text-[10px] font-black transition-all uppercase tracking-widest",
-                            activeTab === 'friends'
-                                ? "bg-primary text-on-primary shadow-sm"
-                                : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
-                        )}
-                    >
-                        {t('friends_page.tabs.buds')} ({friends.length})
-                    </button>
-                    <div className="w-[1px] h-4 bg-outline-variant/20 self-center mx-1" />
-                    <button
-                        onClick={() => setActiveTab('requests')}
-                        className={clsx(
-                            "flex-1 px-4 py-1.5 rounded-[12px] text-[10px] font-black transition-all uppercase tracking-widest",
-                            activeTab === 'requests'
-                                ? "bg-primary text-on-primary shadow-sm"
-                                : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
-                        )}
-                    >
-                        {t('friends_page.tabs.invites')} ({requests.length})
-                    </button>
-                </div>
-            </motion.div>
+        <div className="max-w-none flex gap-8 pb-20 px-4 sm:px-0">
+            <div className="flex-1 min-w-0 space-y-6">
+                {/* Dual Search Header */}
+                <div className="bg-surface-container-low rounded-[32px] p-6 lg:p-8 border border-outline-variant/10 shadow-xl shadow-primary/5">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                        <div>
+                            <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-2">
+                                {t('common.friends')}
+                            </h1>
+                            <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
+                                {t('friends_page.active_friends', { count: friends.length })}
+                            </p>
+                        </div>
 
-            {activeTab === 'friends' && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.99 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    style={{ willChange: "transform, opacity" }}
-                    className="bg-surface-container-low rounded-[24px] shadow-lg shadow-primary/5 border border-outline-variant/10 overflow-hidden glass"
-                >
-                    <div className="px-5 py-3 border-b border-outline-variant/10 bg-surface-container/30">
-                        <h2 className="text-base font-black text-on-surface uppercase tracking-tight italic">{t('friends_page.expand.title')}</h2>
+                        <div className="flex bg-surface-container rounded-2xl p-1 border border-outline-variant/5">
+                            <button
+                                onClick={() => setActiveTab('friends')}
+                                className={clsx(
+                                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                                    activeTab === 'friends'
+                                        ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
+                                        : "text-on-surface-variant hover:text-on-surface"
+                                )}
+                            >
+                                {t('friends_page.tabs.buds', 'Buds')}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('requests')}
+                                className={clsx(
+                                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all relative",
+                                    activeTab === 'requests'
+                                        ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
+                                        : "text-on-surface-variant hover:text-on-surface"
+                                )}
+                            >
+                                {t('friends_page.tabs.invites', 'Invites')}
+                                {requests.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-tertiary text-on-tertiary rounded-full text-[10px] flex items-center justify-center border-2 border-surface animate-bounce">
+                                        {requests.length}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
                     </div>
-                    <div className="p-3">
-                        <form onSubmit={handleSendRequest} className="flex flex-col sm:flex-row gap-2">
-                            <div className="relative flex-1 group">
-                                <Search className="absolute left-4 top-2.5 text-on-surface-variant/40 group-focus-within:text-primary transition-colors" size={16} />
+
+                    <form onSubmit={handleSearch} className="relative max-w-3xl mx-auto">
+                        <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                            <div className="flex-1 relative group">
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                                    {searchType === 'username' ? (
+                                        <AtSign size={20} className="text-primary transition-transform group-focus-within:scale-110" />
+                                    ) : (
+                                        <UserIcon size={20} className="text-primary transition-transform group-focus-within:scale-110" />
+                                    )}
+                                </div>
                                 <input
                                     type="text"
-                                    placeholder={t('friends_page.expand.placeholder')}
-                                    value={searchUsername}
-                                    onChange={(e) => setSearchUsername(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-xl border border-outline-variant/20 focus:ring-2 focus:ring-primary/10 focus:border-primary focus:bg-surface-container-lowest outline-none transition-all text-on-surface font-bold text-sm placeholder:text-on-surface-variant/30"
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (searchType === 'username' && val && !val.startsWith('@') && !searchQuery.startsWith('@')) {
+                                            setSearchQuery('@' + val);
+                                        } else {
+                                            setSearchQuery(val);
+                                        }
+                                    }}
+                                    placeholder={searchType === 'username' ? t('friends_page.search_username_placeholder') : t('friends_page.search_name_placeholder')}
+                                    className="w-full h-[64px] pl-14 pr-6 bg-surface-container-high rounded-[28px] border border-outline-variant/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface text-base placeholder:opacity-40"
                                 />
                             </div>
-                            <Button type="submit" loading={actionLoading === 'send'} disabled={!searchUsername} className="px-4 py-2 rounded-xl shadow-md text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
-                                <UserPlus size={16} className="mr-2" />
-                                {t('friends_page.expand.invoke')}
-                            </Button>
-                        </form>
-                    </div>
-                </motion.div>
-            )}
 
-            <div className="grid gap-4">
-                <AnimatePresence mode="popLayout">
-                    {activeTab === 'friends' ? (
-                        friends.length === 0 ? (
-                            <motion.div
-                                key="empty-friends"
-                                initial={{ opacity: 0, scale: 0.99 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.99 }}
-                                style={{ willChange: "transform, opacity" }}
-                                className="text-center py-20 bg-surface/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-outline-variant/20"
-                            >
-                                <div className="mx-auto w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
-                                    <Users className="text-on-surface-variant/50" size={32} />
-                                </div>
-                                <h3 className="text-xl font-black text-on-surface mb-1">{t('friends_page.empty.title')}</h3>
-                                <p className="text-on-surface-variant font-medium">{t('friends_page.empty.desc')}</p>
-                            </motion.div>
-                        ) : (
-                            friends.map((friend, index) => (
-                                <motion.div
-                                    key={friend.id}
-                                    initial={{ opacity: 0, x: -5 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 5 }}
-                                    transition={{
-                                        delay: Math.min(index * 0.02, 0.2),
-                                        duration: 0.2
-                                    }}
-                                    style={{ willChange: "transform, opacity" }}
-                                    className="bg-surface-container-low p-6 rounded-[32px] shadow-sm border border-outline-variant/10 flex items-center justify-between hover:shadow-xl hover:bg-surface-container transition-all group"
-                                >
-                                    <div className="flex items-center gap-5">
-                                        <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-surface shadow-xl group-hover:ring-primary transition-all duration-500 group-hover:scale-110" />
-                                        <div>
-                                            <h3 className="font-black text-on-surface text-base tracking-tight group-hover:text-primary transition-colors uppercase italic">{friend.full_name || friend.username}</h3>
-                                            <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-80">@{friend.username}</p>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        variant="secondary"
-                                        size="md"
-                                        loading={actionLoading === friend.id}
-                                        onClick={() => handleStartChat(friend.id)}
-                                        className="rounded-2xl font-black uppercase tracking-[0.1em] text-xs px-8 py-3 shadow-md border-outline-variant/20 hover:scale-105 active:scale-95 transition-all bg-surface-container-high text-on-surface-variant"
+                            <div className="flex gap-2 h-[64px]">
+                                {/* Custom Search Type Selector */}
+                                <div className="relative h-full">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nextType = searchType === 'username' ? 'name' : 'username';
+                                            setSearchType(nextType);
+                                            setSearchQuery('');
+                                        }}
+                                        className="h-full px-6 bg-surface-container-high rounded-[28px] border border-outline-variant/10 flex items-center gap-3 hover:bg-surface-container transition-all active:scale-95 group"
                                     >
-                                        <MessageCircle size={18} className="mr-2" />
-                                        {t('friends_page.actions.direct_chat')}
-                                    </Button>
-                                </motion.div>
-                            ))
-                        )
-                    ) : (
-                        requests.length === 0 ? (
-                            <motion.div
-                                key="empty-requests"
-                                initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                                className="text-center py-20 bg-surface/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-outline/20"
-                            >
-                                <p className="text-on-surface-variant font-bold uppercase tracking-widest text-sm">{t('friends_page.no_requests')}</p>
-                            </motion.div>
-                        ) : (
-                            requests.map((req, index) => (
-                                <motion.div
-                                    key={req.id}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    className="bg-surface/80 backdrop-blur-md p-5 rounded-3xl shadow-lg border border-outline/10 flex flex-col sm:flex-row items-center justify-between gap-4"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <Avatar src={req.sender.avatar_url} alt={req.sender.username} size="md" />
-                                        <div>
-                                            <h3 className="text-sm font-black text-on-surface uppercase tracking-tight">{req.sender.full_name || req.sender.username}</h3>
-                                            <p className="text-[10px] text-on-surface-variant font-medium">@{req.sender.username} {t('friends_page.actions.knocking')}</p>
+                                        <span className="font-black text-[10px] uppercase tracking-[0.15em] text-primary whitespace-nowrap">
+                                            {searchType === 'username' ? t('friends_page.type_username') : t('friends_page.type_name')}
+                                        </span>
+                                        <div className="w-5 h-5 flex items-center justify-center bg-primary/10 text-primary rounded-full group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                                            <motion.div
+                                                animate={{ rotate: searchType === 'username' ? 0 : 180 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                            >
+                                                <AtSign size={10} />
+                                            </motion.div>
                                         </div>
-                                    </div>
-                                    <div className="flex gap-2 w-full sm:w-auto">
-                                        <Button
-                                            size="md"
-                                            onClick={() => handleAccept(req.id)}
-                                            loading={actionLoading === req.id}
-                                            className="flex-1 sm:flex-initial shadow-lg shadow-primary/20"
+                                    </button>
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    disabled={!searchQuery.trim() || isSearching}
+                                    className="h-full px-10 rounded-[28px] flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-sm font-black uppercase tracking-widest"
+                                >
+                                    {isSearching ? <Loader2 className="animate-spin" size={22} /> : <Search size={22} />}
+                                    <span className="hidden md:inline">{t('common.search')}</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Results Overlay */}
+                <SearchOverlay
+                    isOpen={showOverlay}
+                    onClose={() => setShowOverlay(false)}
+                    results={searchResults}
+                    loading={isSearching}
+                    onSendRequest={handleSendRequest}
+                    actionLoading={actionLoading}
+                />
+
+                {/* Content Tabs */}
+                <motion.div
+                    layout
+                    className="space-y-4"
+                >
+                    {activeTab === 'friends' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {loading ? (
+                                Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="h-24 bg-surface-container-low rounded-3xl animate-pulse border border-outline-variant/10" />
+                                ))
+                            ) : friends.length === 0 ? (
+                                <div className="col-span-full py-20 text-center bg-surface-container-low/40 rounded-[40px] border border-dashed border-outline-variant/20">
+                                    <Users size={48} className="mx-auto text-primary/20 mb-4" />
+                                    <p className="text-on-surface-variant font-bold uppercase tracking-widest text-xs opacity-40">
+                                        {t('friends_page.no_friends')}
+                                    </p>
+                                </div>
+                            ) : (
+                                friends.map((friend) => (
+                                    <motion.div
+                                        key={friend.id}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="p-5 bg-surface-container-low/40 backdrop-blur-xl rounded-[32px] border border-outline-variant/10 flex items-center justify-between hover:bg-surface-container-high/60 transition-all group"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <Avatar
+                                                src={friend.avatar_url}
+                                                alt={friend.username}
+                                                size="md"
+                                                status={onlineUsers.has(friend.id) ? 'online' : 'offline'}
+                                            />
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="text-sm font-black text-on-surface flex items-center gap-2 truncate">
+                                                    <span className="truncate">{friend.full_name || friend.username}</span>
+                                                    <UserBadge username={friend.username} isVerified={friend.is_verified} className="shrink-0" />
+                                                </h3>
+                                                <p className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-80 truncate">
+                                                    @{friend.username}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleChat(friend.id)}
+                                            className="p-3 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary rounded-xl transition-all active:scale-90"
+                                            title={t('chat.send_message')}
                                         >
-                                            <Check size={18} className="mr-2" /> {t('friends_page.actions.admit')}
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            size="md"
-                                            onClick={() => handleReject(req.id)}
-                                            loading={actionLoading === req.id}
-                                            className="flex-1 sm:flex-initial"
-                                        >
-                                            <X size={18} className="mr-2" /> {t('friends_page.actions.deny')}
-                                        </Button>
-                                    </div>
-                                </motion.div>
-                            ))
-                        )
+                                            <MessageCircle size={18} />
+                                        </button>
+                                    </motion.div>
+                                ))
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* Custom Sub-navigation for Requests */}
+                            <div className="flex gap-4 border-b border-outline-variant/10 pb-2">
+                                <button
+                                    onClick={() => setRequestSubTab('incoming')}
+                                    className={clsx(
+                                        "text-[10px] font-black uppercase tracking-[0.2em] transition-all relative pb-2",
+                                        requestSubTab === 'incoming' ? "text-primary" : "text-on-surface-variant opacity-40 hover:opacity-100"
+                                    )}
+                                >
+                                    {t('friends_page.incoming_requests')}
+                                    {requestSubTab === 'incoming' && <motion.div layoutId="subtab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
+                                </button>
+                                <button
+                                    onClick={() => setRequestSubTab('sent')}
+                                    className={clsx(
+                                        "text-[10px] font-black uppercase tracking-[0.2em] transition-all relative pb-2",
+                                        requestSubTab === 'sent' ? "text-primary" : "text-on-surface-variant opacity-40 hover:opacity-100"
+                                    )}
+                                >
+                                    {t('friends_page.sent_requests')}
+                                    {requestSubTab === 'sent' && <motion.div layoutId="subtab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
+                                </button>
+                            </div>
+
+                            <div className="space-y-3">
+                                {requestSubTab === 'incoming' ? (
+                                    requests.length === 0 ? (
+                                        <div className="py-20 text-center bg-surface-container-low/40 rounded-[40px] border border-dashed border-outline-variant/20">
+                                            <AlertCircle size={48} className="mx-auto text-primary/20 mb-4" />
+                                            <p className="text-on-surface-variant font-bold uppercase tracking-widest text-xs opacity-40">
+                                                {t('friends_page.no_requests')}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        requests.map((req) => (
+                                            <motion.div
+                                                key={req.id}
+                                                layout
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                className="p-4 bg-surface-container-low/80 rounded-[24px] border border-outline-variant/10 flex items-center justify-between"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar src={req.sender?.avatar_url} alt={req.sender?.username} size="sm" />
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="text-sm font-black text-on-surface flex items-center gap-2 truncate">
+                                                            <span className="truncate">{(req.sender?.full_name || req.sender?.username) || 'Unknown User'}</span>
+                                                            {req.sender && <UserBadge username={req.sender.username} isVerified={req.sender.is_verified} className="shrink-0" />}
+                                                        </h3>
+                                                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-80 truncate">
+                                                            @{req.sender?.username}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => acceptRequest(req.id)}
+                                                        className="p-3 bg-primary text-on-primary rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                                        title={t('common.accept')}
+                                                    >
+                                                        <Check size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => rejectRequest(req.id)}
+                                                        className="p-3 bg-view-container text-on-surface rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-95"
+                                                        title={t('common.reject')}
+                                                    >
+                                                        <X size={18} />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    )
+                                ) : (
+                                    sentRequests.length === 0 ? (
+                                        <div className="py-20 text-center bg-surface-container-low/40 rounded-[40px] border border-dashed border-outline-variant/20">
+                                            <Search size={48} className="mx-auto text-primary/20 mb-4" />
+                                            <p className="text-on-surface-variant font-bold uppercase tracking-widest text-xs opacity-40">
+                                                {t('friends_page.no_sent_requests', 'No pending requests')}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        sentRequests.map((req) => (
+                                            <motion.div
+                                                key={req.id}
+                                                layout
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                className="p-4 bg-surface-container-low/80 rounded-[24px] border border-outline-variant/10 flex items-center justify-between"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <Avatar src={req.receiver?.avatar_url} alt={req.receiver?.username} size="sm" />
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="text-sm font-black text-on-surface flex items-center gap-2 truncate">
+                                                            <span className="truncate">{(req.receiver?.full_name || req.receiver?.username) || 'Unknown User'}</span>
+                                                            {req.receiver && <UserBadge username={req.receiver.username} isVerified={req.receiver.is_verified} className="shrink-0" />}
+                                                        </h3>
+                                                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-80 truncate">
+                                                            @{req.receiver?.username}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleCancelRequest(req.id, req.receiver?.username || '')}
+                                                    disabled={actionLoading === req.receiver?.username}
+                                                    className="px-4 py-2 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+                                                >
+                                                    {actionLoading === req.receiver?.username ? (
+                                                        <Loader2 size={14} className="animate-spin" />
+                                                    ) : (
+                                                        t('common.cancel', 'Cancel')
+                                                    )}
+                                                </button>
+                                            </motion.div>
+                                        ))
+                                    )
+                                )}
+                            </div>
+                        </div>
                     )}
-                </AnimatePresence>
+                </motion.div>
             </div>
+
+            <FriendsSidebar />
         </div>
     );
 };

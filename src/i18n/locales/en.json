@@ -13,7 +13,8 @@
         "back": "Back",
         "search": "Search...",
         "share": "Share",
-        "remove": "Remove"
+        "remove": "Remove",
+        "ai": "AI"
     },
     "home": {
         "feed_subtitle": "Your personalized feed",
@@ -171,7 +172,39 @@
             "knocking": "is knocking at the gate"
         },
         "no_requests": "Clear Horizons (No Requests)",
-        "request_sent": "Request sent!"
+        "request_sent": "Request sent!",
+        "already_friends": "You are already friends!",
+        "search_username_placeholder": "Search by @username...",
+        "search_name_placeholder": "Search by full name...",
+        "type_username": "Username",
+        "type_name": "Name",
+        "search_results": "Search Results",
+        "no_results": "No users found",
+        "no_friends": "No friends yet",
+        "incoming_requests": "Incoming",
+        "sent_requests": "My Requests",
+        "no_sent_requests": "No pending requests",
+        "active_friends_one": "{{count}} Active Friend",
+        "active_friends_other": "{{count}} Active Friends",
+        "sidebar": {
+            "title": "Lab: Social Tech",
+            "subtitle": "In Development",
+            "circles": {
+                "name": "Friends Circles",
+                "desc": "Organize your buds into custom groups"
+            },
+            "activity": {
+                "name": "Activity Stream",
+                "desc": "Simultaneous video viewing"
+            },
+            "nodes": {
+                "name": "Private Nodes",
+                "desc": "Interaction only friends with friends"
+            },
+            "beta_tester": "Become a Beta Tester",
+            "network_strength": "Release Preparation",
+            "connection_density": "Development complete"
+        }
     },
     "profile_page": {
         "loading": "Loading profile...",
@@ -215,6 +248,9 @@
         "confirm_password": "Confirm Password",
         "sign_in": "Sign In",
         "sign_up": "Sign Up",
+        "continue_as_guest": "Continue as Guest",
+        "guest_mode_info": "You are browsing in guest mode. Interactions are disabled.",
+        "login_to_interact": "Sign in to interact with users",
         "create_account": "Create Account",
         "no_account": "Don't have an account? ",
         "already_member": "Already have an account? ",

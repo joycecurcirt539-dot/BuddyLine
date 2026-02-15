@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
-import { BotBadge } from '../components/ui/BotBadge';
+import { UserBadge } from '../components/ui/UserBadge';
 import { usePresence } from '../hooks/usePresence';
 
 interface ProfileData {
@@ -25,6 +25,7 @@ interface ProfileData {
     created_at?: string;
     status?: string;
     last_seen?: string | null;
+    is_verified?: boolean;
 }
 
 export const Profile = () => {
@@ -283,12 +284,12 @@ export const Profile = () => {
                                 <div>
                                     <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1 flex items-center gap-2">
                                         {profile.full_name || profile.username}
-                                        <BotBadge username={profile.username} className="mb-0.5" />
+                                        <UserBadge username={profile.username} isVerified={profile.is_verified} className="mb-0.5" />
                                     </h1>
                                     <div className="flex items-center justify-center sm:justify-start gap-2">
                                         <p className="text-primary font-bold text-sm uppercase tracking-widest flex items-center gap-1.5">
                                             @{profile.username}
-                                            <BotBadge username={profile.username} type="bot" />
+                                            <UserBadge username={profile.username} isVerified={profile.is_verified} />
                                         </p>
                                         <span className="text-outline-variant opacity-30">•</span>
                                         <div className="flex items-center gap-1.5">
