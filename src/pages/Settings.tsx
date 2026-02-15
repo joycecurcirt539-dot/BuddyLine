@@ -1,12 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ThemeTogglePanel } from '../components/settings/ThemeTogglePanel';
 import { LanguageTogglePanel } from '../components/settings/LanguageTogglePanel';
-import { RegistrationForm } from '../components/auth/RegistrationForm';
-import { LogOut, Shield, Bell, Camera, Loader2, Sparkles, Cpu, ArrowLeft, Palette, Globe, ChevronRight } from 'lucide-react';
+import { LogOut, Shield, Bell, Cpu, ArrowLeft, Palette, Globe, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
 import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { clsx } from 'clsx';
@@ -16,100 +15,8 @@ type SettingCategory = 'profile' | 'appearance' | 'system' | 'notifications' | '
 export const Settings = () => {
     const { t } = useTranslation();
     const { user, isGuest, signOut } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const [uploading, setUploading] = useState(false);
-    const [bio, setBio] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [newUsername, setNewUsername] = useState('');
-    const [avatarUrl, setAvatarUrl] = useState('');
     const [activeCategory, setActiveCategory] = useState<SettingCategory>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const fetchProfile = useCallback(async () => {
-        if (!user) return;
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-        if (!error && data) {
-            setBio(data.bio || '');
-            setFullName(data.full_name || '');
-            setNewUsername(data.username || '');
-            setAvatarUrl(data.avatar_url || '');
-        }
-        setLoading(false);
-    }, [user]);
-
-    useEffect(() => {
-        fetchProfile();
-    }, [fetchProfile]);
-
-    const handleSaveProfile = async () => {
-        if (!user) return;
-
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                bio,
-                full_name: fullName,
-                username: newUsername.toLowerCase().trim()
-            })
-            .eq('id', user.id);
-
-        if (!error) {
-            alert(t('common.save') + '!');
-            fetchProfile();
-            if (window.innerWidth < 1024) setActiveCategory(null);
-        } else {
-            console.error('Error updating profile:', error);
-        }
-    };
-
-    const handleUploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        try {
-            setUploading(true);
-            if (!event.target.files || event.target.files.length === 0) return;
-
-            const file = event.target.files[0];
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-            const filePath = `${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, file);
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath);
-
-            const { error: updateError } = await supabase
-                .from('profiles')
-                .update({ avatar_url: publicUrl })
-                .eq('id', user?.id);
-
-            if (updateError) throw updateError;
-            setAvatarUrl(publicUrl);
-        } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : String(error);
-            alert(message);
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-32 text-on-surface-variant/40">
-                <Loader2 size={40} className="animate-spin mb-4" />
-                <p className="font-black uppercase tracking-widest text-[10px]">{t('common.loading')}</p>
-            </div>
-        );
-    }
+    const navigate = useNavigate();
 
     const categories = [
         { id: 'appearance', title: t('settings.visual.title'), desc: t('settings.visual.subtitle'), icon: Palette, color: 'text-tertiary', guestHidden: false },
@@ -168,7 +75,13 @@ export const Settings = () => {
                             {filteredCategories.map((cat) => (
                                 <button
                                     key={cat.id}
-                                    onClick={() => setActiveCategory(cat.id as SettingCategory)}
+                                    onClick={() => {
+                                        if (cat.id === 'account') {
+                                            navigate('/profile');
+                                        } else {
+                                            setActiveCategory(cat.id as SettingCategory);
+                                        }
+                                    }}
                                     className="bg-surface/40 backdrop-blur-xl border border-outline-variant/10 rounded-[32px] p-5 flex items-center justify-between group active:scale-95 transition-all text-left"
                                 >
                                     <div className="flex items-center gap-4">
@@ -210,7 +123,7 @@ export const Settings = () => {
 
                             {activeCategory === 'appearance' && <ThemeTogglePanel />}
                             {activeCategory === 'system' && <LanguageTogglePanel />}
-                            {(activeCategory === 'notifications' || activeCategory === 'privacy' || activeCategory === 'account') && (
+                            {(activeCategory === 'notifications' || activeCategory === 'privacy') && (
                                 <div className="bg-surface/40 backdrop-blur-3xl rounded-[40px] p-10 border border-outline-variant/20 shadow-2xl flex flex-col items-center justify-center text-center py-20">
                                     <Cpu size={48} className="text-on-surface-variant/20 mb-6" />
                                     <h4 className="text-on-surface font-black uppercase tracking-tight italic mb-2">{t(`settings.sections.${activeCategory}`)}</h4>
@@ -224,63 +137,38 @@ export const Settings = () => {
 
                 {/* Desktop Grid Layout (Hidden on Mobile) */}
                 <div className="hidden lg:grid grid-cols-1 gap-12 mt-8">
-                    {/* Identity Section */}
-                    {isGuest ? (
+                    {/* Identity Section (Read Only / Redirect) */}
+                    {!isGuest && (
                         <motion.section
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="relative bg-surface/40 backdrop-blur-3xl rounded-[48px] p-12 lg:p-12 border border-outline-variant/20 shadow-2xl"
+                            className="relative bg-surface/40 backdrop-blur-3xl rounded-[48px] p-8 md:p-12 border border-outline-variant/20 shadow-2xl overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12"
                         >
-                            <RegistrationForm />
-                        </motion.section>
-                    ) : (
-                        <motion.section
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="relative bg-surface/40 backdrop-blur-3xl rounded-[48px] p-12 border border-outline-variant/20 shadow-2xl overflow-hidden"
-                        >
-                            <div className="flex flex-col lg:flex-row gap-12 items-start">
-                                <div className="flex flex-col items-center gap-6">
-                                    <div className="relative group/avatar cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                        <div className="absolute -inset-2 bg-gradient-to-tr from-primary to-tertiary rounded-full opacity-20 blur-md group-hover/avatar:opacity-40 transition-opacity" />
-                                        <Avatar src={avatarUrl} alt={newUsername} size="2xl" className="ring-8 ring-surface shadow-2xl relative z-10 transition-transform group-hover/avatar:scale-105" />
-                                        <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
-                                            <div className="bg-black/60 p-4 rounded-full text-white">{uploading ? <Loader2 className="animate-spin" /> : <Camera />}</div>
-                                        </div>
-                                        <input type="file" ref={fileInputRef} onChange={handleUploadAvatar} className="hidden" title="Avatar" />
-                                    </div>
-                                    <div className="text-center">
-                                        <h3 className="font-black text-on-surface uppercase italic tracking-tight text-xl mb-1">{t('settings.identity.title')}</h3>
-                                        <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em]">{t('settings.identity.subtitle')}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 w-full space-y-8">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-2">{t('profile_page.full_name')}</label>
-                                            <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-surface/30 border border-outline-variant/20 rounded-[24px] px-6 py-4 focus:ring-2 focus:ring-primary/30 outline-none font-bold text-on-surface transition-all" placeholder={t('profile_page.placeholder_name')} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-2">{t('profile_page.username')}</label>
-                                            <div className="relative">
-                                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-primary font-black">@</span>
-                                                <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className="w-full bg-surface/30 border border-outline-variant/20 rounded-[24px] pl-10 pr-6 py-4 focus:ring-2 focus:ring-primary/30 outline-none font-bold text-on-surface transition-all" placeholder={t('profile_page.placeholder_username')} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant ml-2">{t('profile_page.bio')}</label>
-                                        <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} className="w-full bg-surface/30 border border-outline-variant/20 rounded-[24px] px-6 py-4 focus:ring-2 focus:ring-primary/30 outline-none font-bold text-on-surface transition-all resize-none" placeholder={t('profile_page.placeholder_bio')} />
-                                    </div>
-                                    <div className="flex justify-end">
-                                        <Button onClick={handleSaveProfile} className="px-10 py-4 rounded-[20px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                                            <Sparkles size={18} className="mr-2" />
-                                            {t('profile_page.save_changes')}
-                                        </Button>
-                                    </div>
-                                </div>
+                            <div className="relative">
+                                <div className="absolute -inset-4 bg-gradient-to-tr from-primary to-tertiary rounded-full opacity-20 blur-xl animate-pulse" />
+                                <Avatar src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.username} size="xl" className="ring-4 ring-surface shadow-2xl relative z-10" />
                             </div>
+
+                            <div className="flex-1 text-center md:text-left space-y-4">
+                                <div>
+                                    <h3 className="font-black text-on-surface uppercase italic tracking-tight text-3xl">
+                                        {user?.user_metadata?.full_name || user?.user_metadata?.username || 'User'}
+                                    </h3>
+                                    <p className="text-primary font-black text-xs uppercase tracking-[0.2em] opacity-80">
+                                        @{user?.user_metadata?.username || 'username'}
+                                    </p>
+                                </div>
+                                <p className="text-on-surface-variant font-medium max-w-lg mx-auto md:mx-0">
+                                    {t('settings.sections.account_desc')}
+                                </p>
+                            </div>
+
+                            <Button
+                                onClick={() => window.location.href = '/profile'} // Force navigation or use navigate
+                                className="px-8 py-4 rounded-[24px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all text-sm shrink-0"
+                            >
+                                {t('profile_page.edit_profile')} <ArrowLeft className="rotate-180 ml-2" size={18} />
+                            </Button>
                         </motion.section>
                     )}
 
