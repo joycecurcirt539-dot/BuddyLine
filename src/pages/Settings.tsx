@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { ThemeTogglePanel } from '../components/settings/ThemeTogglePanel';
 import { LanguageTogglePanel } from '../components/settings/LanguageTogglePanel';
 import { RegistrationForm } from '../components/auth/RegistrationForm';
-import { LogOut, Shield, Bell, Camera, Loader2, Sparkles, Cpu, ArrowLeft, User as UserIcon, Palette, Globe, ChevronRight } from 'lucide-react';
+import { LogOut, Shield, Bell, Camera, Loader2, Sparkles, Cpu, ArrowLeft, Palette, Globe, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
