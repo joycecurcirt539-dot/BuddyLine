@@ -54,6 +54,7 @@ create table if not exists public.posts (
     content text,
     image_url text,
     likes_count int default 0,
+    views_count int default 0,
     created_at timestamp with time zone default timezone('utc'::text, now())
 );
 -- Comments
@@ -63,6 +64,14 @@ create table if not exists public.comments (
     user_id uuid references public.profiles(id) not null,
     content text not null,
     created_at timestamp with time zone default timezone('utc'::text, now())
+);
+-- Post Views (for unique tracking)
+create table if not exists public.post_views (
+    id uuid default uuid_generate_v4() primary key,
+    post_id uuid references public.posts(id) on delete cascade not null,
+    user_id uuid references public.profiles(id) on delete cascade not null,
+    created_at timestamp with time zone default timezone('utc'::text, now()),
+    unique(post_id, user_id)
 );
 -- Helper function to avoid infinite recursion in RLS
 create or replace function get_my_chat_ids() returns setof uuid language sql security definer
@@ -79,6 +88,7 @@ alter table public.chat_members enable row level security;
 alter table public.messages enable row level security;
 alter table public.posts enable row level security;
 alter table public.comments enable row level security;
+alter table public.post_views enable row level security;
 -- Profiles policies
 create policy "view_profiles" on public.profiles for
 select using (true);
@@ -156,6 +166,11 @@ create policy "delete_own_messages" on public.messages for delete using (auth.ui
 create policy "view_comments" on public.comments for
 select using (true);
 create policy "insert_own_comments" on public.comments for
+insert with check (auth.uid() = user_id);
+-- Post Views policies
+create policy "view_post_views" on public.post_views for
+select using (true);
+create policy "insert_post_views" on public.post_views for
 insert with check (auth.uid() = user_id);
 -- Storage (Avatars)
 -- Note: You must create a bucket named 'avatars' in the Supabase Dashboard -> Storage

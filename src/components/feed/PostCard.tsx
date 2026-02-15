@@ -98,14 +98,13 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
             ([entry]) => {
                 if (entry.isIntersecting && !viewRecorded.current) {
                     viewRecorded.current = true;
-                    // Record view in background
+                    // Record view - trigger will handle the increment
                     supabase
                         .from('post_views')
-                        .upsert({ post_id: post.id, user_id: user.id }, { onConflict: 'post_id,user_id' })
+                        .insert({ post_id: post.id, user_id: user.id })
                         .then(({ error }) => {
                             if (!error) {
                                 setViewsCount(prev => prev + 1);
-                                supabase.from('posts').update({ views_count: viewsCount + 1 }).eq('id', post.id);
                             }
                         });
                     observer.disconnect();
@@ -115,7 +114,20 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
         );
         observer.observe(el);
         return () => observer.disconnect();
-    }, [user, post.id, viewsCount]);
+    }, [user, post.id]);
+
+    // Fetch latest view count
+    useEffect(() => {
+        const fetchViews = async () => {
+            const { data } = await supabase
+                .from('posts')
+                .select('views_count')
+                .eq('id', post.id)
+                .single();
+            if (data) setViewsCount(data.views_count || 0);
+        };
+        fetchViews();
+    }, [post.id]);
 
     const fetchComments = useCallback(async () => {
         const { data, error } = await supabase
