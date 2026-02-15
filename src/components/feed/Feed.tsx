@@ -324,19 +324,12 @@ export const Feed = () => {
             {/* Posts List */}
             <div className="space-y-4">
                 {posts.map((post, index) => (
-                    <motion.div
+                    <PostCard
                         key={post.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                            delay: Math.min(index * 0.05, 0.3),
-                            duration: 0.3,
-                            ease: "easeOut"
-                        }}
-                        style={{ willChange: "transform, opacity" }}
-                    >
-                        <PostCard post={post} onDelete={handleDeletePost} />
-                    </motion.div>
+                        post={post}
+                        onDelete={handleDeletePost}
+                        index={index}
+                    />
                 ))}
 
                 {posts.length === 0 && (

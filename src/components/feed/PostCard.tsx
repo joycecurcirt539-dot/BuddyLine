@@ -38,7 +38,7 @@ interface Comment {
     };
 }
 
-export const PostCard = ({ post, onDelete }: { post: Post; onDelete?: (id: string) => void }) => {
+export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?: (id: string) => void; index?: number }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
 
@@ -243,12 +243,17 @@ export const PostCard = ({ post, onDelete }: { post: Post; onDelete?: (id: strin
     return (
         <motion.div
             ref={cardRef}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{
+                delay: Math.min(index * 0.05, 0.3),
+                duration: 0.3,
+                ease: "easeOut"
+            }}
             whileHover={{ y: -4 }}
             className={clsx(
                 "p-6 mb-6 bg-surface-container-low/40 backdrop-blur-xl rounded-[40px] border border-outline-variant/10 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:bg-surface-container-low/60 transition-all duration-500 group/card relative",
-                showEmojiPicker && "z-[60]"
+                showEmojiPicker && "z-[100]"
             )}
         >
             {/* Background Accent */}

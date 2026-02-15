@@ -443,15 +443,11 @@ export const Profile = () => {
                 ) : (
                     <div className="space-y-8">
                         {posts.map((post, index) => (
-                            <motion.div
+                            <PostCard
                                 key={post.id}
-                                initial={{ opacity: 0, y: 5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: Math.min(index * 0.05, 0.3) }}
-                                style={{ willChange: "transform, opacity" }}
-                            >
-                                <PostCard post={post} />
-                            </motion.div>
+                                post={post}
+                                index={index}
+                            />
                         ))}
                     </div>
                 )}
