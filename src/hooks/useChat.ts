@@ -130,9 +130,10 @@ export const useChat = () => {
             }]);
 
         if (error) {
-            console.error('Error sending message:', error);
+            console.error('Error sending message:', error.message, error.details, error.hint);
             // Remove optimistic message on error
             setMessages(prev => prev.filter(m => m.id !== tempId));
+            alert(`Failed to send message: ${error.message}`);
         }
     };
 
