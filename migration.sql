@@ -146,3 +146,17 @@ create policy "insert_own_comments" on public.comments for
 insert with check (auth.uid() = user_id);
 -- Storage (Avatars)
 -- Note: You must create a bucket named 'avatars' in the Supabase Dashboard -> Storage
+-- Helper function to create chat atomically
+create or replace function create_new_chat(friend_id uuid) returns uuid language plpgsql security definer as $$
+declare new_chat_id uuid;
+begin
+insert into chats (type)
+values ('direct')
+returning id into new_chat_id;
+insert into chat_members (chat_id, user_id)
+values (new_chat_id, auth.uid());
+insert into chat_members (chat_id, user_id)
+values (new_chat_id, friend_id);
+return new_chat_id;
+end;
+$$;

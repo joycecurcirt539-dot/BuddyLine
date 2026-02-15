@@ -110,24 +110,13 @@ export const useChat = () => {
     const sendMessage = async (content: string) => {
         if (!user || !activeChat) return;
 
-        // Generate ID client-side so it matches the optimistic update
+        // Generate ID explicitly for robustness
         const messageId = crypto.randomUUID();
-
-        const optimisticMessage: Message = {
-            id: messageId,
-            chat_id: activeChat.id,
-            sender_id: user.id,
-            content,
-            created_at: new Date().toISOString(),
-            status: 'sent'
-        };
-
-        setMessages(prev => [...prev, optimisticMessage]);
 
         const { error } = await supabase
             .from('messages')
             .insert([{
-                id: messageId, // Explicitly use the generated ID
+                id: messageId,
                 chat_id: activeChat.id,
                 sender_id: user.id,
                 content
@@ -135,8 +124,6 @@ export const useChat = () => {
 
         if (error) {
             console.error('Error sending message:', error.message, error.details, error.hint);
-            // Remove optimistic message on error
-            setMessages(prev => prev.filter(m => m.id !== messageId));
             alert(`Failed to send message: ${error.message}`);
         }
     };
@@ -178,27 +165,14 @@ export const useChat = () => {
             }
         }
 
-        // 2. Create Chat if not found
-        const { data: chat, error: chatError } = await supabase
-            .from('chats')
-            .insert([{ type: 'direct' }])
-            .select()
-            .single();
+        // 2. Create Chat via RPC (Atomic & Secure)
+        const { data: newChatId, error: rpcError } = await supabase
+            .rpc('create_new_chat', { friend_id: friendId });
 
-        if (chatError) return { error: chatError.message };
-
-        // 3. Add Members
-        const { error: membersError } = await supabase
-            .from('chat_members')
-            .insert([
-                { chat_id: chat.id, user_id: user.id },
-                { chat_id: chat.id, user_id: friendId }
-            ]);
-
-        if (membersError) return { error: membersError.message };
+        if (rpcError) return { error: rpcError.message };
 
         await fetchChats(); // Refresh list
-        return { success: true, chatId: chat.id };
+        return { success: true, chatId: newChatId };
     };
 
     const deleteMessage = async (messageId: string) => {
