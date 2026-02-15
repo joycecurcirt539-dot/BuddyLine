@@ -77,7 +77,7 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             className={clsx(
-                "w-72 sm:w-80 h-[400px] glass rounded-[32px] shadow-2xl overflow-hidden flex flex-col z-50",
+                "w-72 sm:w-80 h-[400px] glass rounded-[32px] shadow-2xl overflow-hidden flex flex-col z-[100]",
                 className
             )}
         >

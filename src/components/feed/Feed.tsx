@@ -209,7 +209,7 @@ export const Feed = () => {
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-5 md:p-8 mb-6 md:mb-12 bg-surface-container-low/40 backdrop-blur-xl rounded-[32px] md:rounded-[48px] border border-outline-variant/10 shadow-2xl shadow-primary/5 group/composer relative overflow-hidden"
+                className="p-5 md:p-8 mb-6 md:mb-12 bg-surface-container-low/40 backdrop-blur-xl rounded-[32px] md:rounded-[48px] border border-outline-variant/10 shadow-2xl shadow-primary/5 group/composer relative"
             >
                 <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -ml-32 -mt-32 transition-colors duration-1000 group-focus-within/composer:bg-primary/10" />
 
@@ -296,7 +296,7 @@ export const Feed = () => {
                                             <EmojiPicker
                                                 onSelect={handleEmojiSelect}
                                                 onClose={() => setShowEmojiPicker(false)}
-                                                className="absolute bottom-full mb-4 left-0"
+                                                className="absolute top-full mt-4 left-0"
                                             />
                                         )}
                                     </AnimatePresence>
