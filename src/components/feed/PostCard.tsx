@@ -393,7 +393,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="relative z-10 w-full overflow-x-hidden"
+                        className="relative z-10 w-full overflow-visible"
                     >
                         <div className="pt-4 mt-4 border-t border-outline-variant/10 px-1">
                             {/* Comment Input */}
@@ -403,7 +403,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                                     size="sm"
                                     className="ring-2 ring-primary/5 flex-shrink-0"
                                 />
-                                <div className="flex-1 flex gap-1 sm:gap-2 relative min-w-0">
+                                <div className="flex-1 flex gap-1 sm:gap-2 relative min-w-0 z-[50]">
                                     <input
                                         ref={commentInputRef}
                                         type="text"
