@@ -339,7 +339,7 @@ export const ChatWindow = ({
 
                     <form
                         onSubmit={handleSubmit}
-                        className="relative flex gap-3 items-center bg-surface/60 backdrop-blur-3xl border border-outline-variant/20 rounded-[32px] p-2 pl-4 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/5"
+                        className="relative flex gap-2 items-center bg-surface/60 backdrop-blur-3xl border border-outline-variant/20 rounded-[32px] p-2 pl-3 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/5"
                     >
                         <input
                             ref={fileInputRef}
@@ -353,19 +353,19 @@ export const ChatWindow = ({
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             className={clsx(
-                                "p-3 rounded-2xl transition-all shrink-0 active:scale-90",
+                                "p-2 sm:p-3 rounded-2xl transition-all shrink-0 active:scale-90",
                                 selectedImage ? "text-primary bg-primary/10" : "text-on-surface-variant/40 hover:text-primary hover:bg-primary/5"
                             )}
                             title={t('post.add_image')}
                         >
-                            <ImageIcon size={24} />
+                            <ImageIcon size={20} className="sm:w-6 sm:h-6" />
                         </button>
 
                         <input
                             ref={inputRef}
                             type="text"
                             placeholder={t('chat.type_placeholder')}
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2"
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2 min-w-0"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                         />
@@ -375,12 +375,12 @@ export const ChatWindow = ({
                                 type="button"
                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                                 className={clsx(
-                                    "p-3 text-on-surface-variant/40 hover:text-primary rounded-2xl transition-all active:scale-90",
+                                    "p-2 sm:p-3 text-on-surface-variant/40 hover:text-primary rounded-2xl transition-all active:scale-90",
                                     showEmojiPicker && "text-primary"
                                 )}
                                 title={t('post.add_emoji', 'Add emoji')}
                             >
-                                <Smile size={24} />
+                                <Smile size={20} className="sm:w-6 sm:h-6" />
                             </button>
 
                             <AnimatePresence>
@@ -400,16 +400,16 @@ export const ChatWindow = ({
                             type="submit"
                             disabled={(!newMessage.trim() && !selectedImage) || uploading}
                             className={clsx(
-                                "rounded-2xl w-12 h-12 lg:w-14 lg:h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0",
+                                "rounded-2xl w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0",
                                 (newMessage.trim() || selectedImage)
                                     ? "bg-primary text-on-primary shadow-primary/30"
                                     : "bg-surface-container-high text-on-surface-variant/20 cursor-not-allowed shadow-none"
                             )}
                         >
                             <Send
-                                size={22}
+                                size={18}
                                 className={clsx(
-                                    "transition-all duration-500",
+                                    "sm:w-[22px] sm:h-[22px] transition-all duration-500",
                                     (newMessage.trim() || selectedImage) && "rotate-[-12deg] translate-x-0.5 -translate-y-0.5"
                                 )}
                             />
