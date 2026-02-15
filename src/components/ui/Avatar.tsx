@@ -55,17 +55,7 @@ export const Avatar = ({ src, alt, size = 'md', className, status }: AvatarProps
                     <div className="w-full h-full bg-gradient-to-br from-primary/20 via-primary/5 to-surface-container-high flex items-center justify-center relative group/fallback overflow-hidden">
                         <div className="absolute inset-0 bg-primary/5 animate-pulse" />
                         <div
-                            className="w-1/2 h-1/2 bg-gradient-to-br from-indigo-900 via-purple-950 to-black relative z-10 transition-all duration-500 group-hover/fallback:scale-110 shadow-[0_0_15px_rgba(49,46,129,0.3)]"
-                            style={{
-                                maskImage: 'url(/logo.svg)',
-                                maskRepeat: 'no-repeat',
-                                maskPosition: 'center',
-                                maskSize: 'contain',
-                                WebkitMaskImage: 'url(/logo.svg)',
-                                WebkitMaskRepeat: 'no-repeat',
-                                WebkitMaskPosition: 'center',
-                                WebkitMaskSize: 'contain'
-                            }}
+                            className="w-1/2 h-1/2 bg-gradient-to-br from-indigo-900 via-purple-950 to-black relative z-10 transition-all duration-500 group-hover/fallback:scale-110 shadow-[0_0_15px_rgba(49,46,129,0.3)] mask-logo"
                         />
                     </div>
                 )}
