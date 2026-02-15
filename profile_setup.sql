@@ -1,4 +1,4 @@
--- 1. Ensure Profiles table exists with correct structure
+-- 1. Ensure Profiles table exists and has all required columns
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
@@ -9,6 +9,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     last_seen TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
+-- Ensure columns exist if table was already created without them
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS full_name TEXT;
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'offline';
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 -- 2. Enable RLS on profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 -- 3. Profiles Policies
