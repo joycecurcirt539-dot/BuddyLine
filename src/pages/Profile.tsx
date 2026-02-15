@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
-
+import { BotBadge } from '../components/ui/BotBadge';
 import { usePresence } from '../hooks/usePresence';
 
 interface ProfileData {
@@ -281,11 +281,15 @@ export const Profile = () => {
                         <div className="flex-1 flex flex-col gap-4 text-center sm:text-left">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 pb-1">
                                 <div>
-                                    <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1">
+                                    <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1 flex items-center gap-2">
                                         {profile.full_name || profile.username}
+                                        <BotBadge username={profile.username} className="mb-0.5" />
                                     </h1>
                                     <div className="flex items-center justify-center sm:justify-start gap-2">
-                                        <p className="text-primary font-bold text-sm uppercase tracking-widest">@{profile.username}</p>
+                                        <p className="text-primary font-bold text-sm uppercase tracking-widest flex items-center gap-1.5">
+                                            @{profile.username}
+                                            <BotBadge username={profile.username} type="bot" />
+                                        </p>
                                         <span className="text-outline-variant opacity-30">•</span>
                                         <div className="flex items-center gap-1.5">
                                             <div className={clsx("w-1.5 h-1.5 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_8px_currentColor] animate-pulse" : "bg-outline-variant")} />

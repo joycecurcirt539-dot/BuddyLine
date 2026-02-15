@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { clsx } from 'clsx';
 import { EmojiPicker } from '../ui/EmojiPicker';
+import { BotBadge } from '../ui/BotBadge';
 import { getDateLocale } from '../../utils/dateLocale';
 
 export interface Post {
@@ -291,8 +292,9 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                     </Link>
                     <div className="flex flex-col">
                         <Link to={`/profile/${post.user_id}`} className="group/name">
-                            <h3 className="text-base font-black text-on-surface leading-tight tracking-tight uppercase italic group-hover/name:text-primary transition-colors">
+                            <h3 className="text-base font-black text-on-surface leading-tight tracking-tight uppercase italic group-hover/name:text-primary transition-colors flex items-center gap-2">
                                 {post.author.full_name || post.author.username}
+                                <BotBadge username={post.author.username} />
                             </h3>
                         </Link>
                         <p className="text-[10px] font-bold text-primary/60 uppercase tracking-[0.2em]">
@@ -468,8 +470,9 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                                             </Link>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2">
-                                                    <Link to={`/profile/${comment.user_id}`} className="text-xs font-black text-on-surface uppercase tracking-tight hover:text-primary transition-colors">
+                                                    <Link to={`/profile/${comment.user_id}`} className="text-xs font-black text-on-surface uppercase tracking-tight hover:text-primary transition-colors flex items-center gap-2">
                                                         {comment.author.full_name || comment.author.username}
+                                                        <BotBadge username={comment.author.username} />
                                                     </Link>
                                                     <span className="text-[9px] text-on-surface-variant/40 font-medium">
                                                         {formatDistanceToNow(new Date(comment.created_at), {

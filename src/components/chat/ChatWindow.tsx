@@ -11,6 +11,7 @@ import { usePresence } from '../../hooks/usePresence';
 import type { TFunction } from 'i18next';
 import { EmojiPicker } from '../ui/EmojiPicker';
 import { CompanionInfo } from './CompanionInfo';
+import { BotBadge } from '../ui/BotBadge';
 import { compressImage } from '../../utils/compressImage';
 import { supabase } from '../../lib/supabase';
 
@@ -243,8 +244,9 @@ export const ChatWindow = ({
                             <Avatar src={otherParticipant.avatar_url} alt={otherParticipant.username} status={isUserOnline ? 'online' : 'offline'} size="md" className="ring-2 ring-surface relative z-10" />
                         </div>
                         <div>
-                            <h2 className="font-black text-on-surface uppercase italic tracking-tight leading-none mb-1 text-sm md:text-base truncate max-w-[120px] md:max-w-none">
+                            <h2 className="font-black text-on-surface uppercase italic tracking-tight leading-none mb-1 text-sm md:text-base truncate max-w-[120px] md:max-w-none flex items-center gap-2">
                                 {chat.name || otherParticipant.full_name || otherParticipant.username}
+                                <BotBadge username={otherParticipant.username} />
                             </h2>
                             <div className="flex items-center gap-2">
                                 <div className={clsx("w-1.5 h-1.5 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_8px_currentColor] animate-pulse" : "bg-outline-variant")} />
