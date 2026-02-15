@@ -277,5 +277,10 @@
     "discovery_panel": {
         "title": "Already with us",
         "add_friend": "Add Friend"
+    },
+    "404": {
+        "title": "Lost in the void?",
+        "description": "The page you are looking for doesn't exist or has been moved to another dimension.",
+        "return_signal": "Return to Signal"
     }
 }
