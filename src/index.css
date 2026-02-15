@@ -83,14 +83,17 @@
   --md-elevation-4: 0 6px 10px 4px rgb(0 0 0 / 0.15), 0 2px 3px 0 rgb(0 0 0 / 0.3);
 }
 
-body {
-  background-color: var(--color-surface);
-  color: var(--color-on-surface);
-  @apply transition-colors duration-700 antialiased;
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
+  overscroll-behavior: none;
 }
+
+
 
 body::before {
   content: "";

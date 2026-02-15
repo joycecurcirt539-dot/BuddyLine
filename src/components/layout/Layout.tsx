@@ -13,11 +13,11 @@ export const Layout = () => {
     const isComposerOpen = new URLSearchParams(location.search).get('composer') === 'true';
 
     return (
-        <div className="flex h-dvh w-full overflow-hidden bg-surface text-on-surface transition-colors duration-300">
+        <div className="flex h-full w-full overflow-hidden bg-surface text-on-surface transition-colors duration-300">
             <Sidebar />
 
             <main className={clsx(
-                "flex-1 lg:pl-72 h-dvh overflow-hidden flex flex-col",
+                "flex-1 lg:pl-72 h-full overflow-hidden flex flex-col",
                 (isChatOpen || isComposerOpen) ? "pb-0" : "pb-16 lg:pb-0"
             )}>
                 <div className={clsx(
