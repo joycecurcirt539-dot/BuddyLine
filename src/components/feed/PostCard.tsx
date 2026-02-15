@@ -377,7 +377,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="overflow-hidden relative z-10"
+                        className="relative z-10"
                     >
                         <div className="pt-4 mt-4 border-t border-outline-variant/10">
                             {/* Comment Input */}
