@@ -112,7 +112,7 @@ export const Friends = () => {
                     className="bg-surface-container-low rounded-[24px] shadow-lg shadow-primary/5 border border-outline-variant/10 overflow-hidden glass"
                 >
                     <div className="px-5 py-3 border-b border-outline-variant/10 bg-surface-container/30">
-                        <h2 className="text-base font-black text-on-surface uppercase tracking-[0.2em] italic">{t('friends_page.expand.title')}</h2>
+                        <h2 className="text-base font-black text-on-surface uppercase tracking-tight italic">{t('friends_page.expand.title')}</h2>
                     </div>
                     <div className="p-3">
                         <form onSubmit={handleSendRequest} className="flex flex-col sm:flex-row gap-2">
