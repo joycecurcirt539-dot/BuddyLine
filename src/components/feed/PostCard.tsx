@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Avatar } from '../ui/Avatar';
-import { MessageCircle, Heart, Share2, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile } from 'lucide-react';
+import { MessageCircle, Heart, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -381,12 +381,6 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         <Eye size={16} />
                         <span className="text-xs font-bold">{viewsCount}</span>
                     </div>
-                    <button
-                        className="p-3 text-on-surface-variant hover:text-primary rounded-2xl bg-surface-container-low hover:bg-primary/5 transition-all duration-300 border border-outline-variant/5 shadow-sm active:scale-90"
-                        title={t('common.share')}
-                    >
-                        <Share2 size={20} />
-                    </button>
                 </div>
             </div>
 
