@@ -37,6 +37,20 @@ export const MessageBubble = ({ message, isOwn, onDelete }: MessageBubbleProps) 
                     {message.content}
                 </p>
 
+                {message.image_url && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mt-3 rounded-2xl overflow-hidden border border-outline-variant/10 shadow-lg relative group/image"
+                    >
+                        <img
+                            src={message.image_url}
+                            alt="Chat content"
+                            className="w-full h-auto object-cover max-h-[400px] transition-transform duration-500 group-hover/image:scale-105"
+                        />
+                    </motion.div>
+                )}
+
                 {/* Delete Trigger (Own messages only) */}
                 {isOwn && (
                     <button

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Message, Chat } from '../../hooks/useChat';
-import { Send, MoreVertical, Phone, Video, Plus, ArrowLeft, MessageCircle, Smile } from 'lucide-react';
+import { Send, MoreVertical, Phone, Video, ArrowLeft, MessageCircle, Smile, Image as ImageIcon, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
@@ -10,12 +10,14 @@ import { MessageBubble } from './MessageBubble';
 import { usePresence } from '../../hooks/usePresence';
 import type { TFunction } from 'i18next';
 import { EmojiPicker } from '../ui/EmojiPicker';
+import { compressImage } from '../../utils/compressImage';
+import { supabase } from '../../lib/supabase';
 
 interface ChatWindowProps {
     chat: Chat | null;
     messages: Message[];
     loading: boolean;
-    onSendMessage: (content: string) => void;
+    onSendMessage: (content: string, imageUrl?: string) => void;
     onDeleteMessage?: (messageId: string) => void;
     onBack?: () => void;
 }
@@ -40,8 +42,12 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
     const { onlineUsers } = usePresence();
     const [newMessage, setNewMessage] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -51,12 +57,76 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
         scrollToBottom();
     }, [messages]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert(t('post.invalid_image'));
+            return;
+        }
+
+        setSelectedImage(file);
+        const reader = new FileReader();
+        reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+        reader.readAsDataURL(file);
+    };
+
+    const removeImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const uploadImage = async (file: File): Promise<string | null> => {
+        if (!user) return null;
+
+        // Compress (logic same as Feed.tsx)
+        const compressed = await compressImage(file, 150);
+
+        const extension = compressed.type.split('/')[1] || 'jpg';
+        const fileName = `chat/${chat?.id}/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${extension}`;
+
+        const { error } = await supabase.storage
+            .from('post-images') // Reuse post-images bucket for simplicity unless designated chat-images exists
+            .upload(fileName, compressed, {
+                contentType: compressed.type,
+                upsert: false,
+            });
+
+        if (error) {
+            console.error('Chat upload error:', error);
+            throw error;
+        }
+
+        const { data: urlData } = supabase.storage
+            .from('post-images')
+            .getPublicUrl(fileName);
+
+        return urlData.publicUrl;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
-        onSendMessage(newMessage);
-        setNewMessage('');
-        setShowEmojiPicker(false);
+        if ((!newMessage.trim() && !selectedImage) || uploading) return;
+
+        setUploading(true);
+        try {
+            let imageUrl: string | undefined;
+            if (selectedImage) {
+                imageUrl = (await uploadImage(selectedImage)) || undefined;
+            }
+
+            onSendMessage(newMessage.trim(), imageUrl);
+            setNewMessage('');
+            removeImage();
+            setShowEmojiPicker(false);
+        } catch (error) {
+            console.error('Error in chat submit:', error);
+            alert(t('common.error'));
+        } finally {
+            setUploading(false);
+        }
     };
 
     const handleEmojiSelect = (emoji: string) => {
@@ -175,6 +245,32 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
             {/* Uplink Pill Input */}
             <div className="p-6">
                 <div className="max-w-4xl mx-auto relative">
+                    {/* Image Preview */}
+                    <AnimatePresence>
+                        {imagePreview && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                className="absolute bottom-full mb-4 left-0 w-32 h-32 rounded-3xl overflow-hidden border-2 border-primary/20 shadow-2xl z-20 group/preview"
+                            >
+                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                <button
+                                    onClick={removeImage}
+                                    className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity text-white"
+                                    title={t('common.remove', 'Remove')}
+                                >
+                                    <X size={24} />
+                                </button>
+                                {uploading && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     {/* Shadow/Glow base */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-primary/10 via-transparent to-tertiary/10 blur-xl rounded-[32px] opacity-50" />
 
@@ -182,12 +278,24 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                         onSubmit={handleSubmit}
                         className="relative flex gap-3 items-center bg-surface/60 backdrop-blur-3xl border border-outline-variant/20 rounded-[32px] p-2 pl-4 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/5"
                     >
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageSelect}
+                            className="hidden"
+                            title={t('post.add_image')}
+                        />
                         <button
                             type="button"
-                            className="p-3 text-on-surface-variant/40 hover:text-primary hover:bg-primary/5 rounded-2xl transition-all shrink-0 active:scale-90"
-                            title={t('chat.add_data_stream')}
+                            onClick={() => fileInputRef.current?.click()}
+                            className={clsx(
+                                "p-3 rounded-2xl transition-all shrink-0 active:scale-90",
+                                selectedImage ? "text-primary bg-primary/10" : "text-on-surface-variant/40 hover:text-primary hover:bg-primary/5"
+                            )}
+                            title={t('post.add_image')}
                         >
-                            <Plus size={24} />
+                            <ImageIcon size={24} />
                         </button>
 
                         <input
@@ -227,10 +335,10 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             type="submit"
-                            disabled={!newMessage.trim()}
+                            disabled={(!newMessage.trim() && !selectedImage) || uploading}
                             className={clsx(
                                 "rounded-2xl w-12 h-12 lg:w-14 lg:h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0",
-                                newMessage.trim()
+                                (newMessage.trim() || selectedImage)
                                     ? "bg-primary text-on-primary shadow-primary/30"
                                     : "bg-surface-container-high text-on-surface-variant/20 cursor-not-allowed shadow-none"
                             )}
@@ -239,7 +347,7 @@ export const ChatWindow = ({ chat, messages, loading, onSendMessage, onDeleteMes
                                 size={22}
                                 className={clsx(
                                     "transition-all duration-500",
-                                    newMessage.trim() && "rotate-[-12deg] translate-x-0.5 -translate-y-0.5"
+                                    (newMessage.trim() || selectedImage) && "rotate-[-12deg] translate-x-0.5 -translate-y-0.5"
                                 )}
                             />
                         </motion.button>

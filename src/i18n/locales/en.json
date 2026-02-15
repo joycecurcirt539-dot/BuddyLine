@@ -12,7 +12,8 @@
         "cancel": "Cancel",
         "back": "Back",
         "search": "Search...",
-        "share": "Share"
+        "share": "Share",
+        "remove": "Remove"
     },
     "home": {
         "feed_subtitle": "Your personalized feed",

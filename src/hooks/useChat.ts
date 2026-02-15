@@ -9,6 +9,7 @@ export interface Message {
     chat_id: string;
     sender_id: string;
     content: string;
+    image_url?: string;
     created_at: string;
     status: 'sent' | 'delivered' | 'read';
 }
@@ -107,7 +108,7 @@ export const useChat = () => {
         fetchMessages(chat.id);
     }, [fetchMessages]);
 
-    const sendMessage = async (content: string) => {
+    const sendMessage = async (content: string, imageUrl?: string) => {
         if (!user || !activeChat) return;
 
         // Generate ID explicitly for robustness
@@ -119,7 +120,8 @@ export const useChat = () => {
                 id: messageId,
                 chat_id: activeChat.id,
                 sender_id: user.id,
-                content
+                content,
+                image_url: imageUrl
             }]);
 
         if (error) {
