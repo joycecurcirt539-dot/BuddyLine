@@ -201,7 +201,7 @@ export const UserListPanel = () => {
             <div className="glass rounded-[32px] p-6 border border-outline-variant/5">
                 <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-[0.2em] leading-relaxed">
                     © 2026 BuddyLine Labs. <br />
-                    Premium Social Experience.
+                    {t('footer.slogan')}
                 </p>
             </div>
         </div>

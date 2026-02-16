@@ -122,6 +122,13 @@ export const Profile = () => {
         const result = await createDirectChat(profile.id);
         if (result.success) {
             navigate(`/chat?id=${result.chatId}`);
+        } else if (result.error) {
+            // Check for specific error messages or just show the error
+            if (result.error.toLowerCase().includes('friends')) {
+                alert(t('chat_error.friends_only'));
+            } else {
+                alert(result.error);
+            }
         }
     };
 

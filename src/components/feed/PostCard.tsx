@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Avatar } from '../ui/Avatar';
-import { MessageCircle, Heart, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile } from 'lucide-react';
+import { MessageCircle, Heart, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile, Reply, X, Pencil, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -17,6 +17,7 @@ export interface Post {
     content: string;
     image_url?: string;
     created_at: string;
+    edited_at?: string | null;
     likes_count: number;
     views_count: number;
     user_id: string;
@@ -24,6 +25,7 @@ export interface Post {
         username: string;
         full_name: string;
         avatar_url: string;
+        is_verified?: boolean;
     };
 }
 
@@ -33,14 +35,17 @@ interface Comment {
     user_id: string;
     content: string;
     created_at: string;
+    edited_at?: string | null;
+    parent_id?: string | null;
     author: {
         username: string;
         full_name: string;
         avatar_url: string;
+        is_verified?: boolean;
     };
 }
 
-export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?: (id: string) => void; index?: number }) => {
+export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Post; onDelete?: (id: string) => void; onPostUpdate?: (id: string, content: string) => void; index?: number }) => {
     const { t, i18n } = useTranslation();
     const { user, isGuest } = useAuth();
 
@@ -56,7 +61,16 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
     const [commentLoading, setCommentLoading] = useState(false);
     const [commentsCount, setCommentsCount] = useState(0);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
     const commentInputRef = useRef<HTMLInputElement>(null);
+
+    // Edit state
+    const [editingPost, setEditingPost] = useState(false);
+    const [editPostContent, setEditPostContent] = useState(post.content);
+    const [postContent, setPostContent] = useState(post.content);
+    const [postEditedAt, setPostEditedAt] = useState(post.edited_at);
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [editCommentContent, setEditCommentContent] = useState('');
 
     // Views state
     const [viewsCount, setViewsCount] = useState(post.views_count || 0);
@@ -128,6 +142,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
         if (!error && data) {
             setComments(data.map(c => ({
                 ...c,
+                parent_id: c.parent_id || null,
                 author: c.author as unknown as Comment['author']
             })) as Comment[]);
             setCommentsCount(data.length);
@@ -159,8 +174,8 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                 setLikesCount(prev => prev + 1);
                 console.error('Error unliking:', error);
             } else {
-                // Update counter on posts table
-                await supabase.from('posts').update({ likes_count: likesCount - 1 }).eq('id', post.id);
+                // Update counter on posts table - REMOVED: Triggers handle this
+                // await supabase.from('posts').update({ likes_count: likesCount - 1 }).eq('id', post.id);
             }
         } else {
             // Like
@@ -177,13 +192,13 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                 setLikesCount(prev => Math.max(0, prev - 1));
                 console.error('Error liking:', error);
             } else {
-                await supabase.from('posts').update({ likes_count: likesCount + 1 }).eq('id', post.id);
+                // await supabase.from('posts').update({ likes_count: likesCount + 1 }).eq('id', post.id);
             }
         }
         setLikeLoading(false);
     };
 
-    const performAddComment = async (content: string) => {
+    const performAddComment = async (content: string, parentId?: string) => {
         if (isGuest) {
             alert(t('login_page.login_to_interact'));
             return;
@@ -191,18 +206,23 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
         if (!content.trim() || !user || commentLoading) return;
 
         setCommentLoading(true);
+        const insertData: Record<string, string> = {
+            post_id: post.id,
+            user_id: user.id,
+            content: content.trim()
+        };
+        if (parentId) {
+            insertData.parent_id = parentId;
+        }
         const { error } = await supabase
             .from('comments')
-            .insert({
-                post_id: post.id,
-                user_id: user.id,
-                content: content.trim()
-            });
+            .insert(insertData);
 
         if (error) {
             console.error('Error adding comment:', error);
         } else {
             setNewComment('');
+            setReplyingTo(null);
             await fetchComments();
         }
         setCommentLoading(false);
@@ -210,7 +230,12 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
 
     const handleAddComment = async (e: React.FormEvent) => {
         e.preventDefault();
-        await performAddComment(newComment);
+        await performAddComment(newComment, replyingTo?.id);
+    };
+
+    const handleReply = (comment: Comment) => {
+        setReplyingTo(comment);
+        commentInputRef.current?.focus();
     };
 
     const handleDeleteComment = async (commentId: string) => {
@@ -220,8 +245,10 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
             .eq('id', commentId);
 
         if (!error) {
-            setComments(prev => prev.filter(c => c.id !== commentId));
+            // Also remove child replies
+            setComments(prev => prev.filter(c => c.id !== commentId && c.parent_id !== commentId));
             setCommentsCount(prev => prev - 1);
+            if (replyingTo?.id === commentId) setReplyingTo(null);
         }
     };
 
@@ -253,6 +280,43 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
     };
 
     const isOwnPost = user?.id === post.user_id;
+
+    // Edit post handler
+    const handleEditPost = async () => {
+        if (!editPostContent.trim() || editPostContent === postContent) {
+            setEditingPost(false);
+            setEditPostContent(postContent);
+            return;
+        }
+        const { error } = await supabase
+            .from('posts')
+            .update({ content: editPostContent.trim(), edited_at: new Date().toISOString() })
+            .eq('id', post.id);
+        if (!error) {
+            setPostContent(editPostContent.trim());
+            setPostEditedAt(new Date().toISOString());
+            setEditingPost(false);
+            onPostUpdate?.(post.id, editPostContent.trim());
+        }
+    };
+
+    // Edit comment handler
+    const handleEditComment = async (commentId: string) => {
+        if (!editCommentContent.trim()) {
+            setEditingCommentId(null);
+            return;
+        }
+        const { error } = await supabase
+            .from('comments')
+            .update({ content: editCommentContent.trim(), edited_at: new Date().toISOString() })
+            .eq('id', commentId);
+        if (!error) {
+            setComments(prev => prev.map(c =>
+                c.id === commentId ? { ...c, content: editCommentContent.trim(), edited_at: new Date().toISOString() } : c
+            ));
+            setEditingCommentId(null);
+        }
+    };
 
     return (
         <motion.div
@@ -289,7 +353,7 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         <Link to={`/profile/${post.user_id}`} className="group/name">
                             <h3 className="text-base font-black text-on-surface leading-tight tracking-tight uppercase italic group-hover/name:text-primary transition-colors flex items-center gap-2">
                                 {post.author.full_name || post.author.username}
-                                <UserBadge username={post.author.username} isVerified={(post.author as any).is_verified} />
+                                <UserBadge username={post.author.username} isVerified={post.author.is_verified} />
                             </h3>
                         </Link>
                         <p className="text-[10px] font-bold text-primary/60 uppercase tracking-[0.2em]">
@@ -300,22 +364,61 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         </p>
                     </div>
                 </div>
-                {isOwnPost && onDelete && (
-                    <button
-                        onClick={() => onDelete(post.id)}
-                        className="p-2 text-on-surface-variant/40 hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-all"
-                        title={t('post.delete')}
-                    >
-                        <Trash2 size={16} />
-                    </button>
+                {isOwnPost && (
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => { setEditingPost(true); setEditPostContent(postContent); }}
+                            className="p-2 text-on-surface-variant/40 hover:text-primary rounded-xl hover:bg-primary/10 transition-all"
+                            title={t('common.edit')}
+                        >
+                            <Pencil size={16} />
+                        </button>
+                        {onDelete && (
+                            <button
+                                onClick={() => onDelete(post.id)}
+                                className="p-2 text-on-surface-variant/40 hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-all"
+                                title={t('post.delete')}
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
 
             {/* Content */}
             <div className="relative z-10">
-                <p className="text-on-surface/90 mb-5 whitespace-pre-wrap text-base lg:text-lg leading-relaxed font-medium tracking-tight">
-                    {post.content}
-                </p>
+                {editingPost ? (
+                    <div className="mb-5">
+                        <textarea
+                            value={editPostContent}
+                            onChange={(e) => setEditPostContent(e.target.value)}
+                            className="w-full px-4 py-3 bg-surface-container rounded-2xl border border-primary/20 focus:ring-2 focus:ring-primary/30 outline-none text-base font-medium text-on-surface resize-none min-h-[80px]"
+                            autoFocus
+                        />
+                        <div className="flex gap-2 mt-2 justify-end">
+                            <button
+                                onClick={() => { setEditingPost(false); setEditPostContent(postContent); }}
+                                className="px-3 py-1.5 text-xs font-bold text-on-surface-variant/60 hover:text-on-surface transition-colors uppercase tracking-wider"
+                            >
+                                {t('common.cancel')}
+                            </button>
+                            <button
+                                onClick={handleEditPost}
+                                className="px-3 py-1.5 text-xs font-bold bg-primary text-on-primary rounded-xl hover:opacity-90 transition-all uppercase tracking-wider"
+                            >
+                                {t('common.save')}
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="text-on-surface/90 mb-5 whitespace-pre-wrap text-base lg:text-lg leading-relaxed font-medium tracking-tight">
+                        {postContent}
+                        {postEditedAt && (
+                            <span className="text-[10px] text-on-surface-variant/30 font-bold ml-2 uppercase">({t('common.edited')})</span>
+                        )}
+                    </p>
+                )}
 
                 {post.image_url && (
                     <motion.div
@@ -392,6 +495,16 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                         className="relative z-10 w-full overflow-visible"
                     >
                         <div className="pt-4 mt-4 border-t border-outline-variant/10 px-1">
+                            {/* Reply Indicator */}
+                            {replyingTo && (
+                                <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-primary/5 rounded-xl text-xs font-semibold text-primary">
+                                    <Reply size={14} />
+                                    <span>{t('common.replying_to')} <span className="font-black">@{replyingTo.author.username}</span></span>
+                                    <button onClick={() => setReplyingTo(null)} className="ml-auto p-0.5 hover:bg-primary/10 rounded-full transition-colors" title={t('common.close')}>
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            )}
                             {/* Comment Input */}
                             <form onSubmit={handleAddComment} className="flex gap-2 sm:gap-3 mb-4 items-center">
                                 <Avatar
@@ -448,49 +561,180 @@ export const PostCard = ({ post, onDelete, index = 0 }: { post: Post; onDelete?:
                                         {t('post.no_comments')}
                                     </p>
                                 ) : (
-                                    comments.map((comment) => (
-                                        <motion.div
-                                            key={comment.id}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="flex gap-3 p-3 rounded-2xl hover:bg-surface-container-high/50 transition-colors group/comment"
-                                        >
-                                            <Link to={`/profile/${comment.user_id}`}>
-                                                <Avatar
-                                                    src={comment.author.avatar_url}
-                                                    alt={comment.author.username}
-                                                    size="sm"
-                                                    className="ring-2 ring-outline-variant/10"
-                                                />
-                                            </Link>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <Link to={`/profile/${comment.user_id}`} className="text-xs font-black text-on-surface uppercase tracking-tight hover:text-primary transition-colors flex items-center gap-2">
-                                                        {comment.author.full_name || comment.author.username}
-                                                        <UserBadge username={comment.author.username} isVerified={(comment.author as any).is_verified} />
-                                                    </Link>
-                                                    <span className="text-[9px] text-on-surface-variant/40 font-medium">
-                                                        {formatDistanceToNow(new Date(comment.created_at), {
-                                                            addSuffix: true,
-                                                            locale: getDateLocale(i18n.language)
-                                                        })}
-                                                    </span>
-                                                </div>
-                                                <p className="text-sm text-on-surface/80 font-medium mt-0.5 leading-relaxed">
-                                                    {comment.content}
-                                                </p>
-                                            </div>
-                                            {comment.user_id === user?.id && (
-                                                <button
-                                                    onClick={() => handleDeleteComment(comment.id)}
-                                                    title={t('post.delete')}
-                                                    className="p-1.5 text-on-surface-variant/30 hover:text-red-500 rounded-lg opacity-0 group-hover/comment:opacity-100 transition-all"
+                                    comments.filter(c => !c.parent_id).map((comment) => {
+                                        const replies = comments.filter(c => c.parent_id === comment.id);
+                                        return (
+                                            <div key={comment.id}>
+                                                {/* Top-level comment */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="flex gap-3 group/comment"
                                                 >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            )}
-                                        </motion.div>
-                                    ))
+                                                    <Link to={`/profile/${comment.user_id}`} className="mt-1">
+                                                        <Avatar
+                                                            src={comment.author.avatar_url}
+                                                            alt={comment.author.username}
+                                                            size="sm"
+                                                            className="ring-2 ring-transparent group-hover/comment:ring-primary/20 transition-all"
+                                                        />
+                                                    </Link>
+                                                    <div className="flex-1 max-w-[85%] min-w-0">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <Link to={`/profile/${comment.user_id}`} className="text-xs font-black text-on-surface hover:text-primary transition-colors flex items-center gap-1.5">
+                                                                {comment.author.full_name || comment.author.username}
+                                                                <UserBadge username={comment.author.username} isVerified={comment.author.is_verified} />
+                                                            </Link>
+                                                            <span className="text-[9px] text-on-surface-variant/40 font-bold uppercase tracking-wider">
+                                                                {formatDistanceToNow(new Date(comment.created_at), {
+                                                                    addSuffix: true,
+                                                                    locale: getDateLocale(i18n.language)
+                                                                })}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="bg-surface-container-high/50 px-4 py-2.5 rounded-2xl rounded-tl-none inline-block max-w-full text-sm font-medium text-on-surface leading-relaxed shadow-sm break-words whitespace-pre-wrap">
+                                                            {editingCommentId === comment.id ? (
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={editCommentContent}
+                                                                        onChange={(e) => setEditCommentContent(e.target.value)}
+                                                                        onKeyDown={(e) => { if (e.key === 'Enter') handleEditComment(comment.id); if (e.key === 'Escape') setEditingCommentId(null); }}
+                                                                        className="flex-1 bg-transparent outline-none text-sm font-medium min-w-[120px]"
+                                                                        autoFocus
+                                                                    />
+                                                                    <button onClick={() => handleEditComment(comment.id)} className="text-primary hover:text-primary/80" title={t('common.save')}>
+                                                                        <Check size={14} />
+                                                                    </button>
+                                                                    <button onClick={() => setEditingCommentId(null)} className="text-on-surface-variant/40 hover:text-on-surface" title={t('common.cancel')}>
+                                                                        <X size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    {comment.content}
+                                                                    {comment.edited_at && <span className="text-[9px] text-on-surface-variant/30 font-bold ml-1.5">({t('common.edited')})</span>}
+                                                                </>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex items-center gap-3 mt-1">
+                                                            <button
+                                                                onClick={() => handleReply(comment)}
+                                                                className="text-[10px] font-bold text-on-surface-variant/40 hover:text-primary transition-colors uppercase tracking-wider flex items-center gap-1"
+                                                            >
+                                                                <Reply size={11} />
+                                                                {t('common.reply')}
+                                                            </button>
+                                                            {comment.user_id === user?.id && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => { setEditingCommentId(comment.id); setEditCommentContent(comment.content); }}
+                                                                        className="text-[10px] font-bold text-on-surface-variant/40 hover:text-primary opacity-0 group-hover/comment:opacity-100 transition-all uppercase tracking-wider flex items-center gap-1"
+                                                                    >
+                                                                        <Pencil size={10} />
+                                                                        {t('common.edit')}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteComment(comment.id)}
+                                                                        className="text-[10px] font-bold text-red-500/50 hover:text-red-500 opacity-0 group-hover/comment:opacity-100 transition-all uppercase tracking-wider"
+                                                                    >
+                                                                        {t('common.remove')}
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Replies */}
+                                                {replies.length > 0 && (
+                                                    <div className="ml-4 md:ml-10 mt-2 space-y-2 border-l-2 border-outline-variant/10 pl-3">
+                                                        {replies.map((reply) => (
+                                                            <motion.div
+                                                                key={reply.id}
+                                                                initial={{ opacity: 0, x: -8 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                className="flex gap-2.5 group/reply"
+                                                            >
+                                                                <Link to={`/profile/${reply.user_id}`} className="mt-0.5">
+                                                                    <Avatar
+                                                                        src={reply.author.avatar_url}
+                                                                        alt={reply.author.username}
+                                                                        size="xs"
+                                                                        className="ring-1 ring-transparent group-hover/reply:ring-primary/20 transition-all"
+                                                                    />
+                                                                </Link>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                                        <Link to={`/profile/${reply.user_id}`} className="text-[11px] font-black text-on-surface hover:text-primary transition-colors flex items-center gap-1">
+                                                                            {reply.author.full_name || reply.author.username}
+                                                                            <UserBadge username={reply.author.username} isVerified={reply.author.is_verified} />
+                                                                        </Link>
+                                                                        <span className="text-[9px] text-on-surface-variant/30 font-bold">
+                                                                            {formatDistanceToNow(new Date(reply.created_at), {
+                                                                                addSuffix: true,
+                                                                                locale: getDateLocale(i18n.language)
+                                                                            })}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="bg-surface-container/60 px-3 py-2 rounded-xl rounded-tl-none inline-block max-w-full text-[13px] font-medium text-on-surface leading-relaxed break-words whitespace-pre-wrap">
+                                                                        <span className="text-primary/70 font-bold">@{comment.author.username}</span>{' '}
+                                                                        {editingCommentId === reply.id ? (
+                                                                            <span className="inline-flex items-center gap-1.5">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={editCommentContent}
+                                                                                    onChange={(e) => setEditCommentContent(e.target.value)}
+                                                                                    onKeyDown={(e) => { if (e.key === 'Enter') handleEditComment(reply.id); if (e.key === 'Escape') setEditingCommentId(null); }}
+                                                                                    className="bg-transparent outline-none text-[13px] font-medium min-w-[80px]"
+                                                                                    autoFocus
+                                                                                />
+                                                                                <button onClick={() => handleEditComment(reply.id)} className="text-primary" title={t('common.save')}><Check size={12} /></button>
+                                                                                <button onClick={() => setEditingCommentId(null)} className="text-on-surface-variant/40" title={t('common.cancel')}><X size={12} /></button>
+                                                                            </span>
+                                                                        ) : (
+                                                                            <>
+                                                                                {reply.content}
+                                                                                {reply.edited_at && <span className="text-[9px] text-on-surface-variant/30 font-bold ml-1">({t('common.edited')})</span>}
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3 mt-0.5">
+                                                                        <button
+                                                                            onClick={() => handleReply(comment)}
+                                                                            className="text-[9px] font-bold text-on-surface-variant/30 hover:text-primary transition-colors uppercase tracking-wider flex items-center gap-1"
+                                                                        >
+                                                                            <Reply size={10} />
+                                                                            {t('common.reply')}
+                                                                        </button>
+                                                                        {reply.user_id === user?.id && (
+                                                                            <>
+                                                                                <button
+                                                                                    onClick={() => { setEditingCommentId(reply.id); setEditCommentContent(reply.content); }}
+                                                                                    className="text-[9px] font-bold text-on-surface-variant/30 hover:text-primary opacity-0 group-hover/reply:opacity-100 transition-all uppercase tracking-wider flex items-center gap-1"
+                                                                                >
+                                                                                    <Pencil size={9} />
+                                                                                    {t('common.edit')}
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDeleteComment(reply.id)}
+                                                                                    className="text-[9px] font-bold text-red-500/40 hover:text-red-500 opacity-0 group-hover/reply:opacity-100 transition-all uppercase tracking-wider"
+                                                                                >
+                                                                                    {t('common.remove')}
+                                                                                </button>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })
                                 )}
                             </div>
                         </div>

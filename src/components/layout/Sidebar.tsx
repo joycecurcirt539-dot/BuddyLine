@@ -6,11 +6,21 @@ import { Avatar } from '../ui/Avatar';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { UserBadge } from '../ui/UserBadge';
+import { useProfile } from '../../hooks/useProfile';
 
 export const Sidebar = () => {
     const { t } = useTranslation();
     const { user } = useAuth();
+    const { profile } = useProfile();
     const location = useLocation();
+
+    // ... (keep existing links array)
+
+    // Helper to get display data
+    const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
+    const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0];
+    const displayUsername = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0];
+    const isVerified = profile?.is_verified || user?.user_metadata?.is_verified;
 
     const links = [
         { href: '/', label: t('common.home'), icon: Home },
@@ -80,17 +90,17 @@ export const Sidebar = () => {
             <div className="mt-auto space-y-2">
                 <div className="p-2 rounded-2xl bg-surface-variant/10 flex items-center gap-3 transition-colors hover:bg-surface-variant/20 cursor-pointer">
                     <Avatar
-                        src={user?.user_metadata?.avatar_url}
-                        alt={user?.email}
+                        src={displayAvatar}
+                        alt={displayUsername}
                         size="sm"
                     />
                     <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-on-surface truncate flex items-center gap-1.5">
-                            {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-                            <UserBadge username={user?.user_metadata?.username || user?.email?.split('@')[0]} isVerified={user?.user_metadata?.is_verified} />
+                            {displayName}
+                            <UserBadge username={displayUsername} isVerified={isVerified} />
                         </p>
-                        <p className="text-[9px] text-on-surface-variant truncate">
-                            {user?.email}
+                        <p className="text-[9px] text-on-surface-variant truncate font-mono opacity-60">
+                            {user?.email && user.email.length > 5 ? `${user.email.substring(0, 5)}...` : user?.email}
                         </p>
                     </div>
                 </div>

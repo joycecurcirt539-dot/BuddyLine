@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { ForwardChatModal } from '../components/chat/ForwardChatModal';
 import { useChat } from '../hooks/useChat';
-import type { Chat as ChatType } from '../hooks/useChat';
+import type { Chat as ChatType, Message } from '../hooks/useChat';
 import { ChatWindow } from '../components/chat/ChatWindow';
 import { Avatar } from '../components/ui/Avatar';
-import { Search, Plus, MessageSquare, X, Zap, Loader2 } from 'lucide-react';
+import { Search, Plus, MessageSquare, X, Zap, Loader2, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFriends } from '../hooks/useFriends';
 import type { Profile } from '../hooks/useFriends';
@@ -13,20 +14,24 @@ import { ExperimentsPanel } from '../components/chat/ExperimentsPanel';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { CompanionInfo } from '../components/chat/CompanionInfo';
 import { getDateLocale } from '../utils/dateLocale';
+import { usePresence } from '../hooks/usePresence';
 
 export const Chat = () => {
     const { t, i18n } = useTranslation();
     const { user, isGuest } = useAuth();
     const { friends, blockUser } = useFriends();
-    const { chats, activeChat, messages, loading, messagesLoading, selectChat, sendMessage, createDirectChat, deleteChat, deleteMessage } = useChat();
+    const { chats, activeChat, messages, loading, messagesLoading, selectChat, sendMessage, createDirectChat, deleteChat, deleteMessage, editMessage, forwardMessage } = useChat();
+    const { onlineUsers } = usePresence();
     const [mutedChats, setMutedChats] = useState<Set<string>>(new Set());
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState<'list' | 'chat'>('list');
     const [searchParams, setSearchParams] = useSearchParams();
+    const location = useLocation();
     const [showNewChat, setShowNewChat] = useState(false);
+    const [forwardingMessage, setForwardingMessage] = useState<Message | null>(null);
     const [newChatSearch, setNewChatSearch] = useState('');
     const [newChatResults, setNewChatResults] = useState<Profile[]>([]);
     const [searching, setSearching] = useState(false);
@@ -41,15 +46,35 @@ export const Chat = () => {
     // Auto-select chat from URL
     useEffect(() => {
         const chatId = searchParams.get('id');
-        if (chatId && chats.length > 0) {
-            const chat = chats.find(c => c.id === chatId);
-            if (chat && (!activeChat || activeChat.id !== chat.id)) {
-                selectChat(chat);
-                // Defer setting view to avoid cascading render warning
-                setTimeout(() => setView('chat'), 0);
+        if (chatId) {
+            if (chats.length > 0) {
+                const chat = chats.find(c => c.id === chatId);
+                // Only select if it's different to avoid loops, but strictly follow URL
+                if (chat && activeChat?.id !== chat.id) {
+                    selectChat(chat);
+                    // Defer setting view to avoid cascading render warning
+                    setTimeout(() => setView('chat'), 0);
+                } else if (chat && view !== 'chat') {
+                    // If active chat matches URL but view is wrong (e.g. back button), fix view
+                    setTimeout(() => setView('chat'), 0);
+                }
+            }
+        } else {
+            // No ID in URL, ensure we are in list view
+            // Only force list if we are not already there
+            if (view !== 'list') {
+                setTimeout(() => setView('list'), 0);
             }
         }
-    }, [searchParams, chats, selectChat, activeChat]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, chats]);
+
+    // Handle Messages tab click (reset to list)
+    useEffect(() => {
+        if (location.pathname === '/chat' && !location.search) {
+            setTimeout(() => setView('list'), 0);
+        }
+    }, [location]);
 
     const handleSelectChat = (chat: ChatType) => {
         if (isGuest) {
@@ -148,6 +173,25 @@ export const Chat = () => {
         });
     };
 
+    const handleForwardSelect = async (targetId: string, isNewChat: boolean) => {
+        if (!forwardingMessage) return;
+
+        let chatId = targetId;
+        if (isNewChat) {
+            const result = await createDirectChat(targetId);
+            if (result.success && result.chatId) {
+                chatId = result.chatId;
+            } else if (result.error) {
+                alert(result.error);
+                return;
+            }
+        }
+
+        await forwardMessage(forwardingMessage, chatId);
+        setForwardingMessage(null);
+        alert(t('chat.message_forwarded', 'Message forwarded'));
+    };
+
     if (view === 'chat' && activeChat) {
         const other = activeChat.participants.find(p => p.id !== user?.id) || activeChat.participants[0];
         return (
@@ -164,6 +208,8 @@ export const Chat = () => {
                         loading={messagesLoading}
                         onSendMessage={sendMessage}
                         onDeleteMessage={deleteMessage}
+                        onEditMessage={editMessage}
+                        onForwardMessage={setForwardingMessage}
                         onBack={handleBack}
                         isMuted={mutedChats.has(activeChat.id)}
                         onMuteToggle={handleMuteToggle}
@@ -188,6 +234,19 @@ export const Chat = () => {
                         onBlockUser={handleBlockUser}
                     />
                 </motion.div>
+
+                <AnimatePresence>
+                    {forwardingMessage && (
+                        <ForwardChatModal
+                            isOpen={!!forwardingMessage}
+                            onClose={() => setForwardingMessage(null)}
+                            onSelect={handleForwardSelect}
+                            chats={chats}
+                            friends={friends}
+                            onlineUsers={onlineUsers}
+                        />
+                    )}
+                </AnimatePresence>
             </div>
         );
     }
@@ -257,7 +316,7 @@ export const Chat = () => {
                                                 onClick={() => handleStartNewChat(profile.id)}
                                                 className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
                                             >
-                                                <Avatar src={profile.avatar_url} alt={profile.username} status={profile.status} size="md" className="ring-4 ring-surface shadow-xl" />
+                                                <Avatar src={profile.avatar_url} alt={profile.username} status={onlineUsers.has(profile.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-surface shadow-xl" />
                                                 <div className="flex-1">
                                                     <p className="font-black text-on-surface uppercase italic tracking-tight">{profile.full_name || profile.username}</p>
                                                     <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{profile.username}</p>
@@ -282,7 +341,7 @@ export const Chat = () => {
                                                 onClick={() => handleStartNewChat(friend.id)}
                                                 className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
                                             >
-                                                <Avatar src={friend.avatar_url} alt={friend.username} status={friend.status} size="md" className="ring-4 ring-surface shadow-xl" />
+                                                <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-surface shadow-xl" />
                                                 <div className="flex-1">
                                                     <p className="font-black text-on-surface uppercase italic tracking-tight">{friend.full_name || friend.username}</p>
                                                     <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{friend.username}</p>
@@ -394,7 +453,7 @@ export const Chat = () => {
                                                     <Avatar
                                                         src={other.avatar_url}
                                                         alt={other.username}
-                                                        status={other.status}
+                                                        status={onlineUsers.has(other.id) ? 'online' : 'offline'}
                                                         size="lg"
                                                         className="ring-4 ring-surface shadow-2xl group-hover/card:ring-primary/20 transition-all duration-500"
                                                     />
@@ -415,9 +474,20 @@ export const Chat = () => {
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <p className="text-xs text-on-surface-variant font-medium line-clamp-1 opacity-80 group-hover/card:opacity-100">
-                                                        {chat.last_message?.content || t('chat.no_messages')}
-                                                    </p>
+                                                    <div className="text-xs text-on-surface-variant font-medium line-clamp-1 opacity-80 group-hover/card:opacity-100 flex items-center gap-1">
+                                                        {chat.last_message ? (
+                                                            <>
+                                                                {chat.last_message.sender_id === user?.id && <span className="opacity-60">{t('common.you')}: </span>}
+                                                                {chat.last_message.content ? (
+                                                                    <span>{chat.last_message.content}</span>
+                                                                ) : (
+                                                                    <span className="italic flex items-center gap-1"><ImageIcon size={12} /> {t('common.photo')}</span>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            t('chat.no_messages')
+                                                        )}
+                                                    </div>
 
                                                     {/* Glow Indicator for new messages (Mock) */}
                                                     <div className="absolute right-4 bottom-4 w-1.5 h-1.5 bg-primary rounded-full shadow-[0_0_8px_currentColor] animate-pulse opacity-0 group-hover/card:opacity-100 transition-opacity" />

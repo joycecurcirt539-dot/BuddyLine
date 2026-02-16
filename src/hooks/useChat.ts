@@ -11,14 +11,20 @@ export interface Message {
     content: string;
     image_url?: string;
     created_at: string;
+    edited_at?: string;
     status: 'sent' | 'delivered' | 'read';
+    reply_to_id?: string;
+    is_forwarded?: boolean;
+    forwarded_from_chat_id?: string;
+    forwarded_from_message_id?: string;
+    reply_message?: Message; // For UI convenience, we might join this
 }
 
 export interface Chat {
     id: string;
     type: 'direct' | 'group';
     name?: string;
-    updated_at?: string; // We'll mock this for sorting
+    updated_at?: string; // Real column from DB
     participants: Profile[];
     last_message?: Message;
 }
@@ -71,34 +77,69 @@ export const useChat = () => {
         }
 
         // 3. Format raw data into Chat objects
-        const formattedChats: Chat[] = chatsData.map((c: { id: string; type: 'direct' | 'group'; name: string; chat_members: { profile: Profile }[] }) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const formattedChats: Chat[] = chatsData.map((c: any) => ({
             id: c.id,
             type: c.type,
             name: c.name,
-            participants: c.chat_members.map((m) => m.profile),
+            updated_at: c.updated_at,
+            participants: c.chat_members.map((m: any) => m.profile),
         }));
 
-        // 4. Fetch last message for each chat (Separate query for performance/complexity balance)
-        // For MVP we might skip this or do it simpler. Let's try to get last messages.
-        // Simplifying for now: we'll fetch last message individually or rely on realtime updates.
-        // To keep it simple and robust: don't fetch last message in list for MVP v1 to avoid N+1 query complexity manually.
+        // 4. Fetch last message for each chat
+        const chatsWithMessages = await Promise.all(formattedChats.map(async (chat) => {
+            const { data } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('chat_id', chat.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
 
-        setChats(formattedChats);
+            return {
+                ...chat,
+                last_message: data || undefined,
+                updated_at: data?.created_at || chat.updated_at
+            };
+        }));
+
+        // Sort by updated_at desc
+        chatsWithMessages.sort((a, b) => {
+            const dateA = new Date(a.updated_at || 0).getTime();
+            const dateB = new Date(b.updated_at || 0).getTime();
+            return dateB - dateA;
+        });
+
+        setChats(chatsWithMessages);
         setLoading(false);
     }, [user]);
 
     const fetchMessages = useCallback(async (chatId: string) => {
         setMessagesLoading(true);
+        // Fetch messages AND their reply context if possible
+        // For simplicity, we fetch all and map replies in UI or fetch replies separately?
+        // Let's just fetch * and if we need the reply content, we might key off existing loaded messages
+        // or join. Supabase recursive join is hard.
+        // Let's just fetch messages. We'll handle "Reply not found" in UI gracefully or fetch on demand.
+        // Actually, let's try to fetch reply_message details if we can, but let's stick to simple first.
         const { data, error } = await supabase
             .from('messages')
-            .select('*')
+            .select(`
+                *,
+                reply_message:messages!reply_to_id(
+                    id,
+                    content,
+                    sender_id,
+                    image_url
+                )
+            `)
             .eq('chat_id', chatId)
             .order('created_at', { ascending: true });
 
         if (error) {
-            console.error('Error fetching messages:', error.message, error.details, error.hint);
+            console.error('Error fetching messages:', error);
         } else {
-            setMessages(data as Message[]);
+            setMessages(data as unknown as Message[]);
         }
         setMessagesLoading(false);
     }, []);
@@ -108,11 +149,25 @@ export const useChat = () => {
         fetchMessages(chat.id);
     }, [fetchMessages]);
 
-    const sendMessage = async (content: string, imageUrl?: string) => {
+    const sendMessage = async (content: string, imageUrl?: string, replyToId?: string) => {
         if (!user || !activeChat) return;
 
-        // Generate ID explicitly for robustness
         const messageId = crypto.randomUUID();
+
+        // Optimistically add message
+        const newMessage: Message = {
+            id: messageId,
+            chat_id: activeChat.id,
+            sender_id: user.id,
+            content,
+            image_url: imageUrl,
+            created_at: new Date().toISOString(),
+            status: 'sent',
+            reply_to_id: replyToId,
+            // We can't easily optimistic update reply_message details without finding it in `messages`
+            reply_message: replyToId ? messages.find(m => m.id === replyToId) : undefined
+        };
+        setMessages(prev => [...prev, newMessage]);
 
         const { error } = await supabase
             .from('messages')
@@ -121,13 +176,92 @@ export const useChat = () => {
                 chat_id: activeChat.id,
                 sender_id: user.id,
                 content,
-                image_url: imageUrl
+                image_url: imageUrl,
+                reply_to_id: replyToId
             }]);
 
         if (error) {
             console.error('Error sending message:', error.message, error.details, error.hint);
             alert(`Failed to send message: ${error.message}`);
+            // Revert optimistic update if error
+            setMessages(prev => prev.filter(m => m.id !== messageId));
         }
+    };
+
+    const editMessage = async (messageId: string, newContent: string) => {
+        if (!user) return;
+
+        const { error } = await supabase
+            .from('messages')
+            .update({ content: newContent, edited_at: new Date().toISOString() })
+            .eq('id', messageId)
+            .eq('sender_id', user.id);
+
+        if (error) {
+            console.error('Error editing message:', error);
+            alert(`Failed to edit message: ${error.message}`);
+            return { error: error.message };
+        }
+
+        // Optimistic update
+        setMessages(prev => prev.map(m =>
+            m.id === messageId
+                ? { ...m, content: newContent, edited_at: new Date().toISOString() }
+                : m
+        ));
+        return { success: true };
+    };
+
+    const forwardMessage = async (originalMessage: Message, targetChatId: string) => {
+        if (!user) return;
+
+        const messageId = crypto.randomUUID();
+
+        // If forwarding to active chat, optimistic update
+        if (activeChat?.id === targetChatId) {
+            const newMessage: Message = {
+                id: messageId,
+                chat_id: targetChatId,
+                sender_id: user.id,
+                content: originalMessage.content,
+                image_url: originalMessage.image_url,
+                created_at: new Date().toISOString(),
+                status: 'sent',
+                is_forwarded: true,
+                forwarded_from_chat_id: originalMessage.chat_id,
+                forwarded_from_message_id: originalMessage.id
+            };
+            setMessages(prev => [...prev, newMessage]);
+        }
+
+        const { error } = await supabase
+            .from('messages')
+            .insert([{
+                id: messageId,
+                chat_id: targetChatId,
+                sender_id: user.id,
+                content: originalMessage.content,
+                image_url: originalMessage.image_url,
+                is_forwarded: true,
+                forwarded_from_chat_id: originalMessage.chat_id,
+                forwarded_from_message_id: originalMessage.id
+            }]);
+
+        if (error) {
+            console.error('Error forwarding message:', error);
+            // Revert optimistic if needed
+            if (activeChat?.id === targetChatId) {
+                setMessages(prev => prev.filter(m => m.id !== messageId));
+            }
+            return { error: error.message };
+        }
+
+        // If we forwarded to another chat, we should probably update that chat's updated_at locally
+        // but `fetchChats` will get it eventually or realtime will handle if we listen to global messages (which we don't for perf)
+        // For now, let's just refresh chats to show the new top chat
+        fetchChats();
+
+        return { success: true };
     };
 
     const createDirectChat = async (friendId: string) => {
@@ -169,7 +303,7 @@ export const useChat = () => {
 
         // 2. Create Chat via RPC (Atomic & Secure)
         const { data: newChatId, error: rpcError } = await supabase
-            .rpc('create_new_chat', { friend_id: friendId });
+            .rpc('create_new_chat', { target_user_id: friendId });
 
         if (rpcError) return { error: rpcError.message };
 
@@ -221,15 +355,21 @@ export const useChat = () => {
         const channel = supabase
             .channel(`chat_messages:${activeChat.id}`)
             .on('postgres_changes', {
-                event: '*', // Listen to all changes (INSERT, DELETE, etc.)
+                event: '*', // Listen to all changes (INSERT, DELETE, UPDATE)
                 schema: 'public',
                 table: 'messages',
                 filter: `chat_id=eq.${activeChat.id}`
-            }, (payload) => {
+            }, async (payload) => {
                 console.log('Realtime message change:', payload.eventType, payload);
 
                 if (payload.eventType === 'INSERT') {
                     const newMessage = payload.new as Message;
+
+                    // If it has a reply, we might want to fetch the reply detail?
+                    // For now, let's just trust we have it or it's optimistic.
+                    // Actually, if we are the sender, we already have it. 
+                    // If we are receiver, we might need to fetch the reply message content if it's not in our list.
+
                     setMessages(prev => {
                         // If message exists (from optimistic update), replace it to get correct timestamp/status
                         if (prev.some(m => m.id === newMessage.id)) {
@@ -244,6 +384,9 @@ export const useChat = () => {
                 } else if (payload.eventType === 'DELETE') {
                     const deletedId = (payload.old as { id: string }).id;
                     setMessages(prev => prev.filter(m => m.id !== deletedId));
+                } else if (payload.eventType === 'UPDATE') {
+                    const updatedMessage = payload.new as Message;
+                    setMessages(prev => prev.map(m => m.id === updatedMessage.id ? updatedMessage : m));
                 }
             })
             .subscribe((status) => {
@@ -278,6 +421,8 @@ export const useChat = () => {
         selectChat,
         sendMessage,
         deleteMessage,
+        editMessage,
+        forwardMessage,
         createDirectChat,
         deleteChat,
         refreshChats: fetchChats

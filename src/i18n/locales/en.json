@@ -17,7 +17,13 @@
         "search": "Search...",
         "share": "Share",
         "remove": "Remove",
-        "ai": "AI"
+        "ai": "AI",
+        "you": "You",
+        "photo": "Photo",
+        "reply": "Reply",
+        "replying_to": "Replying to",
+        "edit": "Edit",
+        "edited": "edited"
     },
     "home": {
         "feed_subtitle": "Your personalized feed",
@@ -282,5 +288,12 @@
         "title": "Lost in the void?",
         "description": "The page you are looking for doesn't exist or has been moved to another dimension.",
         "return_signal": "Return to Signal"
+    },
+    "footer": {
+        "slogan": "The future of social connection.",
+        "description": "Premium Social Experience."
+    },
+    "chat_error": {
+        "friends_only": "You can only start chats with friends. Please add this user to your friends list first."
     }
 }

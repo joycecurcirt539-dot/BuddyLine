@@ -12,11 +12,19 @@ import { clsx } from 'clsx';
 
 type SettingCategory = 'profile' | 'appearance' | 'system' | 'notifications' | 'privacy' | 'account' | null;
 
+import { useProfile } from '../hooks/useProfile';
+
 export const Settings = () => {
     const { t } = useTranslation();
     const { user, isGuest, signOut } = useAuth();
+    const { profile } = useProfile();
     const [activeCategory, setActiveCategory] = useState<SettingCategory>(null);
     const navigate = useNavigate();
+
+    // Helper to get display data
+    const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
+    const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.username || 'User';
+    const displayUsername = profile?.username || user?.user_metadata?.username || 'username';
 
     const categories = [
         { id: 'appearance', title: t('settings.visual.title'), desc: t('settings.visual.subtitle'), icon: Palette, color: 'text-tertiary', guestHidden: false },
@@ -146,16 +154,16 @@ export const Settings = () => {
                         >
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-gradient-to-tr from-primary to-tertiary rounded-full opacity-20 blur-xl animate-pulse" />
-                                <Avatar src={user?.user_metadata?.avatar_url} alt={user?.user_metadata?.username} size="xl" className="ring-4 ring-surface shadow-2xl relative z-10" />
+                                <Avatar src={displayAvatar} alt={displayUsername} size="xl" className="ring-4 ring-surface shadow-2xl relative z-10" />
                             </div>
 
                             <div className="flex-1 text-center md:text-left space-y-4">
                                 <div>
                                     <h3 className="font-black text-on-surface uppercase italic tracking-tight text-3xl">
-                                        {user?.user_metadata?.full_name || user?.user_metadata?.username || 'User'}
+                                        {displayName}
                                     </h3>
                                     <p className="text-primary font-black text-xs uppercase tracking-[0.2em] opacity-80">
-                                        @{user?.user_metadata?.username || 'username'}
+                                        @{displayUsername}
                                     </p>
                                 </div>
                                 <p className="text-on-surface-variant font-medium max-w-lg mx-auto md:mx-0">
