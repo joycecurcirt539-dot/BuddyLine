@@ -1,5 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { Message, Chat } from '../../hooks/useChat';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -192,21 +193,24 @@ export const ChatWindow = ({
                 uploading={uploading}
             />
 
-            <AnimatePresence>
-                {contextMenu.isOpen && contextMenu.message && (
-                    <MessageContextMenu
-                        message={contextMenu.message}
-                        isOwn={contextMenu.message.sender_id === user?.id}
-                        onClose={() => setContextMenu(prev => ({ ...prev, isOpen: false }))}
-                        onReply={handleReply}
-                        onForward={handleForward}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onCopy={handleCopy}
-                        position={contextMenu.position}
-                    />
-                )}
-            </AnimatePresence>
+            {createPortal(
+                <AnimatePresence>
+                    {contextMenu.isOpen && contextMenu.message && (
+                        <MessageContextMenu
+                            message={contextMenu.message}
+                            isOwn={contextMenu.message.sender_id === user?.id}
+                            onClose={() => setContextMenu(prev => ({ ...prev, isOpen: false }))}
+                            onReply={handleReply}
+                            onForward={handleForward}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onCopy={handleCopy}
+                            position={contextMenu.position}
+                        />
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 };

@@ -50,7 +50,7 @@
         "language": {
             "title": "Язык интерфейса",
             "desc": "Выберите предпочтительный язык интерфейса.",
-            "en": "English",
+            "en": "Английский",
             "ru": "Русский"
         },
         "sections": {
@@ -144,12 +144,21 @@
         "signal_node_active": "Узел сигнала: Активен",
         "add_data_stream": "Добавить поток данных",
         "delete_message": "Удалить сообщение",
+        "forwarded_message": "Переслано",
+        "reply_to": "Ответ на",
+        "image_message": "Изображение",
+        "more_options": "Ещё",
         "uplink_status": {
             "established": "Связь установлена",
             "lost": "Сигнал потерян"
         },
         "actions": {
             "title": "Действия",
+            "reply": "Ответить",
+            "forward": "Переслать",
+            "copy": "Копировать",
+            "edit": "Изменить",
+            "delete": "Удалить",
             "mute": "Без звука",
             "unmute": "Включить звук",
             "delete_chat": "Удалить чат",
@@ -279,8 +288,19 @@
             "name": "Иван Иванов",
             "username": "buddy_123",
             "email": "you@example.com",
-            "password": "••••••••"
-        }
+            "password": "••••••••",
+            "otp": "123456"
+        },
+        "forgot_password": "Забыли пароль?",
+        "forgot_password_title": "Сброс пароля",
+        "forgot_password_desc": "Введите email, чтобы получить код для сброса пароля.",
+        "send_code": "Отправить код",
+        "verify_code": "Подтвердить код",
+        "new_password": "Новый пароль",
+        "confirm_new_password": "Подтвердите новый пароль",
+        "update_password": "Обновить пароль",
+        "reset_success": "Пароль успешно изменен! Теперь вы можете войти.",
+        "back_to_login": "Вернуться к входу"
     },
     "discovery_panel": {
         "title": "Уже с нами",

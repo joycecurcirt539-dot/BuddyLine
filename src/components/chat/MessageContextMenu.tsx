@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Reply, Forward, Trash2, Edit2, Copy, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Reply, Forward, Trash2, Edit2, Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import type { Message } from '../../hooks/useChat';
@@ -65,9 +65,9 @@ export const MessageContextMenu = ({
             >
                 <MenuItem icon={Reply} label={t('chat.actions.reply', 'Reply')} onClick={onReply} />
                 <MenuItem icon={Forward} label={t('chat.actions.forward', 'Forward')} onClick={onForward} />
-                <MenuItem icon={Copy} label={t('common.copy', 'Copy')} onClick={onCopy} />
-                {isOwn && <MenuItem icon={Edit2} label={t('common.edit', 'Edit')} onClick={onEdit} />}
-                {isOwn && <MenuItem icon={Trash2} label={t('common.delete', 'Delete')} onClick={onDelete} destructive />}
+                <MenuItem icon={Copy} label={t('chat.actions.copy', 'Copy')} onClick={onCopy} />
+                {isOwn && <MenuItem icon={Edit2} label={t('chat.actions.edit', 'Edit')} onClick={onEdit} />}
+                {isOwn && <MenuItem icon={Trash2} label={t('chat.actions.delete', 'Delete')} onClick={onDelete} destructive />}
             </motion.div>
 
             {/* Mobile: Bottom Sheet */}
@@ -93,9 +93,9 @@ export const MessageContextMenu = ({
                 <div className="p-4 space-y-2 pb-8">
                     <MobileMenuItem icon={Reply} label={t('chat.actions.reply', 'Reply')} onClick={onReply} />
                     <MobileMenuItem icon={Forward} label={t('chat.actions.forward', 'Forward')} onClick={onForward} />
-                    <MobileMenuItem icon={Copy} label={t('common.copy', 'Copy')} onClick={onCopy} />
-                    {isOwn && <MobileMenuItem icon={Edit2} label={t('common.edit', 'Edit')} onClick={onEdit} />}
-                    {isOwn && <MobileMenuItem icon={Trash2} label={t('common.delete', 'Delete')} onClick={onDelete} destructive />}
+                    <MobileMenuItem icon={Copy} label={t('chat.actions.copy', 'Copy')} onClick={onCopy} />
+                    {isOwn && <MobileMenuItem icon={Edit2} label={t('chat.actions.edit', 'Edit')} onClick={onEdit} />}
+                    {isOwn && <MobileMenuItem icon={Trash2} label={t('chat.actions.delete', 'Delete')} onClick={onDelete} destructive />}
                     <div className="h-2" />
                     <button
                         onClick={onClose}
@@ -104,8 +104,8 @@ export const MessageContextMenu = ({
                         {t('common.cancel', 'Cancel')}
                     </button>
                 </div>
-            </motion.div>
-        </div>
+            </motion.div >
+        </div >
     );
 };
 

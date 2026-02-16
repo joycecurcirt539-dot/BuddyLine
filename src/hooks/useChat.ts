@@ -4,6 +4,17 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import type { Profile } from './useFriends';
 
+// Fallback for non-secure contexts (HTTP over LAN)
+const generateUUID = (): string => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    // Fallback using crypto.getRandomValues
+    return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+    );
+};
+
 export interface Message {
     id: string;
     chat_id: string;
@@ -152,7 +163,7 @@ export const useChat = () => {
     const sendMessage = async (content: string, imageUrl?: string, replyToId?: string) => {
         if (!user || !activeChat) return;
 
-        const messageId = crypto.randomUUID();
+        const messageId = generateUUID();
 
         // Optimistically add message
         const newMessage: Message = {
@@ -215,7 +226,7 @@ export const useChat = () => {
     const forwardMessage = async (originalMessage: Message, targetChatId: string) => {
         if (!user) return;
 
-        const messageId = crypto.randomUUID();
+        const messageId = generateUUID();
 
         // If forwarding to active chat, optimistic update
         if (activeChat?.id === targetChatId) {

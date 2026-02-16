@@ -144,12 +144,21 @@
         "signal_node_active": "Signal Node: Active",
         "add_data_stream": "Add data stream",
         "delete_message": "Delete message",
+        "forwarded_message": "Forwarded",
+        "reply_to": "Replying to",
+        "image_message": "Image",
+        "more_options": "More options",
         "uplink_status": {
             "established": "Uplink Established",
             "lost": "Signal Lost"
         },
         "actions": {
             "title": "Actions",
+            "reply": "Reply",
+            "forward": "Forward",
+            "copy": "Copy",
+            "edit": "Edit",
+            "delete": "Delete",
             "mute": "Mute",
             "unmute": "Unmute",
             "delete_chat": "Delete Chat",
@@ -277,8 +286,19 @@
             "name": "John Doe",
             "username": "buddy_123",
             "email": "you@example.com",
-            "password": "••••••••"
-        }
+            "password": "••••••••",
+            "otp": "123456"
+        },
+        "forgot_password": "Forgot Password?",
+        "forgot_password_title": "Reset Password",
+        "forgot_password_desc": "Enter your email to receive a password reset code.",
+        "send_code": "Send Code",
+        "verify_code": "Verify Code",
+        "new_password": "New Password",
+        "confirm_new_password": "Confirm New Password",
+        "update_password": "Update Password",
+        "reset_success": "Password reset successfully! You can now log in.",
+        "back_to_login": "Back to Login"
     },
     "discovery_panel": {
         "title": "Already with us",
