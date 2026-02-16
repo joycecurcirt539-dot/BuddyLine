@@ -155,9 +155,12 @@
         "actions": {
             "title": "Actions",
             "reply": "Reply",
+            "replying_to": "Replying to",
             "forward": "Forward",
             "copy": "Copy",
             "edit": "Edit",
+            "editing": "Editing",
+            "editing_message": "Modify your message",
             "delete": "Delete",
             "mute": "Mute",
             "unmute": "Unmute",

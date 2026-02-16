@@ -215,7 +215,7 @@ export const Feed = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className={clsx(
-                    "p-5 md:p-8 mb-6 md:mb-12 bg-surface-container-low/40 backdrop-blur-xl rounded-[32px] md:rounded-[48px] border border-outline-variant/10 shadow-2xl shadow-primary/5 group/composer relative",
+                    "bubble p-5 md:p-8 mb-6 md:mb-12 group/composer relative",
                     showEmojiPicker && "z-[70]"
                 )}
             >

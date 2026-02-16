@@ -38,8 +38,12 @@ export const ChatWindow = ({
     onDeleteMessage,
     onEditMessage,
     onForwardMessage,
-    onBack
-}: ChatWindowProps) => { // Removed unused props for now to keep clean
+    onBack,
+    isMuted,
+    onMuteToggle,
+    onDeleteChat,
+    onBlockUser
+}: ChatWindowProps) => {
     const { t } = useTranslation();
     const { user } = useAuth();
 
@@ -160,7 +164,15 @@ export const ChatWindow = ({
                 <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-tertiary/5 to-transparent" />
             </div>
 
-            <ChatHeader chat={chat} onBack={onBack} currentUserId={user?.id} />
+            <ChatHeader
+                chat={chat}
+                onBack={onBack}
+                currentUserId={user?.id}
+                isMuted={isMuted}
+                onMuteToggle={onMuteToggle}
+                onDeleteChat={onDeleteChat}
+                onBlockUser={onBlockUser}
+            />
 
             <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-4">
                 {loading ? (

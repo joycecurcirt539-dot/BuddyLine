@@ -132,7 +132,7 @@ export const Settings = () => {
                             {activeCategory === 'appearance' && <ThemeTogglePanel />}
                             {activeCategory === 'system' && <LanguageTogglePanel />}
                             {(activeCategory === 'notifications' || activeCategory === 'privacy') && (
-                                <div className="bg-surface/40 backdrop-blur-3xl rounded-[40px] p-10 border border-outline-variant/20 shadow-2xl flex flex-col items-center justify-center text-center py-20">
+                                <div className="bubble p-10 flex flex-col items-center justify-center text-center py-20">
                                     <Cpu size={48} className="text-on-surface-variant/20 mb-6" />
                                     <h4 className="text-on-surface font-black uppercase tracking-tight italic mb-2">{t(`settings.sections.${activeCategory}`)}</h4>
                                     <p className="text-on-surface-variant/60 font-medium text-sm">{t(`settings.sections.${activeCategory}_desc`)}</p>
@@ -150,7 +150,7 @@ export const Settings = () => {
                         <motion.section
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="relative bg-surface/40 backdrop-blur-3xl rounded-[48px] p-8 md:p-12 border border-outline-variant/20 shadow-2xl overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12"
+                            className="bubble p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12"
                         >
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-gradient-to-tr from-primary to-tertiary rounded-full opacity-20 blur-xl animate-pulse" />
@@ -187,8 +187,8 @@ export const Settings = () => {
                     </div>
 
                     {!isGuest && (
-                        <div className="grid grid-cols-3 gap-6">
-                            {filteredCategories.slice(3).map((item) => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {filteredCategories.slice(2).map((item) => (
                                 <button key={item.id} className="bg-surface/30 backdrop-blur-xl border border-outline-variant/10 rounded-[32px] p-6 flex items-center gap-5 hover:bg-surface/50 transition-all text-left group">
                                     <div className={clsx("p-4 rounded-2xl bg-surface shadow-lg group-hover:rotate-12 duration-500", item.color)}>
                                         <item.icon size={24} />
@@ -199,23 +199,22 @@ export const Settings = () => {
                                     </div>
                                 </button>
                             ))}
+
+                            {/* Logout Card integrated into grid */}
+                            <button
+                                onClick={() => signOut()}
+                                className="bg-red-500/5 backdrop-blur-xl border border-red-500/10 rounded-[32px] p-6 flex items-center gap-5 hover:bg-red-500/10 transition-all text-left group"
+                            >
+                                <div className="p-4 rounded-2xl bg-red-500/10 text-red-500 shadow-lg group-hover:scale-110 duration-500">
+                                    <LogOut size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="font-black uppercase tracking-tight italic text-red-600">{t('settings.danger_zone.sign_out')}</h4>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-red-500/60 leading-tight italic">TERMINATE SESSION</p>
+                                </div>
+                            </button>
                         </div>
                     )}
-
-                    {/* Logout Desktop */}
-                    <button
-                        onClick={() => signOut()}
-                        className="bg-red-500/5 border border-red-500/20 rounded-[40px] p-8 flex items-center justify-between group hover:bg-red-500/10 transition-all text-left"
-                    >
-                        <div className="flex items-center gap-6">
-                            <div className="p-4 bg-red-500/10 rounded-3xl text-red-500 group-hover:scale-110 transition-transform shadow-lg"><LogOut size={32} /></div>
-                            <div>
-                                <h3 className="text-xl font-black text-red-600 uppercase italic tracking-tighter shadow-red-500/20">{t('settings.danger_zone.sign_out')}</h3>
-                                <p className="text-red-500/60 font-black text-[10px] uppercase tracking-widest italic leading-tight">TERMINATE CURRENT UPLINK SESSION</p>
-                            </div>
-                        </div>
-                        <ChevronRight className="text-red-500/20 group-hover:translate-x-2 transition-transform" size={40} />
-                    </button>
                 </div>
             </div>
         </div>

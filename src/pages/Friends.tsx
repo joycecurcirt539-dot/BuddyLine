@@ -118,7 +118,7 @@ export const Friends = () => {
         <div className="max-w-none flex gap-8 pb-20 px-4 sm:px-0">
             <div className="flex-1 min-w-0 space-y-6">
                 {/* Dual Search Header */}
-                <div className="bg-surface-container-low rounded-[32px] p-4 sm:p-6 lg:p-8 border border-outline-variant/10 shadow-xl shadow-primary/5">
+                <div className="bubble p-4 sm:p-6 lg:p-8">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div>
                             <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1 sm:mb-2">
@@ -247,7 +247,7 @@ export const Friends = () => {
                                     <div key={i} className="h-24 bg-surface-container-low rounded-3xl animate-pulse border border-outline-variant/10" />
                                 ))
                             ) : friends.length === 0 ? (
-                                <div className="col-span-full py-20 text-center bg-surface-container-low/40 rounded-[40px] border border-dashed border-outline-variant/20">
+                                <div className="col-span-full py-20 text-center bubble border-dashed">
                                     <Users size={48} className="mx-auto text-primary/20 mb-4" />
                                     <p className="text-on-surface-variant font-bold uppercase tracking-widest text-xs opacity-40">
                                         {t('friends_page.no_friends')}
@@ -260,7 +260,7 @@ export const Friends = () => {
                                         layout
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="p-5 bg-surface-container-low/40 backdrop-blur-xl rounded-[32px] border border-outline-variant/10 flex items-center justify-between hover:bg-surface-container-high/60 transition-all group"
+                                        className="bubble p-5 flex items-center justify-between hover:bg-surface-container-high/60 group"
                                     >
                                         <div className="flex items-center gap-4">
                                             <Avatar

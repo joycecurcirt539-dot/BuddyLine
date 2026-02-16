@@ -200,7 +200,7 @@ export const Chat = () => {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     style={{ willChange: "transform, opacity" }}
-                    className="flex-1 bg-surface-container-lowest rounded-3xl shadow-lg border border-outline-variant/10 overflow-hidden flex flex-col transition-colors min-h-0"
+                    className="flex-1 bubble overflow-hidden flex flex-col shadow-2xl transition-all min-h-0 border border-outline-variant/10"
                 >
                     <ChatWindow
                         chat={activeChat}
@@ -224,14 +224,10 @@ export const Chat = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
                     style={{ willChange: "transform, opacity" }}
-                    className="hidden xl:block w-96 shrink-0 bg-surface-container-low rounded-3xl shadow-lg border border-outline-variant/10 overflow-hidden transition-all"
+                    className="hidden xl:block w-96 shrink-0 bubble overflow-y-auto h-full shadow-2xl transition-all border border-outline-variant/10"
                 >
                     <CompanionInfo
                         participant={other}
-                        isMuted={mutedChats.has(activeChat.id)}
-                        onMuteToggle={handleMuteToggle}
-                        onDeleteChat={handleDeleteChat}
-                        onBlockUser={handleBlockUser}
                     />
                 </motion.div>
 
@@ -367,7 +363,7 @@ export const Chat = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         style={{ willChange: "transform, opacity" }}
-                        className="bg-surface/40 backdrop-blur-3xl border border-outline-variant/20 rounded-[40px] p-6 shadow-2xl shadow-primary/5 mb-6 relative overflow-hidden group"
+                        className="bubble p-6 mb-6 relative overflow-hidden group"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-tertiary/5 opacity-50" />
 
@@ -460,7 +456,7 @@ export const Chat = () => {
                                                 </div>
 
                                                 {/* Card Content */}
-                                                <div className="bg-surface-container-lowest/60 backdrop-blur-3xl rounded-[32px] border border-outline-variant/10 p-5 pl-20 shadow-xl hover:shadow-2xl hover:bg-surface-container-highest/80 transition-all duration-500 relative overflow-hidden h-full flex flex-col justify-center">
+                                                <div className="bubble p-5 pl-20 hover:bg-surface-container-highest/80 relative overflow-hidden h-full flex flex-col justify-center">
                                                     <div className="flex justify-between items-start mb-1">
                                                         <h3 className="font-black text-on-surface uppercase italic tracking-tight truncate group-hover/card:text-primary transition-colors">
                                                             {chat.name || other.full_name || other.username}

@@ -18,7 +18,7 @@ export const LanguageTogglePanel = () => {
     };
 
     return (
-        <div className="bg-surface/40 backdrop-blur-3xl rounded-[40px] p-8 border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
+        <div className="bubble p-8 relative overflow-hidden group">
             {/* Background Atmosphere */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 animate-pulse" />
 

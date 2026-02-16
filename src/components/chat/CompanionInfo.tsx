@@ -5,153 +5,119 @@ import { useNavigate } from 'react-router-dom';
 import {
     ImageIcon,
     Link as LinkIcon,
-    BellOff,
-    Trash2,
-    Slash,
     ChevronRight,
     X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { clsx } from 'clsx';
 import type { Profile } from '../../hooks/useFriends';
 
 interface CompanionInfoProps {
     participant: Profile;
-    isMuted?: boolean;
-    onMuteToggle?: () => void;
-    onDeleteChat?: () => void;
-    onBlockUser?: () => void;
     onClose?: () => void;
 }
 
-export const CompanionInfo = ({ participant, isMuted, onMuteToggle, onDeleteChat, onBlockUser, onClose }: CompanionInfoProps) => {
+export const CompanionInfo = ({ participant, onClose }: CompanionInfoProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
     return (
-        <div className="h-full flex flex-col bg-surface/30 backdrop-blur-xl border-l border-outline-variant/10 overflow-y-auto scrollbar-hide relative">
+        <div className="h-full flex flex-col gap-6 p-6 overflow-y-auto custom-scrollbar relative">
             {onClose && (
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 p-2 hover:bg-surface-container rounded-full transition-all z-20"
+                    className="absolute top-8 right-8 p-2.5 bg-white/5 hover:bg-white/10 text-on-surface-variant hover:text-on-surface rounded-2xl transition-all z-20"
                     title={t('common.cancel')}
                 >
                     <X size={20} />
                 </button>
             )}
-            {/* Profile Header */}
-            <div className="p-8 flex flex-col items-center border-b border-outline-variant/5">
-                <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", damping: 15 }}
-                >
-                    <Avatar
-                        src={participant.avatar_url}
-                        alt={participant.username}
-                        size="xl"
-                        status={participant.status as 'online' | 'offline' | 'away'}
-                        className="ring-8 ring-primary/5 shadow-2xl mb-4"
-                    />
-                </motion.div>
-                <h3 className="text-xl font-black text-on-surface text-center uppercase tracking-tight italic flex items-center justify-center gap-2">
-                    {participant.full_name || participant.username}
-                    <UserBadge username={participant.username} isVerified={participant.is_verified} />
-                </h3>
-                <p className="text-primary font-bold text-xs uppercase tracking-widest mt-1">
-                    @{participant.username}
-                </p>
-                <div className="mt-4 flex gap-2">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        className="rounded-xl px-4 py-2 border-outline-variant/20"
-                        onClick={() => navigate(`/profile/${participant.id}`)}
+
+            {/* Unified Premium Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bubble flex flex-col items-center relative overflow-hidden group/profile divide-y divide-white/5"
+            >
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+
+                {/* Header Section (Avatar, Name, Bio) */}
+                <div className="p-8 md:p-10 flex flex-col items-center w-full relative">
+                    <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        className="relative z-10"
                     >
-                        {t('profile_page.view_profile')}
-                    </Button>
-                </div>
-            </div>
+                        <div className="absolute -inset-4 bg-primary/20 blur-3xl opacity-0 group-hover/profile:opacity-100 transition-opacity duration-700 rounded-full" />
+                        <Avatar
+                            src={participant.avatar_url}
+                            alt={participant.username}
+                            size="xl"
+                            status={participant.status as 'online' | 'offline' | 'away'}
+                            className="ring-8 ring-white/5 shadow-2xl mb-8 scale-110"
+                        />
+                    </motion.div>
 
-            {/* Bio & Details */}
-            <div className="p-6 space-y-6">
-                {participant.bio && (
-                    <div className="space-y-2">
-                        <h4 className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em]">
-                            {t('profile_page.bio')}
-                        </h4>
-                        <p className="text-sm text-on-surface font-medium leading-relaxed">
-                            {participant.bio}
-                        </p>
+                    <div className="relative z-10 text-center w-full">
+                        <div className="space-y-2 mb-8">
+                            <h3 className="text-2xl md:text-3xl font-black text-on-surface uppercase tracking-tight italic flex items-center justify-center gap-3 break-words">
+                                {participant.full_name || participant.username}
+                                <UserBadge username={participant.username} isVerified={participant.is_verified} />
+                            </h3>
+                            <p className="text-primary font-black text-xs md:text-sm uppercase tracking-[0.4em] opacity-80 italic">
+                                @{participant.username}
+                            </p>
+                        </div>
+
+                        {participant.bio && (
+                            <div className="pt-8 border-t border-white/10 text-left w-full">
+                                <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                                    {t('profile_page.bio')}
+                                </h4>
+                                <p className="text-sm md:text-base text-on-surface font-bold leading-relaxed italic opacity-80 break-words">
+                                    {participant.bio}
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="mt-10">
+                            <Button
+                                variant="primary"
+                                size="md"
+                                className="w-full rounded-[24px] px-8 py-4 shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all font-black uppercase tracking-widest text-[11px]"
+                                onClick={() => navigate(`/profile/${participant.id}`)}
+                            >
+                                {t('profile_page.view_profile')}
+                            </Button>
+                        </div>
                     </div>
-                )}
+                </div>
 
-                <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em]">
+                {/* Shared Content Section */}
+                <div className="p-8 w-full space-y-6 relative bg-white/[0.02]">
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                         {t('chat.shared_content')}
                     </h4>
 
-                    <div className="grid grid-cols-2 gap-2">
-                        {/* Placeholder for shared media */}
-                        <div className="aspect-square bg-surface-container-high/40 rounded-2xl flex items-center justify-center group cursor-pointer hover:bg-primary/5 transition-colors">
-                            <ImageIcon size={20} className="text-on-surface-variant/20 group-hover:text-primary transition-colors" />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="aspect-square bg-white/5 rounded-[28px] border border-white/5 flex flex-col items-center justify-center group/media cursor-pointer hover:bg-primary/10 hover:border-primary/20 transition-all duration-500">
+                            <ImageIcon size={28} className="text-on-surface-variant/20 group-hover/media:text-primary group-hover/media:scale-110 transition-all" />
+                            <span className="text-[9px] font-black uppercase tracking-widest mt-2 opacity-0 group-hover/media:opacity-100 transition-opacity">Photos</span>
                         </div>
-                        <div className="aspect-square bg-surface-container-high/40 rounded-2xl flex items-center justify-center group cursor-pointer hover:bg-primary/5 transition-colors">
-                            <LinkIcon size={20} className="text-on-surface-variant/20 group-hover:text-primary transition-colors" />
+                        <div className="aspect-square bg-white/5 rounded-[28px] border border-white/5 flex flex-col items-center justify-center group/link cursor-pointer hover:bg-primary/10 hover:border-primary/20 transition-all duration-500">
+                            <LinkIcon size={28} className="text-on-surface-variant/20 group-hover/link:text-primary group-hover/link:scale-110 transition-all" />
+                            <span className="text-[9px] font-black uppercase tracking-widest mt-2 opacity-0 group-hover/link:opacity-100 transition-opacity">Links</span>
                         </div>
                     </div>
 
-                    <button className="w-full flex items-center justify-between p-3 bg-surface-container-low/50 rounded-2xl hover:bg-surface-container transition-colors group">
-                        <span className="text-xs font-bold text-on-surface-variant">{t('chat.view_all_shared')}</span>
-                        <ChevronRight size={16} className="text-on-surface-variant/40 group-hover:translate-x-1 transition-transform" />
+                    <button className="w-full flex items-center justify-between p-5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-[24px] transition-all group/view-all">
+                        <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">{t('chat.view_all_shared')}</span>
+                        <ChevronRight size={18} className="text-primary group-hover/view-all:translate-x-1 transition-transform" />
                     </button>
                 </div>
-
-                {/* Actions */}
-                <div className="space-y-4 pt-4">
-                    <h4 className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em]">
-                        {t('chat.actions.title')}
-                    </h4>
-
-                    <div className="space-y-2">
-                        <button
-                            onClick={onMuteToggle}
-                            className="w-full flex items-center gap-3 p-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-2xl transition-all group"
-                        >
-                            <div className={clsx(
-                                "p-2 bg-surface rounded-lg group-hover:bg-primary/10 transition-colors",
-                                isMuted && "text-primary bg-primary/10"
-                            )}>
-                                <BellOff size={18} />
-                            </div>
-                            <span className="text-xs font-bold">
-                                {isMuted ? t('chat.actions.unmute') : t('chat.actions.mute')}
-                            </span>
-                        </button>
-
-                        <button
-                            onClick={onDeleteChat}
-                            className="w-full flex items-center gap-3 p-3 text-on-surface-variant hover:text-red-500 hover:bg-red-500/5 rounded-2xl transition-all group"
-                        >
-                            <div className="p-2 bg-surface rounded-lg group-hover:bg-red-500/10 transition-colors">
-                                <Trash2 size={18} />
-                            </div>
-                            <span className="text-xs font-bold">{t('chat.actions.delete_chat')}</span>
-                        </button>
-
-                        <button
-                            onClick={onBlockUser}
-                            className="w-full flex items-center gap-3 p-3 text-red-500 hover:bg-red-500/10 rounded-2xl transition-all group"
-                        >
-                            <div className="p-2 bg-red-500/5 rounded-lg group-hover:bg-red-500/10 transition-colors">
-                                <Slash size={18} />
-                            </div>
-                            <span className="text-xs font-bold">{t('chat.actions.block')}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            </motion.div>
         </div>
     );
 };

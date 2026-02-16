@@ -330,7 +330,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
             }}
             whileHover={{ y: -4 }}
             className={clsx(
-                "p-6 mb-6 bg-surface-container-low/40 backdrop-blur-xl rounded-[40px] border border-outline-variant/10 shadow-xl shadow-primary/5 hover:shadow-2xl hover:shadow-primary/10 hover:bg-surface-container-low/60 transition-all duration-500 group/card relative",
+                "bubble p-6 mb-6 hover:shadow-2xl hover:shadow-primary/10 hover:bg-surface-container-low/60 group/card relative",
                 showEmojiPicker && "z-[100]"
             )}
         >

@@ -98,7 +98,7 @@ export const UserListPanel = () => {
 
     return (
         <div className="w-80 hidden xl:flex flex-col gap-6 sticky top-8 h-fit">
-            <div className="glass rounded-[32px] p-6 border border-outline-variant/5 shadow-xl shadow-primary/5">
+            <div className="bubble p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-black branding-text-highlight uppercase tracking-tight">
                         {t('discovery_panel.title')}
@@ -198,7 +198,7 @@ export const UserListPanel = () => {
 
             </div>
 
-            <div className="glass rounded-[32px] p-6 border border-outline-variant/5">
+            <div className="bubble p-6">
                 <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-[0.2em] leading-relaxed">
                     © 2026 BuddyLine Labs. <br />
                     {t('footer.slogan')}

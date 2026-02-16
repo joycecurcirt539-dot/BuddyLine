@@ -141,6 +141,15 @@ body::before {
   @apply backdrop-blur-md border border-outline-variant/10;
 }
 
+/* Unified Bubble Container */
+.bubble {
+  @apply bg-surface-container-high/40 backdrop-blur-xl rounded-[40px] border border-outline-variant/10 shadow-xl shadow-primary/5 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20;
+}
+
+.dark .bubble {
+  @apply bg-surface-container-lowest/40;
+}
+
 /* Liquid Glass Effect */
 .liquid-glass {
   background: linear-gradient(135deg,

@@ -161,7 +161,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 </AnimatePresence>
 
                 {/* Main Input Bar */}
-                <div className="relative flex gap-2 items-center bg-surface/60 backdrop-blur-3xl border border-outline-variant/20 rounded-[32px] p-2 pl-3 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/5">
+                <div className="bubble flex gap-2 md:gap-4 items-center p-2.2 md:p-3 px-4 md:px-6 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/10 group/input">
 
                     {/* Image Upload Button */}
                     <input
@@ -176,14 +176,16 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         className={clsx(
-                            "p-2 sm:p-3 rounded-2xl transition-all shrink-0 active:scale-90",
-                            selectedImage ? "text-primary bg-primary/10" : "text-on-surface-variant/40 hover:text-primary hover:bg-primary/5"
+                            "p-3 rounded-2xl transition-all shrink-0 active:scale-90",
+                            selectedImage ? "text-primary bg-primary/10 shadow-lg" : "text-on-surface-variant/40 hover:text-primary hover:bg-primary/5"
                         )}
                         disabled={!!editingMessage}
                         aria-label={t('post.upload_image')}
                     >
-                        <ImageIcon size={20} className="sm:w-6 sm:h-6" />
+                        <ImageIcon size={22} className="sm:w-[26px] sm:h-[26px]" />
                     </button>
+
+                    <div className="w-[1px] h-8 bg-outline-variant/10 hidden sm:block mx-1" />
 
                     {/* Text Input */}
                     <input
@@ -193,7 +195,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         onChange={(e) => setMessage(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
                         placeholder={replyingTo ? t('chat.type_reply') : t('chat.type_placeholder')}
-                        className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 text-sm lg:text-base outline-none py-2 min-w-0"
+                        className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/20 text-sm md:text-lg font-bold italic outline-none py-3 min-w-0"
                         autoComplete="off"
                     />
 
@@ -203,47 +205,51 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                             type="button"
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                             className={clsx(
-                                "p-2 sm:p-3 text-on-surface-variant/40 hover:text-primary rounded-2xl transition-all active:scale-90",
-                                showEmojiPicker && "text-primary"
+                                "p-3 text-on-surface-variant/40 hover:text-primary rounded-2xl transition-all active:scale-90",
+                                showEmojiPicker && "text-primary bg-primary/5"
                             )}
                             aria-label="Emoji picker"
                         >
-                            <Smile size={20} className="sm:w-6 sm:h-6" />
+                            <Smile size={22} className="sm:w-[26px] sm:h-[26px]" />
                         </button>
                         <AnimatePresence>
                             {showEmojiPicker && (
                                 <EmojiPicker
                                     onSelect={handleEmojiSelect}
                                     onClose={() => setShowEmojiPicker(false)}
-                                    className="absolute bottom-full mb-6 right-0"
+                                    className="absolute bottom-full mb-10 right-0"
                                 />
                             )}
                         </AnimatePresence>
                     </div>
 
-                    {/* Send Button */}
+                    {/* Send Button Hub */}
                     <motion.button
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, rotate: message.trim() ? -5 : 0 }}
                         whileTap={{ scale: 0.95 }}
-                        type="button" // Use type="button" and explicit onClick
+                        type="button"
                         onClick={() => handleSubmit()}
                         disabled={(!message.trim() && !selectedImage) || uploading}
                         className={clsx(
-                            "rounded-2xl w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 p-0 flex items-center justify-center shadow-xl transition-all shrink-0 touch-manipulation z-20",
+                            "rounded-[20px] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl transition-all shrink-0 z-20 overflow-hidden relative",
                             (message.trim() || selectedImage)
                                 ? "bg-primary text-on-primary shadow-primary/30"
-                                : "bg-surface-container-high text-on-surface-variant/20 cursor-not-allowed shadow-none"
+                                : "bg-surface-container-high/40 text-on-surface-variant/20 cursor-not-allowed shadow-none border border-outline-variant/5"
                         )}
                         aria-label={t('chat.send')}
                     >
+                        {message.trim() && (
+                            <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+                        )}
+
                         {editingMessage ? (
-                            <Edit2 size={18} className="sm:w-[22px] sm:h-[22px]" />
+                            <Edit2 size={24} className="sm:w-[28px] sm:h-[28px]" />
                         ) : (
                             <Send
-                                size={18}
+                                size={24}
                                 className={clsx(
-                                    "sm:w-[22px] sm:h-[22px] transition-all duration-500",
-                                    (message.trim() || selectedImage) && "rotate-[-12deg] translate-x-0.5 -translate-y-0.5"
+                                    "sm:w-[28px] sm:h-[28px] transition-all duration-700",
+                                    (message.trim() || selectedImage) ? "rotate-[-12deg] translate-x-0.5 -translate-y-0.5" : "opacity-40"
                                 )}
                             />
                         )}

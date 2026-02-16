@@ -6,7 +6,7 @@ import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { PostCard } from '../components/feed/PostCard';
 import type { Post } from '../components/feed/PostCard';
-import { Edit2, Calendar, Sparkles, Camera, Loader2, MessageCircle } from 'lucide-react';
+import { Edit2, Calendar, Sparkles, Camera, Loader2, MessageCircle, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, ru } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -238,36 +238,40 @@ export const Profile = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{ willChange: "transform, opacity" }}
-                className="bg-surface-container-low rounded-[40px] shadow-2xl shadow-primary/5 border border-outline-variant/10 transition-all duration-300"
+                className="bubble"
             >
-                {/* Cover */}
-                <div className="h-40 lg:h-56 bg-gradient-to-br from-primary via-primary/80 to-tertiary relative shadow-inner rounded-t-[40px]">
-                    <div className="absolute inset-0 bg-[url('/sparkles.svg')] opacity-20 mix-blend-overlay" />
+                {/* Cover with Mesh-like Gradient */}
+                <div className="h-48 lg:h-72 relative overflow-hidden rounded-t-[40px]">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary via-tertiary to-primary opacity-90 animate-gradient-xy" />
+                    <div className="absolute inset-0 bg-[url('/sparkles.svg')] opacity-30 mix-blend-overlay animate-pulse" />
+                    <div className="absolute inset-0 bg-black/10" />
+                    <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-surface-container-high/40 to-transparent" />
                 </div>
 
                 {/* Profile Header Content */}
-                <div className="px-5 lg:px-10 pb-4 bg-surface transition-colors relative">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 lg:-mt-24 mb-5">
-                        {/* Avatar */}
+                <div className="px-6 lg:px-12 pb-10 relative">
+                    <div className="flex flex-col lg:flex-row items-center lg:items-end gap-8 -mt-20 lg:-mt-28 mb-8">
+                        {/* Avatar Wrapper with Glow */}
                         <div
                             className={clsx(
-                                "relative group/avatar cursor-pointer transition-transform duration-500 z-20",
-                                editMode ? "hover:scale-105" : "hover:scale-[1.02]"
+                                "relative group/avatar cursor-pointer transition-all duration-700 z-20",
+                                editMode ? "scale-105" : "hover:scale-105"
                             )}
                             onClick={handleAvatarClick}
                         >
+                            <div className="absolute -inset-4 bg-primary/20 blur-3xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700 rounded-full" />
                             <Avatar
                                 src={profile.avatar_url}
                                 alt={profile.username}
                                 size="2xl"
                                 status={isUserOnline ? 'online' : 'offline'}
                                 className={clsx(
-                                    "ring-[12px] ring-surface shadow-2xl transition-all duration-500",
+                                    "ring-[12px] ring-surface-container-high/60 backdrop-blur-3xl shadow-2xl transition-all duration-700",
                                     editMode && "brightness-75 group-hover/avatar:brightness-50"
                                 )}
                             />
                             {editMode && (
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
                                     {uploading ? (
                                         <Loader2 size={40} className="text-white animate-spin" />
                                     ) : (
@@ -285,23 +289,21 @@ export const Profile = () => {
                             />
                         </div>
 
-                        {/* Name & Username & Buttons & Bio */}
-                        <div className="flex-1 flex flex-col gap-4 text-center sm:text-left">
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 pb-1">
-                                <div>
-                                    <h1 className="text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1 flex items-center gap-2">
+                        {/* Name & Username & Stats */}
+                        <div className="flex-1 flex flex-col gap-6 w-full">
+                            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-6">
+                                <div className="text-center lg:text-left">
+                                    <h1 className="text-3xl lg:text-5xl font-black text-on-surface tracking-tighter leading-none mb-3 flex items-center justify-center lg:justify-start gap-3 italic uppercase">
                                         {profile.full_name || profile.username}
-                                        <UserBadge username={profile.username} isVerified={profile.is_verified} className="mb-0.5" />
+                                        <UserBadge username={profile.username} isVerified={profile.is_verified} className="text-2xl" />
                                     </h1>
-                                    <div className="flex items-center justify-center sm:justify-start gap-2">
-                                        <p className="text-primary font-bold text-sm uppercase tracking-widest flex items-center gap-1.5">
+                                    <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
+                                        <p className="px-4 py-1.5 bg-primary/10 text-primary font-black text-xs uppercase tracking-[0.2em] rounded-full border border-primary/20 backdrop-blur-sm">
                                             @{profile.username}
-                                            <UserBadge username={profile.username} isVerified={profile.is_verified} />
                                         </p>
-                                        <span className="text-outline-variant opacity-30">•</span>
-                                        <div className="flex items-center gap-1.5">
-                                            <div className={clsx("w-1.5 h-1.5 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_8px_currentColor] animate-pulse" : "bg-outline-variant")} />
-                                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.1em] opacity-80">
+                                        <div className="flex items-center gap-2 px-4 py-1.5 bg-surface-container-low/40 rounded-full border border-outline-variant/10 backdrop-blur-sm">
+                                            <div className={clsx("w-2 h-2 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_12px_currentColor] animate-pulse" : "bg-outline-variant")} />
+                                            <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">
                                                 {isUserOnline
                                                     ? t('chat.status.online')
                                                     : `${t('chat.status.last_seen')} ${formatLastSeen(profile.last_seen)}`}
@@ -310,92 +312,99 @@ export const Profile = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-center sm:justify-start gap-3">
+                                <div className="flex items-center justify-center gap-3">
                                     {isOwnProfile ? (
                                         <Button
                                             onClick={() => setEditMode(!editMode)}
-                                            variant="secondary"
-                                            className="flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold shadow-md hover:scale-105 transition-all text-sm lg:text-base border-outline/10 text-on-surface"
+                                            className="px-8 py-3 rounded-2xl font-black shadow-xl shadow-primary/10 hover:scale-105 transition-all text-xs uppercase tracking-[0.2em]"
                                         >
-                                            <Edit2 size={18} />
+                                            <Edit2 size={16} className="mr-2" />
                                             {t('profile_page.edit_profile')}
                                         </Button>
                                     ) : (
                                         <Button
                                             onClick={handleMessage}
-                                            className="flex items-center gap-2 px-8 py-2.5 rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all text-sm lg:text-base uppercase tracking-widest"
+                                            className="px-10 py-3 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-105 transition-all text-sm uppercase tracking-[0.2em]"
                                         >
-                                            <MessageCircle size={18} />
+                                            <MessageCircle size={20} className="mr-2" />
                                             {t('friends_page.actions.direct_chat')}
                                         </Button>
                                     )}
                                 </div>
                             </div>
 
-                            {editMode ? (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.98 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="space-y-4 surface-1 p-5 rounded-3xl border border-outline/10 mb-2 text-left"
-                                >
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface mb-1.5 ml-1">{t('profile_page.full_name')}</label>
-                                        <input
-                                            type="text"
-                                            value={fullName}
-                                            onChange={(e) => setFullName(e.target.value)}
-                                            className="w-full px-4 py-2 bg-surface border border-outline/20 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface"
-                                            placeholder={t('profile_page.placeholder_name')}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface mb-1.5 ml-1">{t('profile_page.username')}</label>
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-black text-lg">@</span>
-                                            <input
-                                                type="text"
-                                                value={newUsername}
-                                                onChange={(e) => setNewUsername(e.target.value)}
-                                                className="w-full pl-10 pr-4 py-2 bg-surface border border-outline/20 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-on-surface font-bold"
-                                                placeholder={t('profile_page.placeholder_username')}
+                            {/* Bio Area - Glass Card */}
+                            <div className="relative group/bio">
+                                {editMode ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="space-y-4 bg-surface-container-low/40 backdrop-blur-3xl p-6 rounded-[32px] border border-outline-variant/10"
+                                    >
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2 ml-1">{t('profile_page.full_name')}</label>
+                                                <input
+                                                    type="text"
+                                                    value={fullName}
+                                                    onChange={(e) => setFullName(e.target.value)}
+                                                    className="w-full px-5 py-3 bg-white/5 border border-outline/10 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface font-bold"
+                                                    placeholder={t('profile_page.placeholder_name')}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2 ml-1">{t('profile_page.username')}</label>
+                                                <input
+                                                    type="text"
+                                                    value={newUsername}
+                                                    onChange={(e) => setNewUsername(e.target.value)}
+                                                    className="w-full px-5 py-3 bg-white/5 border border-outline/10 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface font-bold"
+                                                    placeholder={t('profile_page.placeholder_username')}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2 ml-1">{t('profile_page.bio')}</label>
+                                            <textarea
+                                                value={bio}
+                                                onChange={(e) => setBio(e.target.value)}
+                                                className="w-full px-5 py-3 bg-white/5 border border-outline/10 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-on-surface min-h-[100px]"
+                                                placeholder={t('profile_page.placeholder_bio')}
                                             />
                                         </div>
+                                        <div className="flex gap-3 justify-end">
+                                            <Button onClick={() => setEditMode(false)} variant="secondary" className="px-6 py-2 rounded-xl text-xs uppercase tracking-widest border-outline/10">
+                                                {t('common.cancel')}
+                                            </Button>
+                                            <Button onClick={handleSaveProfile} className="px-8 py-2 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-primary/20">
+                                                {t('profile_page.save_changes')}
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <div className="bg-white/5 backdrop-blur-sm p-6 lg:p-8 rounded-[32px] border border-outline-variant/10 group-hover/bio:bg-white/10 transition-colors">
+                                        <p className="text-on-surface text-base lg:text-xl leading-relaxed italic font-medium">
+                                            {profile.bio || t('profile_page.no_bio')}
+                                        </p>
                                     </div>
+                                )}
+                            </div>
 
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface mb-1.5 ml-1">{t('profile_page.bio')}</label>
-                                        <textarea
-                                            value={bio}
-                                            onChange={(e) => setBio(e.target.value)}
-                                            className="w-full px-4 py-2 bg-surface border border-outline/20 rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all resize-none text-on-surface"
-                                            rows={2}
-                                            placeholder={t('profile_page.placeholder_bio')}
-                                        />
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <Button onClick={handleSaveProfile} className="px-6 py-2 shadow-lg shadow-primary/20">
-                                            {t('profile_page.save_changes')}
-                                        </Button>
-                                        <Button onClick={() => setEditMode(false)} variant="secondary" className="px-6 py-2 border-outline/10 text-on-surface">
-                                            {t('common.cancel')}
-                                        </Button>
-                                    </div>
-                                </motion.div>
-                            ) : (
-                                <p className="text-on-surface text-base lg:text-lg leading-relaxed max-w-2xl font-medium mx-auto sm:mx-0">
-                                    {profile.bio || t('profile_page.no_bio')}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-on-surface-variant font-bold uppercase tracking-wider mt-2 px-1">
-                        <div className="flex items-center gap-2">
-                            <Calendar size={18} className="text-primary" />
-                            <span>
-                                {t('profile_page.joined')} {profile.created_at ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: dateLocale }) : t('profile_page.recently')}
-                            </span>
+                            {/* Additional Info Badges */}
+                            <div className="flex flex-wrap gap-4 mt-2">
+                                <div className="flex items-center gap-3 px-5 py-2.5 bg-tertiary/10 text-tertiary rounded-2xl border border-tertiary/20 backdrop-blur-sm">
+                                    <Calendar size={18} />
+                                    <span className="text-[11px] font-black uppercase tracking-widest">
+                                        {t('profile_page.joined')} {profile.created_at ? format(new Date(profile.created_at), 'MMMM yyyy', { locale: dateLocale }) : t('profile_page.recently')}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-3 px-5 py-2.5 bg-primary/10 text-primary rounded-2xl border border-primary/20 backdrop-blur-sm">
+                                    <Users size={18} />
+                                    <span className="text-[11px] font-black uppercase tracking-widest">
+                                        {posts.length} {t('profile_page.legacy.title')}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -407,7 +416,7 @@ export const Profile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 style={{ willChange: "transform, opacity" }}
-                className="bg-tertiary/5 backdrop-blur-3xl rounded-[40px] p-6 lg:p-8 border border-tertiary/20 shadow-2xl shadow-tertiary/10 relative overflow-hidden group"
+                className="bubble p-6 lg:p-8 bg-tertiary/5 border-tertiary/20 shadow-tertiary/10 relative overflow-hidden group"
             >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-tertiary/10 rounded-full blur-[100px] -mr-32 -mt-32 animate-pulse" />
 
@@ -447,11 +456,11 @@ export const Profile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 style={{ willChange: "transform, opacity" }}
-                className="bg-surface-container-low rounded-[40px] shadow-2xl shadow-primary/5 border border-outline-variant/10 p-6 lg:p-10 mb-10"
+                className="bubble p-6 lg:p-10 mb-10"
             >
                 <h2 className="text-xl lg:text-2xl font-black text-on-surface mb-6 uppercase tracking-tighter italic">{t('profile_page.legacy.title')}</h2>
                 {posts.length === 0 ? (
-                    <div className="text-center py-12 bg-surface-container rounded-3xl border border-dashed border-outline-variant/20 group hover:border-primary/40 transition-colors">
+                    <div className="text-center py-12 bg-white/40 dark:bg-white/5 rounded-[32px] border border-dashed border-outline-variant/10 group hover:border-primary/40 transition-all">
                         <p className="text-on-surface-variant text-base font-bold italic tracking-tight">{t('profile_page.legacy.empty_annals')}</p>
                         <p className="text-primary font-black mt-1 text-[10px] uppercase tracking-widest">{t('profile_page.legacy.start_journey')}</p>
                     </div>

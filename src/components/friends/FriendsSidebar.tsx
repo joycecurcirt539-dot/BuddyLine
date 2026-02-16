@@ -32,7 +32,7 @@ export const FriendsSidebar = () => {
     return (
         <div className="w-80 hidden xl:flex flex-col gap-6 sticky top-0 h-fit">
             {/* Future Features / Concepts */}
-            <div className="glass rounded-[32px] p-6 border border-outline-variant/10 shadow-xl shadow-primary/5 relative overflow-hidden group">
+            <div className="bubble p-6 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-[60px] -mr-16 -mt-16 animate-pulse pointer-events-none" />
 
                 <div className="flex items-center gap-3 mb-6 relative z-10">
@@ -83,7 +83,7 @@ export const FriendsSidebar = () => {
             </div>
 
             {/* Quick Stats Concept */}
-            <div className="glass rounded-[32px] p-6 border border-outline-variant/10">
+            <div className="bubble p-6">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="p-2 bg-primary/10 text-primary rounded-xl">
                         <Users2 size={18} />
