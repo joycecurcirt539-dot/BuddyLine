@@ -3,6 +3,7 @@ import { Home, Users, MessageSquare, User, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
+// Mobile-optimized navigation bar
 export const BottomNav = () => {
     const { t } = useTranslation();
     const location = useLocation();
