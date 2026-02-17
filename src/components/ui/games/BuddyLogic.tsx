@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Trophy, Zap, HelpCircle } from 'lucide-react';
+import { playSound } from '../../../utils/sounds';
 
 
 interface Sequence {
@@ -97,6 +98,7 @@ export const BuddyLogic: React.FC = () => {
 
         setSelectedAnswer(selected);
         if (selected === sequence.answer) {
+            playSound('correct', 0.5);
             setScore(prev => prev + 1);
             setFeedback('correct');
             setTimeout(() => {
@@ -117,6 +119,7 @@ export const BuddyLogic: React.FC = () => {
                 }
                 return next;
             });
+            playSound('lose_life', 0.5);
             setFeedback('wrong');
             setTimeout(() => {
                 setFeedback(null);

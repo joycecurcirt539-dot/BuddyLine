@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RotateCcw, Zap, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 interface Tile {
     id: number;
@@ -67,6 +68,7 @@ export const BuddyMerge: React.FC = () => {
         if (isGameOver || isMoving) return;
 
         let hasMoved = false;
+        let hasMerged = false;
         let newScore = score;
 
         const grid: (Tile | null)[][] = Array.from({ length: 4 }, () => Array(4).fill(null));
@@ -103,6 +105,7 @@ export const BuddyMerge: React.FC = () => {
                     disappearingTiles.push({ ...secondary, r, c: newRow.length - 1 });
                     newScore += primary.val;
                     hasMoved = true;
+                    hasMerged = true;
                     c++;
                 } else {
                     newRow.push({ ...row[c], isMerged: false });
@@ -139,6 +142,12 @@ export const BuddyMerge: React.FC = () => {
             setIsMoving(true);
             setTiles([...nextTiles, ...finalDisappearing]);
             setScore(newScore);
+
+            if (hasMerged) {
+                playSound('merge');
+            } else {
+                playSound('click');
+            }
 
             if (newScore > bestScore) {
                 setBestScore(newScore);

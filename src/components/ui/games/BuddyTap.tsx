@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, MousePointer2, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 interface Particle {
     id: number;
@@ -24,6 +25,7 @@ export const BuddyTap: React.FC = () => {
     const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+        playSound('click', 0.4);
         const bonus = Math.floor(combo / 10);
         const newScore = score + 1 + bonus;
 

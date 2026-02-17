@@ -14,6 +14,7 @@ import { MessageContextMenu } from './MessageContextMenu';
 import { ChatHeader } from './new/ChatHeader';
 import { MessageInput } from './new/MessageInput';
 import { MessageItem } from './new/MessageItem';
+import { playSound } from '../../utils/sounds';
 
 interface ChatWindowProps {
     chat: Chat | null;
@@ -62,6 +63,13 @@ export const ChatWindow = ({
 
     useEffect(() => {
         scrollToBottom();
+        // Play sound for new messages from others
+        if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage.sender_id !== user?.id) {
+                playSound('received');
+            }
+        }
     }, [messages, replyingTo, editingMessage]);
 
     // Message Actions
@@ -102,6 +110,7 @@ export const ChatWindow = ({
                 }
 
                 await onSendMessage(content, imageUrl, replyingTo?.id);
+                playSound('sent');
                 setReplyingTo(null);
             }
         } catch (error) {

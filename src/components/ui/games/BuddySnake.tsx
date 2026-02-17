@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RefreshCw, MessageSquare, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 type Point = { x: number; y: number };
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
@@ -69,6 +70,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
     }, [snake, food, score, isGameOver, highScore]);
 
     const tick = useCallback(() => {
+        playSound('move', 0.05);
         const dir = dirRef.current;
         const prevSnake = snakeRef.current;
         const head = prevSnake[0];
@@ -83,6 +85,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
 
         if (wallMode === 'solid') {
             if (newHead.x < 0 || newHead.x >= GRID_SIZE || newHead.y < 0 || newHead.y >= GRID_SIZE) {
+                playSound('collision', 0.4);
                 setIsGameOver(true);
                 if (scoreRef.current > highScoreRef.current) {
                     setHighScore(scoreRef.current);
@@ -96,6 +99,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
         }
 
         if (prevSnake.some(s => s.x === newHead.x && s.y === newHead.y)) {
+            playSound('collision', 0.4);
             setIsGameOver(true);
             if (scoreRef.current > highScoreRef.current) {
                 setHighScore(scoreRef.current);
@@ -108,6 +112,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
         const currentFood = foodRef.current;
 
         if (newHead.x === currentFood.x && newHead.y === currentFood.y) {
+            playSound('eat', 0.5);
             setScore(s => s + 10);
             setFood(generateFood(newSnake));
         } else {

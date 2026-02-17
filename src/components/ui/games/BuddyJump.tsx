@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, ArrowUp, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 interface Platform {
     id: number;
@@ -77,6 +78,7 @@ export const BuddyJump: React.FC = () => {
                     );
 
                     if (platform) {
+                        playSound('jump', 0.4);
                         newVy = JUMP_FORCE;
                         newY = platform.y;
                     }
@@ -90,6 +92,7 @@ export const BuddyJump: React.FC = () => {
                 if (heightVal > score) setScore(heightVal);
 
                 if (newY > cameraY + GAME_HEIGHT + 100) {
+                    playSound('fall', 0.6);
                     setGameState('gameover');
                     // Check against heightVal as it's the latest score
                     if (heightVal > highScore) {

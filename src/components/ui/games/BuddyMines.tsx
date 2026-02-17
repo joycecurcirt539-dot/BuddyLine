@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bomb, Flag, RefreshCw, Trophy, MousePointer2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 interface Cell {
     r: number;
@@ -97,9 +98,11 @@ export const BuddyMines: React.FC = () => {
                 }
             }
             setIsFirstClick(false);
+            playSound('mine_start', 0.5);
         }
 
         if (newGrid[r][c].isMine) {
+            playSound('mine_explode', 0.6);
             setGameState('lost');
             newGrid.forEach(row => row.forEach(cell => {
                 if (cell.isMine) cell.isRevealed = true;
@@ -121,8 +124,12 @@ export const BuddyMines: React.FC = () => {
         };
 
         revealRecursive(r, c);
+        playSound('mine_reveal', 0.4);
         const unrevealedSafe = newGrid.flat().filter(cell => !cell.isMine && !cell.isRevealed).length;
-        if (unrevealedSafe === 0) setGameState('won');
+        if (unrevealedSafe === 0) {
+            playSound('mine_win', 0.6);
+            setGameState('won');
+        }
         setGrid(newGrid);
     }, [grid, gameState, isFirstClick]);
 
@@ -136,6 +143,7 @@ export const BuddyMines: React.FC = () => {
         if (!cell.isFlagged && flagCount >= MINE_COUNT) return;
 
         cell.isFlagged = !cell.isFlagged;
+        playSound('mine_flag', 0.5);
         setFlagCount(prev => cell.isFlagged ? prev + 1 : prev - 1);
         setGrid(newGrid);
     }, [grid, gameState, flagCount]);

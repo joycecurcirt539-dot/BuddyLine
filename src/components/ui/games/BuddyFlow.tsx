@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, RotateCcw, Trophy, Zap, MousePointer2 } from 'lucide-react';
+import { playSound } from '../../../utils/sounds';
 
 interface Node {
     r: number;
@@ -168,6 +169,7 @@ export const BuddyFlow: React.FC = () => {
 
         const newCells = [...currentPath.cells, cell];
         setCurrentPath({ ...currentPath, cells: newCells });
+        playSound('flow_step', 0.3);
 
         if (otherNode && otherNode.color === currentPath.color && newCells.length > 1) {
             const completedPath = { ...currentPath, cells: newCells };
@@ -193,6 +195,7 @@ export const BuddyFlow: React.FC = () => {
         });
 
         if (completePaths.length === uniqueColors.size) {
+            playSound('merge', 0.6);
             setIsWon(true);
             setScore(prev => prev + 1);
             if (score + 1 > bestScore) {

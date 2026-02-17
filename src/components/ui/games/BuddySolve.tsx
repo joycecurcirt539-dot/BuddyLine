@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Timer, Trophy, RotateCcw, Brain } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 interface Equation {
     text: string;
@@ -84,11 +85,13 @@ export const BuddySolve: React.FC = () => {
         if (!isActive || isGameOver || !equation) return;
 
         if (selected === equation.answer) {
+            playSound('correct', 0.5);
             setScore(prev => prev + 1);
             setFeedback('correct');
             setTimeLeft(prev => Math.min(prev + 2, 30));
             generateEquation();
         } else {
+            playSound('incorrect', 0.4);
             setFeedback('wrong');
             setTimeLeft(prev => Math.max(prev - 5, 0));
         }

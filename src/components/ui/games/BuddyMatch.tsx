@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, RotateCcw, Hash, Users, MessageSquare, Heart, Star, Sparkles, Smile, PartyPopper } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { playSound } from '../../../utils/sounds';
 
 interface Tile {
     id: number;
@@ -91,6 +92,7 @@ export const BuddyMatch: React.FC = () => {
     const handleTileClick = (index: number) => {
         if (flippedIndices.length === 2 || tiles[index].isFlipped || tiles[index].isMatched) return;
 
+        playSound('click', 0.4);
         setTiles(prev => prev.map((tile, idx) => idx === index ? { ...tile, isFlipped: true } : tile));
         setFlippedIndices(prev => [...prev, index]);
         setMoves(prev => prev + 1);
