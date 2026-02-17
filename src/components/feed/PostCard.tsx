@@ -120,7 +120,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
     // ... (Views state, Like Logic, etc) goes here ... don't replace everything, just targeting specific blocks
 
     // Helper to render menu
-    const renderMenu = (item: Comment, isReply: boolean = false) => {
+    const renderMenu = (item: Comment, isReply?: boolean) => {
         if (activeCommentMenuId !== item.id || !menuPosition) return null;
 
         return createPortal(
