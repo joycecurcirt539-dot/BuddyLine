@@ -368,7 +368,7 @@ export const Chat = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-tertiary/5 opacity-50" />
 
                         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div>
+                            <div className="text-center md:text-left">
                                 <h1 className="text-2xl lg:text-3xl font-black text-on-surface uppercase tracking-tight italic leading-none mb-1">
                                     {t('common.messages')}
                                 </h1>

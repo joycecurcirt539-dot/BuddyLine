@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { UserBadge } from '../ui/UserBadge';
 import { useProfile } from '../../hooks/useProfile';
 
-export const Sidebar = () => {
+export const Sidebar = ({ onLogoClick }: { onLogoClick: () => void }) => {
     const { t } = useTranslation();
     const { user, signOut } = useAuth();
     const { profile } = useProfile();
@@ -55,7 +55,8 @@ export const Sidebar = () => {
                 initial="initial"
                 animate="animate"
                 whileHover={{ scale: 1.02 }}
-                className="bg-surface-container-high/40 backdrop-blur-2xl border border-outline/10 p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 group cursor-default"
+                onClick={onLogoClick}
+                className="bg-surface-container-high/40 backdrop-blur-2xl border border-outline/10 p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 group cursor-pointer active:scale-95 transition-transform"
             >
                 <motion.div
                     animate={{

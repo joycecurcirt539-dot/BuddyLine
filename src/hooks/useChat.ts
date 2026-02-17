@@ -38,6 +38,7 @@ export interface Chat {
     updated_at?: string; // Real column from DB
     participants: Profile[];
     last_message?: Message;
+    image_url?: string;
 }
 
 export const useChat = () => {
@@ -95,6 +96,7 @@ export const useChat = () => {
             name: c.name,
             updated_at: c.updated_at,
             participants: c.chat_members.map((m: any) => m.profile),
+            image_url: c.image_url,
         }));
 
         // 4. Fetch last message for each chat

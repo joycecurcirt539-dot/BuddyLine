@@ -4,6 +4,7 @@ import { usePresence } from '../hooks/usePresence';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
+import type { Profile } from '../hooks/useFriends';
 import {
     Users,
     Search,
@@ -42,7 +43,7 @@ export const Friends = () => {
     const { onlineUsers } = usePresence();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchType, setSearchType] = useState<'username' | 'name'>('username');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<Profile[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
     const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
@@ -260,7 +261,8 @@ export const Friends = () => {
                                         layout
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="bubble p-5 flex items-center justify-between hover:bg-surface-container-high/60 group"
+                                        onClick={() => navigate(`/profile/${friend.id}`)}
+                                        className="bubble p-5 flex items-center justify-between hover:bg-surface-container-high/60 group cursor-pointer transition-colors"
                                     >
                                         <div className="flex items-center gap-4">
                                             <Avatar
@@ -280,7 +282,10 @@ export const Friends = () => {
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => handleChat(friend.id)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleChat(friend.id);
+                                            }}
                                             className="p-3 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary rounded-xl transition-all active:scale-90"
                                             title={t('chat.send_message')}
                                         >

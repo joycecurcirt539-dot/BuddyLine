@@ -1,4 +1,5 @@
 import { ArrowLeft, MoreVertical, Phone, Video, BellOff, Trash2, Slash } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 import { useState, useRef, useEffect } from 'react';
@@ -47,16 +48,16 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     if (!chat) return null;
 
-    const chatData = chat as any;
+    if (!chat) return null;
 
-    const otherMember = chatData.is_group
+    const otherMember = chat.type === 'group'
         ? null
-        : chat.participants.find((p: any) => p.id !== currentUserId);
+        : chat.participants.find((p) => p.id !== currentUserId);
 
-    const displayName = chatData.is_group ? chatData.name : (otherMember?.full_name || otherMember?.username);
-    const displayAvatar = chatData.is_group ? chatData.image_url : otherMember?.avatar_url;
+    const displayName = chat.type === 'group' ? chat.name : (otherMember?.full_name || otherMember?.username);
+    const displayAvatar = chat.type === 'group' ? chat.image_url : otherMember?.avatar_url;
     // @ts-expect-error - is_online might be added dynamically or from presence
-    const isOnline = !chatData.is_group && (otherMember?.is_online || false);
+    const isOnline = chat.type !== 'group' && (otherMember?.is_online || false);
 
     return (
         <div className="p-4 md:p-6 sticky top-0 z-40">
@@ -72,35 +73,50 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                     </button>
 
                     {/* Avatar & Info Container */}
-                    <div className="flex items-center gap-4 group/header cursor-pointer">
-                        <div className="relative">
-                            <div className="absolute -inset-2 bg-primary/20 blur-xl opacity-0 group-hover/header:opacity-100 transition-opacity duration-500 rounded-full" />
-                            <Avatar
-                                src={displayAvatar}
-                                alt={displayName || 'Chat'}
-                                size="md"
-                                className="bg-surface-container-high ring-4 ring-white/10 shadow-xl group-hover/header:scale-105 transition-all duration-500"
-                            />
-                            <div className={clsx(
-                                "absolute bottom-0 right-0 w-3.5 h-3.5 border-2 border-surface-container-lowest rounded-full transition-all duration-500 shadow-lg",
-                                isOnline ? "bg-primary shadow-[0_0_10px_currentColor] animate-pulse scale-110" : "bg-outline-variant scale-90"
-                            )} />
-                        </div>
+                    {chat.type !== 'group' && otherMember ? (
+                        <Link to={`/profile/${otherMember.id}`} className="flex items-center gap-4 group/header cursor-pointer">
+                            <div className="relative">
+                                <div className="absolute -inset-2 bg-primary/20 blur-xl opacity-0 group-hover/header:opacity-100 transition-opacity duration-500 rounded-full" />
+                                <Avatar
+                                    src={displayAvatar}
+                                    alt={displayName || 'Chat'}
+                                    size="md"
+                                    className="bg-surface-container-high ring-4 ring-white/10 shadow-xl group-hover/header:scale-105 transition-all duration-500"
+                                />
+                                <div className={clsx(
+                                    "absolute bottom-0 right-0 w-3.5 h-3.5 border-2 border-surface-container-lowest rounded-full transition-all duration-500 shadow-lg",
+                                    isOnline ? "bg-primary shadow-[0_0_10px_currentColor] animate-pulse scale-110" : "bg-outline-variant scale-90"
+                                )} />
+                            </div>
 
-                        <div className="flex flex-col">
-                            <h2 className="text-sm md:text-xl font-black text-on-surface flex items-center gap-2 italic uppercase tracking-tight">
-                                {displayName}
-                                {!chatData.is_group && otherMember && (
+                            <div className="flex flex-col">
+                                <h2 className="text-sm md:text-xl font-black text-on-surface flex items-center gap-2 italic uppercase tracking-tight">
+                                    {displayName}
                                     <UserBadge username={otherMember.username} isVerified={otherMember.is_verified} />
-                                )}
-                            </h2>
-                            {!chatData.is_group && (
+                                </h2>
                                 <span className="text-[10px] md:text-xs font-black text-primary uppercase tracking-[0.2em] opacity-60">
                                     {isOnline ? t('chat.status.online') : t('chat.status.offline')}
                                 </span>
-                            )}
+                            </div>
+                        </Link>
+                    ) : (
+                        <div className="flex items-center gap-4 group/header">
+                            <div className="relative">
+                                <Avatar
+                                    src={displayAvatar}
+                                    alt={displayName || 'Chat'}
+                                    size="md"
+                                    className="bg-surface-container-high ring-4 ring-white/10 shadow-xl"
+                                />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <h2 className="text-sm md:text-xl font-black text-on-surface flex items-center gap-2 italic uppercase tracking-tight">
+                                    {displayName}
+                                </h2>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Actions Hub */}

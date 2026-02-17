@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { usePresence } from '../../hooks/usePresence';
+import { MiniGame } from '../ui/MiniGame';
 
 export const Layout = () => {
     const location = useLocation();
+    const [isGameOpen, setIsGameOpen] = useState(false);
     usePresence(); // Initialize global presence tracking
 
     const isChatOpen = location.pathname.startsWith('/chat') && new URLSearchParams(location.search).get('id');
@@ -14,7 +17,9 @@ export const Layout = () => {
 
     return (
         <div className="flex h-full w-full overflow-hidden bg-surface text-on-surface transition-colors duration-300">
-            <Sidebar />
+            <Sidebar onLogoClick={() => setIsGameOpen(true)} />
+
+            <MiniGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
             <main className={clsx(
                 "flex-1 lg:pl-72 h-full overflow-hidden flex flex-col",
@@ -38,7 +43,7 @@ export const Layout = () => {
                                 style={{ willChange: "transform, opacity" }}
                                 className="flex-1 flex flex-col min-h-0"
                             >
-                                <Outlet />
+                                <Outlet context={{ onLogoClick: () => setIsGameOpen(true) }} />
                             </motion.div>
                         </AnimatePresence>
                     </div>

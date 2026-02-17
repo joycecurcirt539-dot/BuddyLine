@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Avatar } from '../ui/Avatar';
-import { MessageCircle, Heart, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile, Reply, X, Pencil, Check } from 'lucide-react';
+import { MessageCircle, Heart, Send, ChevronDown, ChevronUp, Trash2, Eye, Smile, Reply, X, Pencil, Check, MoreVertical } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -71,6 +72,105 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
     const [postEditedAt, setPostEditedAt] = useState(post.edited_at);
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editCommentContent, setEditCommentContent] = useState('');
+    // Menu state
+    const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
+    const [activeCommentMenuId, setActiveCommentMenuId] = useState<string | null>(null);
+    const touchCoordsRef = useRef<{ x: number; y: number } | null>(null);
+    const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent, commentId: string) => {
+        const touch = e.touches[0];
+        touchCoordsRef.current = { x: touch.clientX, y: touch.clientY };
+        longPressTimerRef.current = setTimeout(() => {
+            if (touchCoordsRef.current) {
+                setMenuPosition(touchCoordsRef.current);
+                setActiveCommentMenuId(commentId);
+            }
+        }, 500);
+    };
+
+    const handleTouchEnd = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+        touchCoordsRef.current = null;
+    };
+
+    const handleTouchMove = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+        touchCoordsRef.current = null;
+    };
+
+    // Close menus when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (activeCommentMenuId && !(e.target as Element).closest('.comment-menu-content')) {
+                setActiveCommentMenuId(null);
+                setMenuPosition(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [activeCommentMenuId]);
+
+    // ... (Views state, Like Logic, etc) goes here ... don't replace everything, just targeting specific blocks
+
+    // Helper to render menu
+    const renderMenu = (item: Comment, isReply: boolean = false) => {
+        if (activeCommentMenuId !== item.id || !menuPosition) return null;
+
+        return createPortal(
+            <AnimatePresence>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                    style={{
+                        position: 'fixed',
+                        top: menuPosition.y,
+                        left: isReply ? undefined : menuPosition.x,
+                        right: isReply ? window.innerWidth - menuPosition.x : undefined,
+                        zIndex: 9999
+                    }}
+                    className="comment-menu-content bg-surface-container-high border border-outline-variant/10 shadow-xl rounded-xl overflow-hidden min-w-[140px] isolate"
+                >
+                    <button
+                        onClick={() => { handleReply(item); setActiveCommentMenuId(null); }}
+                        className="w-full text-left px-4 py-2.5 text-xs font-bold text-on-surface hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+                    >
+                        <Reply size={14} />
+                        {t('common.reply')}
+                    </button>
+                    {item.user_id === user?.id && (
+                        <>
+                            <button
+                                onClick={() => { setEditingCommentId(item.id); setEditCommentContent(item.content); setActiveCommentMenuId(null); }}
+                                className="w-full text-left px-4 py-2.5 text-xs font-bold text-on-surface hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+                            >
+                                <Pencil size={14} />
+                                {t('common.edit')}
+                            </button>
+                            <div className="h-px bg-outline-variant/10 mx-2" />
+                            <button
+                                onClick={() => { handleDeleteComment(item.id); setActiveCommentMenuId(null); }}
+                                className="w-full text-left px-4 py-2.5 text-xs font-bold text-error/80 hover:bg-error/10 hover:text-error transition-colors flex items-center gap-2"
+                            >
+                                <Trash2 size={14} />
+                                {t('common.remove')}
+                            </button>
+                        </>
+                    )}
+                </motion.div>
+            </AnimatePresence>,
+            document.body
+        );
+    };
+
+
 
     // Views state
     const [viewsCount, setViewsCount] = useState(post.views_count || 0);
@@ -329,8 +429,9 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                 ease: "easeOut"
             }}
             whileHover={{ y: -4 }}
+            style={{ maxWidth: 800 }}
             className={clsx(
-                "bubble p-6 mb-6 hover:shadow-2xl hover:shadow-primary/10 hover:bg-surface-container-low/60 group/card relative",
+                "bubble p-6 mb-6 hover:shadow-2xl hover:shadow-primary/10 hover:bg-surface-container-low/60 group/card relative w-full mx-auto",
                 showEmojiPicker && "z-[100]"
             )}
         >
@@ -423,12 +524,12 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                 {post.image_url && (
                     <motion.div
                         whileHover={{ scale: 1.01 }}
-                        className="overflow-hidden mb-5 rounded-[32px] border border-outline-variant/10 shadow-2xl relative group/image"
+                        className="overflow-hidden mb-5 rounded-2xl border border-outline-variant/10 shadow-2xl relative group/image"
                     >
                         <img
                             src={post.image_url}
                             alt="Post content"
-                            className="w-full h-auto object-cover max-h-[600px] transition-transform duration-700 group-hover/image:scale-105"
+                            className="w-full h-auto object-contain rounded-2xl transition-transform duration-700 group-hover/image:scale-105"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-500" />
                     </motion.div>
@@ -555,7 +656,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                             </form>
 
                             {/* Comments List */}
-                            <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-hide">
+                            <div className="space-y-3 max-h-[400px] overflow-y-auto overflow-x-hidden scrollbar-hide overscroll-contain touch-pan-y">
                                 {comments.length === 0 ? (
                                     <p className="text-center text-on-surface-variant/40 text-xs font-bold py-4 uppercase tracking-widest">
                                         {t('post.no_comments')}
@@ -580,7 +681,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                         />
                                                     </Link>
                                                     <div className="flex-1 max-w-[85%] min-w-0">
-                                                        <div className="flex items-center gap-2 mb-1">
+                                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
                                                             <Link to={`/profile/${comment.user_id}`} className="text-xs font-black text-on-surface hover:text-primary transition-colors flex items-center gap-1.5">
                                                                 {comment.author.full_name || comment.author.username}
                                                                 <UserBadge username={comment.author.username} isVerified={comment.author.is_verified} />
@@ -591,9 +692,35 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                     locale: getDateLocale(i18n.language)
                                                                 })}
                                                             </span>
+
+                                                            {/* Desktop Menu Button & Menu Anchor */}
+                                                            <div className="relative ml-auto">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setActiveCommentMenuId(activeCommentMenuId === comment.id ? null : comment.id);
+                                                                    }}
+                                                                    className={clsx(
+                                                                        "comment-menu-btn p-1 rounded-full transition-all",
+                                                                        "hidden md:flex text-primary hover:text-primary/80 bg-primary/5 hover:bg-primary/10", // Desktop styles
+                                                                        activeCommentMenuId === comment.id && "flex !bg-primary/20" // Visible when active
+                                                                    )}
+                                                                    title={t('common.more_options')}
+                                                                >
+                                                                    <MoreVertical size={14} />
+                                                                </button>
+
+                                                                {renderMenu(comment)}
+                                                            </div>
                                                         </div>
 
-                                                        <div className="bg-surface-container-high/50 px-4 py-2.5 rounded-2xl rounded-tl-none inline-block max-w-full text-sm font-medium text-on-surface leading-relaxed shadow-sm break-words whitespace-pre-wrap">
+                                                        <div
+                                                            className="bg-surface-container-high/50 px-4 py-2.5 rounded-2xl rounded-tl-none w-fit max-w-full text-sm font-medium text-on-surface leading-relaxed shadow-sm break-words whitespace-pre-wrap select-none touch-manipulation"
+                                                            onTouchStart={() => handleTouchStart(comment.id)}
+                                                            onTouchEnd={handleTouchEnd}
+                                                            onTouchMove={handleTouchMove}
+                                                            onContextMenu={(e) => e.preventDefault()}
+                                                        >
                                                             {editingCommentId === comment.id ? (
                                                                 <div className="flex items-center gap-2">
                                                                     <input
@@ -619,32 +746,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                             )}
                                                         </div>
 
-                                                        <div className="flex items-center gap-3 mt-1">
-                                                            <button
-                                                                onClick={() => handleReply(comment)}
-                                                                className="text-[10px] font-bold text-on-surface-variant/40 hover:text-primary transition-colors uppercase tracking-wider flex items-center gap-1"
-                                                            >
-                                                                <Reply size={11} />
-                                                                {t('common.reply')}
-                                                            </button>
-                                                            {comment.user_id === user?.id && (
-                                                                <>
-                                                                    <button
-                                                                        onClick={() => { setEditingCommentId(comment.id); setEditCommentContent(comment.content); }}
-                                                                        className="text-[10px] font-bold text-on-surface-variant/40 hover:text-primary opacity-0 group-hover/comment:opacity-100 transition-all uppercase tracking-wider flex items-center gap-1"
-                                                                    >
-                                                                        <Pencil size={10} />
-                                                                        {t('common.edit')}
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleDeleteComment(comment.id)}
-                                                                        className="text-[10px] font-bold text-red-500/50 hover:text-red-500 opacity-0 group-hover/comment:opacity-100 transition-all uppercase tracking-wider"
-                                                                    >
-                                                                        {t('common.remove')}
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </div>
+
                                                     </div>
                                                 </motion.div>
 
@@ -667,7 +769,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                     />
                                                                 </Link>
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-0.5">
                                                                         <Link to={`/profile/${reply.user_id}`} className="text-[11px] font-black text-on-surface hover:text-primary transition-colors flex items-center gap-1">
                                                                             {reply.author.full_name || reply.author.username}
                                                                             <UserBadge username={reply.author.username} isVerified={reply.author.is_verified} />
@@ -678,8 +780,34 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                                 locale: getDateLocale(i18n.language)
                                                                             })}
                                                                         </span>
+
+                                                                        {/* Reply Desktop Menu Button */}
+                                                                        <div className="relative ml-auto">
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setActiveCommentMenuId(activeCommentMenuId === reply.id ? null : reply.id);
+                                                                                }}
+                                                                                className={clsx(
+                                                                                    "comment-menu-btn p-0.5 rounded-full transition-all",
+                                                                                    "hidden md:flex text-primary hover:text-primary/80 bg-primary/5 hover:bg-primary/10",
+                                                                                    activeCommentMenuId === reply.id && "flex !bg-primary/20"
+                                                                                )}
+                                                                                title={t('common.more_options')}
+                                                                            >
+                                                                                <MoreVertical size={12} />
+                                                                            </button>
+
+                                                                            {renderMenu(reply, true)}
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="bg-surface-container/60 px-3 py-2 rounded-xl rounded-tl-none inline-block max-w-full text-[13px] font-medium text-on-surface leading-relaxed break-words whitespace-pre-wrap">
+                                                                    <div
+                                                                        className="bg-surface-container/60 px-3 py-2 rounded-xl rounded-tl-none w-fit max-w-full text-[13px] font-medium text-on-surface leading-relaxed break-words whitespace-pre-wrap select-none touch-manipulation"
+                                                                        onTouchStart={() => handleTouchStart(reply.id)}
+                                                                        onTouchEnd={handleTouchEnd}
+                                                                        onTouchMove={handleTouchMove}
+                                                                        onContextMenu={(e) => e.preventDefault()}
+                                                                    >
                                                                         <span className="text-primary/70 font-bold">@{comment.author.username}</span>{' '}
                                                                         {editingCommentId === reply.id ? (
                                                                             <span className="inline-flex items-center gap-1.5">
@@ -701,33 +829,10 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                             </>
                                                                         )}
                                                                     </div>
-                                                                    <div className="flex items-center gap-3 mt-0.5">
-                                                                        <button
-                                                                            onClick={() => handleReply(comment)}
-                                                                            className="text-[9px] font-bold text-on-surface-variant/30 hover:text-primary transition-colors uppercase tracking-wider flex items-center gap-1"
-                                                                        >
-                                                                            <Reply size={10} />
-                                                                            {t('common.reply')}
-                                                                        </button>
-                                                                        {reply.user_id === user?.id && (
-                                                                            <>
-                                                                                <button
-                                                                                    onClick={() => { setEditingCommentId(reply.id); setEditCommentContent(reply.content); }}
-                                                                                    className="text-[9px] font-bold text-on-surface-variant/30 hover:text-primary opacity-0 group-hover/reply:opacity-100 transition-all uppercase tracking-wider flex items-center gap-1"
-                                                                                >
-                                                                                    <Pencil size={9} />
-                                                                                    {t('common.edit')}
-                                                                                </button>
-                                                                                <button
-                                                                                    onClick={() => handleDeleteComment(reply.id)}
-                                                                                    className="text-[9px] font-bold text-red-500/40 hover:text-red-500 opacity-0 group-hover/reply:opacity-100 transition-all uppercase tracking-wider"
-                                                                                >
-                                                                                    {t('common.remove')}
-                                                                                </button>
-                                                                            </>
-                                                                        )}
-                                                                    </div>
+
+
                                                                 </div>
+
                                                             </motion.div>
                                                         ))}
                                                     </div>

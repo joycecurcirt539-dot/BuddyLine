@@ -46,6 +46,100 @@
         "add_image": "Add image",
         "invalid_image": "Please select a valid image file"
     },
+    "game": {
+        "best": "High Score",
+        "tap_to_connect": "TAP",
+        "combo": "COMBO",
+        "terminal_active": "Gaming terminal active",
+        "moves": "Moves",
+        "score": "Score",
+        "time": "Time",
+        "high_score": "High Score",
+        "reset": "Reset",
+        "try_again": "Try Again",
+        "start": "Start Game",
+        "reconnect": "Reconnect",
+        "system_error": "System Error",
+        "tap": {
+            "title": "Buddy Tap",
+            "desc": "Classic clicker. Tap the logo to earn Buddy Points and set new high scores."
+        },
+        "match": {
+            "title": "Buddy Match",
+            "desc": "4x4 Puzzle. Connect identical icons to clear the board in minimum moves.",
+            "reset": "Reset Game"
+        },
+        "jump": {
+            "title": "Buddy Jump",
+            "desc": "Jump higher! Help BuddyLine reach the top while avoiding falls.",
+            "height": "Height",
+            "max": "Max",
+            "ready": "Ready to Climb?",
+            "instruction": "Move your mouse or touch left and right to guide BuddyLine up the platforms.",
+            "fail": "Fall Detected"
+        },
+        "memory": {
+            "title": "Memory Cards",
+            "desc": "Train your memory. Find all matching pairs of your friends' avatars."
+        },
+        "snake": {
+            "title": "Buddy Snake",
+            "desc": "Become the longest connection. Collect message icons and grow your circle.",
+            "mode_title": "Walls Mode",
+            "mode_solid": "Classic",
+            "mode_portal": "Portal",
+            "lost": "Connection severed at"
+        },
+        "solve": {
+            "title": "Buddy Solve",
+            "desc": "Bypass the firewall by solving rapid mathematical sequences. Accuracy is mandatory.",
+            "time": "Time",
+            "instruction": "Solve equations as fast as you can. Correct answers add time!",
+            "time_up": "TIME'S UP",
+            "final_score": "Final Score",
+            "abandon": "Abandon System"
+        },
+        "mines": {
+            "title": "Buddy Mines",
+            "desc": "Identify and isolate corrupted data fragments. One misclick compromises the terminal.",
+            "win_title": "DEPLOYED",
+            "win_subtitle": "TIME: {{timer}}s",
+            "lose_title": "DATA BREECH",
+            "lose_subtitle": "Mines hit",
+            "hint_reveal": "Click: Reveal",
+            "hint_flag": "Right Click: Flag"
+        },
+        "logic": {
+            "title": "Buddy Logic",
+            "desc": "Identify recurring patterns in the data stream. Complete the logic sequence.",
+            "instruction": "Identify the pattern and complete the sequence.",
+            "sequence_type": "Sequence Type: {{type}}",
+            "hint": "Finding patterns builds cognitive nodes...",
+            "fail": "LOGIC FAILURE",
+            "final_score": "Final Score: {{score}}",
+            "recalibrate": "Recalibrate"
+        },
+        "flow": {
+            "title": "Buddy Flow",
+            "desc": "Complete the holographic circuit. Connect all terminal nodes without crossings.",
+            "solved": "Solved",
+            "win_title": "CIRCUIT CLOSED",
+            "win_subtitle": "Uplink Successful",
+            "hint": "Drag to connect matching nodes",
+            "next": "Next Node",
+            "reset": "Reset Circuit"
+        },
+        "merge": {
+            "title": "Buddy Merge",
+            "desc": "Merge data tiles to reach maximum density. Synchronize the Buddy-blocks.",
+            "game_over": "GAME OVER",
+            "final_score": "FINAL: {{score}}",
+            "move_up": "Move Up",
+            "move_down": "Move Down",
+            "move_left": "Move Left",
+            "move_right": "Move Right"
+        }
+    },
     "sidebar": {
         "buddyline": "BuddyLine",
         "private_circle": "Only Friends"
