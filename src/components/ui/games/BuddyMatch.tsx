@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Trophy, RotateCcw, Hash, Users, MessageSquare, Heart, Star, Sparkles, Smile, PartyPopper } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

@@ -710,7 +710,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                     <MoreVertical size={14} />
                                                                 </button>
 
-                                                                {renderMenu(comment)}
+                                                                {renderMenu(comment, false)}
                                                             </div>
                                                         </div>
 
