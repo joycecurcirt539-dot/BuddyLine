@@ -11,7 +11,6 @@ export const BottomNav = () => {
         { href: '/', label: t('common.home'), icon: Home },
         { href: '/friends', label: t('common.friends'), icon: Users },
         { href: '/chat', label: t('common.messages'), icon: MessageSquare },
-        { href: '/notifications', label: t('common.notifications'), icon: Bell },
         { href: '/profile', label: t('common.profile'), icon: User },
         { href: '/settings', label: t('common.settings'), icon: Settings },
     ];
