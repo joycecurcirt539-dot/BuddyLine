@@ -716,7 +716,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
 
                                                         <div
                                                             className="bg-surface-container-high/50 px-4 py-2.5 rounded-2xl rounded-tl-none w-fit max-w-full text-sm font-medium text-on-surface leading-relaxed shadow-sm break-words whitespace-pre-wrap select-none touch-manipulation"
-                                                            onTouchStart={() => handleTouchStart(comment.id)}
+                                                            onTouchStart={(e) => handleTouchStart(e, comment.id)}
                                                             onTouchEnd={handleTouchEnd}
                                                             onTouchMove={handleTouchMove}
                                                             onContextMenu={(e) => e.preventDefault()}
@@ -803,7 +803,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                     </div>
                                                                     <div
                                                                         className="bg-surface-container/60 px-3 py-2 rounded-xl rounded-tl-none w-fit max-w-full text-[13px] font-medium text-on-surface leading-relaxed break-words whitespace-pre-wrap select-none touch-manipulation"
-                                                                        onTouchStart={() => handleTouchStart(reply.id)}
+                                                                        onTouchStart={(e) => handleTouchStart(e, reply.id)}
                                                                         onTouchEnd={handleTouchEnd}
                                                                         onTouchMove={handleTouchMove}
                                                                         onContextMenu={(e) => e.preventDefault()}
