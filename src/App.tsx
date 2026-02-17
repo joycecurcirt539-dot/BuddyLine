@@ -9,6 +9,7 @@ import { Home } from './pages/Home';
 import { Chat } from './pages/Chat';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
+import { Notifications } from './pages/Notifications';
 import { InstallPrompt } from './components/ui/InstallPrompt';
 import { NotFound } from './pages/NotFound';
 
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/notifications" element={<Notifications />} />
                 <Route path="/profile/:id?" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>

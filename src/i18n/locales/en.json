@@ -7,6 +7,7 @@
         "home": "Home",
         "friends": "Friends",
         "messages": "Messages",
+        "notifications": "Notifications",
         "profile": "Profile",
         "save": "Save",
         "cancel": "Cancel",
@@ -412,5 +413,26 @@
     },
     "chat_error": {
         "friends_only": "You can only start chats with friends. Please add this user to your friends list first."
+    },
+    "notifications": {
+        "title": "Notifications",
+        "empty": "No notifications yet",
+        "requests": "Requests",
+        "messages": "Messages",
+        "activity": "Activity",
+        "all": "All",
+        "friend_request": "sent you a friend request",
+        "friend_accept": "accepted your friend request",
+        "post_like": "liked your post",
+        "post_comment": "commented on your post",
+        "message_received": "sent you a message",
+        "message_forwarded": "forwarded a message",
+        "message_reply": "replied to your message",
+        "comment_reply": "replied to your comment",
+        "accept": "Accept",
+        "decline": "Decline",
+        "mark_read": "Mark as read",
+        "mark_all_read": "Mark all as read",
+        "delete": "Delete"
     }
 }

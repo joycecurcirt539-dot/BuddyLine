@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { notificationService } from '../services/notificationService';
 
 export interface Profile {
     id: string;
@@ -123,6 +124,13 @@ export const useFriends = () => {
 
         if (insertError) return { error: insertError.message };
 
+        // Send notification
+        await notificationService.createNotification({
+            recipient_id: foundUser.id,
+            actor_id: user.id,
+            type: 'friend_request'
+        });
+
         await fetchAll();
         return { success: true };
     };
@@ -134,6 +142,21 @@ export const useFriends = () => {
             .eq('id', id);
 
         if (!error) {
+            // Find who sent the request to notify them
+            const { data: request } = await supabase
+                .from('friendships')
+                .select('user_id')
+                .eq('id', id)
+                .single();
+
+            if (request) {
+                await notificationService.createNotification({
+                    recipient_id: request.user_id,
+                    actor_id: user?.id,
+                    type: 'friend_accept'
+                });
+            }
+
             fetchAll();
         }
     };

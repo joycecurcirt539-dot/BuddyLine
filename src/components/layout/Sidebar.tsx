@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Home, Users, MessageSquare, User, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { Home, Users, MessageSquare, User, Settings as SettingsIcon, LogOut, Bell } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Avatar } from '../ui/Avatar';
 import { motion } from 'framer-motion';
@@ -27,6 +27,7 @@ export const Sidebar = ({ onLogoClick }: { onLogoClick: () => void }) => {
                 { href: '/', label: t('common.home'), icon: Home },
                 { href: '/friends', label: t('common.friends'), icon: Users },
                 { href: '/chat', label: t('common.messages'), icon: MessageSquare },
+                { href: '/notifications', label: t('common.notifications'), icon: Bell },
             ]
         },
         {

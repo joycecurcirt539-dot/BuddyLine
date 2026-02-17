@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import type { Profile } from './useFriends';
+import { notificationService } from '../services/notificationService';
 
 // Fallback for non-secure contexts (HTTP over LAN)
 const generateUUID = (): string => {
@@ -198,6 +199,19 @@ export const useChat = () => {
             alert(`Failed to send message: ${error.message}`);
             // Revert optimistic update if error
             setMessages(prev => prev.filter(m => m.id !== messageId));
+        } else {
+            // Success - Notify other participants
+            const others = activeChat.participants.filter(p => p.id !== user.id);
+            for (const other of others) {
+                await notificationService.createNotification({
+                    recipient_id: other.id,
+                    actor_id: user.id,
+                    type: replyToId ? 'message_reply' : 'message_received',
+                    content: content.slice(0, 100),
+                    target_id: activeChat.id,
+                    target_preview: content.slice(0, 50)
+                });
+            }
         }
     };
 
@@ -267,6 +281,26 @@ export const useChat = () => {
                 setMessages(prev => prev.filter(m => m.id !== messageId));
             }
             return { error: error.message };
+        } else {
+            // Success - Notify recipients in the target chat
+            const { data: members } = await supabase
+                .from('chat_members')
+                .select('user_id')
+                .eq('chat_id', targetChatId)
+                .neq('user_id', user.id);
+
+            if (members) {
+                for (const member of members) {
+                    await notificationService.createNotification({
+                        recipient_id: member.user_id,
+                        actor_id: user.id,
+                        type: 'message_forwarded',
+                        content: originalMessage.content?.slice(0, 100),
+                        target_id: targetChatId,
+                        target_preview: originalMessage.content?.slice(0, 50)
+                    });
+                }
+            }
         }
 
         // If we forwarded to another chat, we should probably update that chat's updated_at locally

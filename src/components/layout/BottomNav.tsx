@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, MessageSquare, User, Settings } from 'lucide-react';
+import { Home, Users, MessageSquare, User, Settings, Bell } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
@@ -11,6 +11,7 @@ export const BottomNav = () => {
         { href: '/', label: t('common.home'), icon: Home },
         { href: '/friends', label: t('common.friends'), icon: Users },
         { href: '/chat', label: t('common.messages'), icon: MessageSquare },
+        { href: '/notifications', label: t('common.notifications'), icon: Bell },
         { href: '/profile', label: t('common.profile'), icon: User },
         { href: '/settings', label: t('common.settings'), icon: Settings },
     ];
