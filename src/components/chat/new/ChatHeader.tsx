@@ -48,7 +48,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     if (!chat) return null;
 
-    if (!chat) return null;
+
 
     const otherMember = chat.type === 'group'
         ? null
