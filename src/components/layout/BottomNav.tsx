@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, MessageSquare, User, Settings, Bell } from 'lucide-react';
+import { Home, Users, MessageSquare, User, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
