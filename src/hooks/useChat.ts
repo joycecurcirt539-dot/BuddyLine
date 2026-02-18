@@ -199,19 +199,6 @@ export const useChat = () => {
             alert(`Failed to send message: ${error.message}`);
             // Revert optimistic update if error
             setMessages(prev => prev.filter(m => m.id !== messageId));
-        } else {
-            // Success - Notify other participants
-            const others = activeChat.participants.filter(p => p.id !== user.id);
-            for (const other of others) {
-                await notificationService.createNotification({
-                    recipient_id: other.id,
-                    actor_id: user.id,
-                    type: replyToId ? 'message_reply' : 'message_received',
-                    content: content.slice(0, 100),
-                    target_id: activeChat.id,
-                    target_preview: content.slice(0, 50)
-                });
-            }
         }
     };
 

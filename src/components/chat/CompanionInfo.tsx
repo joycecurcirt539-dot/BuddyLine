@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import type { Profile } from '../../hooks/useFriends';
 
+import { usePresence } from '../../hooks/usePresence';
+
 interface CompanionInfoProps {
     participant: Profile;
     onClose?: () => void;
@@ -20,6 +22,8 @@ interface CompanionInfoProps {
 export const CompanionInfo = ({ participant, onClose }: CompanionInfoProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { onlineUsers } = usePresence();
+    const isOnline = onlineUsers.has(participant.id);
 
     return (
         <div className="h-full flex flex-col gap-6 p-6 overflow-y-auto custom-scrollbar relative">
@@ -53,7 +57,7 @@ export const CompanionInfo = ({ participant, onClose }: CompanionInfoProps) => {
                             src={participant.avatar_url}
                             alt={participant.username}
                             size="xl"
-                            status={participant.status as 'online' | 'offline' | 'away'}
+                            status={isOnline ? 'online' : 'offline'}
                             className="ring-8 ring-white/5 shadow-2xl mb-8 scale-110"
                         />
                     </motion.div>

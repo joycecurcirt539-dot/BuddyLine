@@ -214,7 +214,7 @@ export const Profile = () => {
         return <div className="text-center py-20 text-on-surface-variant">{t('profile_page.not_found')}</div>;
     }
 
-    const isUserOnline = onlineUsers.has(profile.id);
+    const isUserOnline = profile ? onlineUsers.has(profile.id) : false;
     const dateLocale = i18n.language.startsWith('ru') ? ru : enUS;
 
     const formatLastSeen = (dateString: string | null | undefined) => {

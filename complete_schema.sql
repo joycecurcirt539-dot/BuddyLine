@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================================
 -- 1.1 Profiles
 CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
+    id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     full_name TEXT,
     avatar_url TEXT,
@@ -25,8 +25,8 @@ WHEN duplicate_object THEN NULL;
 END $$;
 CREATE TABLE IF NOT EXISTS public.friendships (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) NOT NULL,
-    friend_id UUID REFERENCES public.profiles(id) NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    friend_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     status friendship_status DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT now(),
     UNIQUE(user_id, friend_id)
@@ -59,7 +59,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS public.messages (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     chat_id UUID REFERENCES public.chats(id) ON DELETE CASCADE NOT NULL,
-    sender_id UUID REFERENCES public.profiles(id) NOT NULL,
+    sender_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     content TEXT NOT NULL,
     image_url TEXT,
     status message_status DEFAULT 'sent',
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS public.messages (
 -- 1.6 Posts
 CREATE TABLE IF NOT EXISTS public.posts (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id UUID REFERENCES public.profiles(id) NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     content TEXT,
     image_url TEXT,
     likes_count INT DEFAULT 0,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
 CREATE TABLE IF NOT EXISTS public.comments (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
-    user_id UUID REFERENCES public.profiles(id) NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     content TEXT NOT NULL,
     parent_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
     edited_at TIMESTAMPTZ,
@@ -109,6 +109,19 @@ CREATE TABLE IF NOT EXISTS public.post_views (
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now(),
     UNIQUE(post_id, user_id)
+);
+-- 1.10 Notifications
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    recipient_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    actor_id UUID REFERENCES public.profiles(id) ON DELETE
+    SET NULL,
+        type TEXT NOT NULL,
+        content TEXT,
+        target_id UUID,
+        target_preview TEXT,
+        is_read BOOLEAN DEFAULT FALSE
 );
 -- ============================================================
 -- 2. INDEXES
@@ -171,22 +184,97 @@ $$;
 -- 4. TRIGGERS
 -- ============================================================
 -- 4.1 Update chat timestamp when a new message is sent
-CREATE OR REPLACE FUNCTION public.update_chat_timestamp() RETURNS TRIGGER AS $$ BEGIN
+-- 4.1 Update chat timestamp when a new message is sent
+CREATE OR REPLACE FUNCTION public.handle_message_sent() RETURNS TRIGGER AS $$
+DECLARE v_recipient_id UUID;
+BEGIN -- Update chat timestamp
 UPDATE public.chats
 SET updated_at = NEW.created_at
 WHERE id = NEW.chat_id;
+-- Notify participants
+FOR v_recipient_id IN
+SELECT user_id
+FROM public.chat_members
+WHERE chat_id = NEW.chat_id
+    AND user_id != NEW.sender_id LOOP
+INSERT INTO public.notifications (
+        recipient_id,
+        actor_id,
+        type,
+        content,
+        target_id,
+        target_preview
+    )
+VALUES (
+        v_recipient_id,
+        NEW.sender_id,
+        CASE
+            WHEN NEW.reply_to_id IS NOT NULL THEN 'message_reply'
+            ELSE 'message_received'
+        END,
+        LEFT(NEW.content, 100),
+        NEW.chat_id,
+        LEFT(NEW.content, 50)
+    );
+END LOOP;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_message_sent ON public.messages;
 CREATE TRIGGER on_message_sent
 AFTER
-INSERT ON public.messages FOR EACH ROW EXECUTE FUNCTION public.update_chat_timestamp();
--- 4.2 Likes Counter
-CREATE OR REPLACE FUNCTION public.handle_new_like() RETURNS TRIGGER AS $$ BEGIN
+INSERT ON public.messages FOR EACH ROW EXECUTE FUNCTION public.handle_message_sent();
+-- 4.1.b Friendship Notifications
+CREATE OR REPLACE FUNCTION public.handle_friendship_notification() RETURNS TRIGGER AS $$ BEGIN IF (TG_OP = 'INSERT') THEN
+INSERT INTO public.notifications (recipient_id, actor_id, type)
+VALUES (NEW.friend_id, NEW.user_id, 'friend_request');
+ELSIF (TG_OP = 'UPDATE') THEN IF (
+    OLD.status = 'pending'
+    AND NEW.status = 'accepted'
+) THEN
+INSERT INTO public.notifications (recipient_id, actor_id, type)
+VALUES (NEW.user_id, NEW.friend_id, 'friend_accept');
+END IF;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+DROP TRIGGER IF EXISTS on_friendship_notification ON public.friendships;
+CREATE TRIGGER on_friendship_notification
+AFTER
+INSERT
+    OR
+UPDATE ON public.friendships FOR EACH ROW EXECUTE FUNCTION public.handle_friendship_notification();
+-- 4.2 Likes Counter & Notifications
+CREATE OR REPLACE FUNCTION public.handle_new_like() RETURNS TRIGGER AS $$
+DECLARE v_post_author_id UUID;
+v_post_preview TEXT;
+BEGIN -- Update count
 UPDATE public.posts
 SET likes_count = likes_count + 1
 WHERE id = NEW.post_id;
+-- Notify author
+SELECT user_id,
+    LEFT(content, 50) INTO v_post_author_id,
+    v_post_preview
+FROM public.posts
+WHERE id = NEW.post_id;
+IF v_post_author_id != NEW.user_id THEN
+INSERT INTO public.notifications (
+        recipient_id,
+        actor_id,
+        type,
+        target_id,
+        target_preview
+    )
+VALUES (
+        v_post_author_id,
+        NEW.user_id,
+        'post_like',
+        NEW.post_id,
+        v_post_preview
+    );
+END IF;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -216,6 +304,69 @@ DROP TRIGGER IF EXISTS on_view_created ON public.post_views;
 CREATE TRIGGER on_view_created
 AFTER
 INSERT ON public.post_views FOR EACH ROW EXECUTE FUNCTION public.handle_new_view();
+-- 4.4 Commentary Notifications
+CREATE OR REPLACE FUNCTION public.handle_new_comment() RETURNS TRIGGER AS $$
+DECLARE v_post_author_id UUID;
+v_post_preview TEXT;
+v_parent_author_id UUID;
+BEGIN
+SELECT user_id,
+    LEFT(content, 50) INTO v_post_author_id,
+    v_post_preview
+FROM public.posts
+WHERE id = NEW.post_id;
+-- Notify post owner
+IF v_post_author_id != NEW.user_id THEN
+INSERT INTO public.notifications (
+        recipient_id,
+        actor_id,
+        type,
+        content,
+        target_id,
+        target_preview
+    )
+VALUES (
+        v_post_author_id,
+        NEW.user_id,
+        'post_comment',
+        LEFT(NEW.content, 100),
+        NEW.post_id,
+        v_post_preview
+    );
+END IF;
+-- Notify parent comment owner if it's a reply
+IF NEW.parent_id IS NOT NULL THEN
+SELECT user_id INTO v_parent_author_id
+FROM public.comments
+WHERE id = NEW.parent_id;
+IF v_parent_author_id IS NOT NULL
+AND v_parent_author_id != NEW.user_id
+AND v_parent_author_id != v_post_author_id THEN
+INSERT INTO public.notifications (
+        recipient_id,
+        actor_id,
+        type,
+        content,
+        target_id,
+        target_preview
+    )
+VALUES (
+        v_parent_author_id,
+        NEW.user_id,
+        'comment_reply',
+        LEFT(NEW.content, 100),
+        NEW.post_id,
+        v_post_preview
+    );
+END IF;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+DROP TRIGGER IF EXISTS on_comment_created ON public.comments;
+CREATE TRIGGER on_comment_created
+AFTER
+INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.handle_new_comment();
 -- ============================================================
 -- 5. ROW LEVEL SECURITY (RLS)
 -- ============================================================
@@ -358,12 +509,26 @@ SELECT USING (true);
 DROP POLICY IF EXISTS "insert_post_views" ON public.post_views;
 CREATE POLICY "insert_post_views" ON public.post_views FOR
 INSERT WITH CHECK (auth.uid() = user_id);
+-- ── Notifications ──
+DROP POLICY IF EXISTS "view_own_notifications" ON public.notifications;
+CREATE POLICY "view_own_notifications" ON public.notifications FOR
+SELECT USING (auth.uid() = recipient_id);
+DROP POLICY IF EXISTS "update_own_notifications" ON public.notifications;
+CREATE POLICY "update_own_notifications" ON public.notifications FOR
+UPDATE USING (auth.uid() = recipient_id);
+DROP POLICY IF EXISTS "delete_own_notifications" ON public.notifications;
+CREATE POLICY "delete_own_notifications" ON public.notifications FOR DELETE USING (auth.uid() = recipient_id);
 -- ============================================================
 -- 6. REALTIME
 -- ============================================================
 -- Enable realtime for messages and posts
 DO $$ BEGIN ALTER PUBLICATION supabase_realtime
 ADD TABLE public.messages;
+EXCEPTION
+WHEN duplicate_object THEN NULL;
+END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime
+ADD TABLE public.notifications;
 EXCEPTION
 WHEN duplicate_object THEN NULL;
 END $$;

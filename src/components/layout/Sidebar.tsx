@@ -143,7 +143,7 @@ export const Sidebar = ({ onLogoClick }: { onLogoClick: () => void }) => {
                         size="md"
                         className="border-2 border-primary/20"
                     />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-surface flex items-center justify-center shadow-lg">
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-surface flex items-center justify-center shadow-[0_0_10px_rgba(34,197,94,0.4)] animate-pulse">
                         <div className="w-1.5 h-1.5 bg-on-primary rounded-full shadow-sm" />
                     </div>
                 </div>

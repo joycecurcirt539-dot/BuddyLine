@@ -1,6 +1,6 @@
 -- 1. Ensure Profiles table exists and has all required columns
 CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
+    id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     full_name TEXT,
     avatar_url TEXT,

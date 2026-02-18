@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Avatar } from '../../ui/Avatar';
 import { UserBadge } from '../../ui/UserBadge';
 import type { Chat } from '../../../hooks/useChat';
+import { usePresence } from '../../../hooks/usePresence';
 
 interface ChatHeaderProps {
     chat: Chat | null;
@@ -56,8 +57,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     const displayName = chat.type === 'group' ? chat.name : (otherMember?.full_name || otherMember?.username);
     const displayAvatar = chat.type === 'group' ? chat.image_url : otherMember?.avatar_url;
-    // @ts-expect-error - is_online might be added dynamically or from presence
-    const isOnline = chat.type !== 'group' && (otherMember?.is_online || false);
+    const { onlineUsers } = usePresence();
+    const isOnline = otherMember ? onlineUsers.has(otherMember.id) : false;
 
     return (
         <div className="p-4 md:p-6 sticky top-0 z-40">

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { PresenceProvider } from './context/PresenceContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
@@ -18,23 +19,25 @@ function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+          <PresenceProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/profile/:id?" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/friends" element={<Friends />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/profile/:id?" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
               </Route>
-            </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <InstallPrompt />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <InstallPrompt />
+          </PresenceProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>
