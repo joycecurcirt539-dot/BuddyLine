@@ -257,9 +257,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                             className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-md p-4"
                         >
                             <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center w-full max-w-[220px]">
-                                <div className="w-12 h-12 rounded-2xl bg-error/15 flex items-center justify-center mb-3">
-                                    <span className="text-xl">💥</span>
-                                </div>
+                                <img src="/logo.png" className="w-16 h-16 md:w-20 md:h-20 object-contain opacity-90" alt="" />
                                 <h3 className="text-base font-black text-error mb-0.5 uppercase italic tracking-tight">{t('game.system_error')}</h3>
                                 <p className="text-sm font-bold text-on-surface-variant mb-4">{t('game.snake.lost').toUpperCase()} {score}</p>
                                 <motion.button

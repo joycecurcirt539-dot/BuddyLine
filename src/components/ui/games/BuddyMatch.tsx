@@ -158,7 +158,7 @@ export const BuddyMatch: React.FC = () => {
                                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                                 >
                                     <div className="w-8 h-8 rounded-full bg-primary/8 flex items-center justify-center">
-                                        <img src="/logo.svg" className="w-4 h-4 brightness-0 dark:invert opacity-15" alt="" />
+                                        <img src="/logo.png" className="w-4 h-4 object-contain opacity-40" alt="" />
                                     </div>
                                 </div>
 

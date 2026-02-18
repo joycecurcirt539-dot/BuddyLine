@@ -164,9 +164,9 @@ export const BuddyTap: React.FC = () => {
                             {/* Inner ring glow */}
                             <div className="absolute inset-2 rounded-full border border-primary/20" />
                             <img
-                                src="/logo.svg"
+                                src="/logo.png"
                                 alt="BuddyLine"
-                                className="w-20 h-20 md:w-28 md:h-28 brightness-0 dark:invert opacity-90 relative z-10"
+                                className="w-20 h-20 md:w-28 md:h-28 object-contain opacity-90 relative z-10"
                             />
                         </div>
                     </div>
@@ -204,7 +204,7 @@ export const BuddyTap: React.FC = () => {
                     className="fixed pointer-events-none z-[110]"
                 >
                     <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary/40 to-tertiary/30 backdrop-blur-sm border border-primary/30 flex items-center justify-center p-1.5">
-                        <img src="/logo.svg" className="w-full h-full brightness-0 dark:invert" alt="+" />
+                        <img src="/logo.png" className="w-full h-full object-contain" alt="+" />
                     </div>
                 </motion.div>
             ))}

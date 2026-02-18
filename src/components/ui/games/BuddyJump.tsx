@@ -275,7 +275,7 @@ export const BuddyJump: React.FC = () => {
                         }}
                         className="w-full h-full bg-gradient-to-br from-primary to-tertiary rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center"
                     >
-                        <img src="/logo.svg" className="w-[80%] h-[80%] brightness-0 dark:invert" alt="" />
+                        <img src="/logo.png" className="w-[80%] h-[80%] object-contain" alt="" />
                     </motion.div>
                 </motion.div>
             </div>

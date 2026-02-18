@@ -63,7 +63,7 @@ export const Home = () => {
                             }}
                             className="w-full h-full rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/10"
                         >
-                            <img src="/logo.svg" alt="Logo" className="w-5 h-5 brightness-0 dark:invert" />
+                            <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
                         </motion.div>
                     </motion.div>
 

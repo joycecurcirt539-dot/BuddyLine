@@ -71,7 +71,7 @@ export const Sidebar = ({ onLogoClick }: { onLogoClick: () => void }) => {
                     }}
                     className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/10"
                 >
-                    <img src="/logo.svg" alt="Logo" className="w-7 h-7 brightness-0 dark:invert" />
+                    <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
                 </motion.div>
                 <div className="flex flex-col">
                     <span className="text-2xl font-black text-primary tracking-tighter italic uppercase">

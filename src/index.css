@@ -296,8 +296,8 @@ body::before {
 
 @layer utilities {
   .mask-logo {
-    -webkit-mask-image: url(/logo.svg);
-    mask-image: url(/logo.svg);
+    -webkit-mask-image: url(/logo.png);
+    mask-image: url(/logo.png);
 
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
