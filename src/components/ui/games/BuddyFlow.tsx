@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, RotateCcw, Trophy, Zap, MousePointer2 } from 'lucide-react';
 import { playSound } from '../../../utils/sounds';
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
 interface Node {
     r: number;
@@ -96,6 +97,7 @@ export const BuddyFlow: React.FC = () => {
     });
     const [isWon, setIsWon] = useState(false);
     const gridRef = useRef<HTMLDivElement>(null);
+    const { reduceMotion, reduceEffects } = usePerformanceMode();
 
     const initLevel = useCallback(() => {
         const generated = generateSolvableLevel();
@@ -169,7 +171,9 @@ export const BuddyFlow: React.FC = () => {
 
         const newCells = [...currentPath.cells, cell];
         setCurrentPath({ ...currentPath, cells: newCells });
-        playSound('flow_step', 0.3);
+        if (!reduceEffects) {
+            playSound('flow_step', 0.3);
+        }
 
         if (otherNode && otherNode.color === currentPath.color && newCells.length > 1) {
             const completedPath = { ...currentPath, cells: newCells };
@@ -195,7 +199,9 @@ export const BuddyFlow: React.FC = () => {
         });
 
         if (completePaths.length === uniqueColors.size) {
-            playSound('merge', 0.6);
+            if (!reduceEffects) {
+                playSound('merge', 0.6);
+            }
             setIsWon(true);
             setScore(prev => prev + 1);
             if (score + 1 > bestScore) {

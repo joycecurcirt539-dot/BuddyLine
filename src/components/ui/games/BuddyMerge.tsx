@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RotateCcw, Zap, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { playSound } from '../../../utils/sounds';
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
 interface Tile {
     id: number;
@@ -24,6 +25,7 @@ export const BuddyMerge: React.FC = () => {
     });
     const [isGameOver, setIsGameOver] = useState(false);
     const [isMoving, setIsMoving] = useState(false);
+    const { reduceMotion, reduceEffects } = usePerformanceMode();
 
     const addRandomTile = useCallback((currentTiles: Tile[]) => {
         const occupied = new Set(currentTiles.map(t => `${t.r}-${t.c}`));
@@ -143,10 +145,12 @@ export const BuddyMerge: React.FC = () => {
             setTiles([...nextTiles, ...finalDisappearing]);
             setScore(newScore);
 
-            if (hasMerged) {
-                playSound('merge');
-            } else {
-                playSound('click');
+            if (!reduceEffects) {
+                if (hasMerged) {
+                    playSound('merge');
+                } else {
+                    playSound('click');
+                }
             }
 
             if (newScore > bestScore) {
@@ -254,15 +258,17 @@ export const BuddyMerge: React.FC = () => {
                             <motion.div
                                 key={tile.id}
                                 layout
-                                initial={tile.isNew ? { scale: 0, opacity: 0 } : false}
+                                initial={tile.isNew && !reduceMotion ? { scale: 0, opacity: 0 } : false}
                                 animate={{
-                                    scale: tile.isMerged ? [1, 1.25, 1] : 1,
+                                    scale: tile.isMerged && !reduceMotion ? [1, 1.25, 1] : 1,
                                     opacity: tile.isDeleting ? 0 : 1,
                                     zIndex: tile.isDeleting ? 0 : 1
                                 }}
                                 transition={{
-                                    layout: { type: "spring", stiffness: 450, damping: 35, mass: 0.8 },
-                                    scale: { duration: 0.15 },
+                                    layout: reduceMotion
+                                        ? { type: "spring", stiffness: 350, damping: 32, mass: 0.8 }
+                                        : { type: "spring", stiffness: 450, damping: 35, mass: 0.8 },
+                                    scale: { duration: reduceMotion ? 0.1 : 0.15 },
                                     opacity: { duration: 0.1 }
                                 }}
                                 style={{

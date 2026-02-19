@@ -359,40 +359,23 @@ export const Chat = () => {
             <div className="w-full flex flex-col xl:flex-row gap-6">
                 <div className="flex-1 flex flex-col min-h-0">
                     {/* The Signal Hub (Header) */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{ willChange: "transform, opacity" }}
-                        className="bubble p-6 mb-6 relative overflow-hidden group"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-tertiary/5 opacity-50" />
-
-                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="text-center md:text-left">
-                                <h1 className="text-2xl lg:text-3xl font-black text-on-surface uppercase tracking-tight italic leading-none mb-1">
-                                    {t('common.messages')}
-                                </h1>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t('chat.signal_node_active')}</span>
+                    <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
+                        <div className="flex-1 flex flex-col md:flex-row items-center gap-6 w-full">
+                            <div className="flex-1 w-full relative group/search">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/search:opacity-100 transition duration-500" />
+                                <div className="relative flex items-center bg-surface-container rounded-2xl border border-outline-variant/20 group-focus-within/search:border-primary group-focus-within/search:bg-surface-container-lowest transition-all">
+                                    <Search className="ml-4 text-on-surface-variant/40 group-focus-within/search:text-primary transition-colors" size={18} />
+                                    <input
+                                        type="text"
+                                        placeholder={t('common.search')}
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-3 pr-4 py-3 bg-transparent outline-none text-on-surface font-bold text-sm placeholder:text-on-surface-variant/30"
+                                    />
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 w-full md:w-auto">
-                                <div className="relative flex-1 md:w-72 group/search">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/search:opacity-100 transition duration-500" />
-                                    <div className="relative flex items-center bg-surface-container rounded-2xl border border-outline-variant/20 group-focus-within/search:border-primary group-focus-within/search:bg-surface-container-lowest transition-all">
-                                        <Search className="ml-4 text-on-surface-variant/40 group-focus-within/search:text-primary transition-colors" size={18} />
-                                        <input
-                                            type="text"
-                                            placeholder={t('common.search')}
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="w-full pl-3 pr-4 py-3 bg-transparent outline-none text-on-surface font-bold text-sm placeholder:text-on-surface-variant/30"
-                                        />
-                                    </div>
-                                </div>
-
+                            <div className="flex items-center gap-3 shrink-0">
                                 <button
                                     onClick={() => setShowNewChat(true)}
                                     title={t('chat.start_new')}
@@ -400,9 +383,10 @@ export const Chat = () => {
                                 >
                                     <Plus size={24} className="group-hover:rotate-180 transition-transform duration-500" />
                                 </button>
+                                <SecretPanel variant="compact" />
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Comm-Log (Chat List) */}
                     <div className="flex-1 min-h-[500px]">
@@ -502,9 +486,8 @@ export const Chat = () => {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     style={{ willChange: "transform, opacity" }}
-                    className="w-full xl:w-96 space-y-6"
+                    className="w-full xl:w-80 space-y-6"
                 >
-                    <SecretPanel />
                     <div className="sticky top-24">
                         <ExperimentsPanel />
                     </div>

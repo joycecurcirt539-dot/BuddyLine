@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Avatar } from '../ui/Avatar';
 import { compressImage } from '../../utils/compressImage';
 import { EmojiPicker } from '../ui/EmojiPicker';
+import { usePerformanceMode } from '../../hooks/usePerformanceMode';
 
 export const Feed = () => {
     const { t } = useTranslation();
@@ -23,6 +24,7 @@ export const Feed = () => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { reduceMotion, reduceEffects } = usePerformanceMode();
 
     const fetchPosts = useCallback(async () => {
         const { data, error } = await supabase
@@ -209,17 +211,25 @@ export const Feed = () => {
     }, [fetchPosts]);
 
     return (
-        <div className="w-full py-8 px-4 flex-1">
+        <div className="w-full pb-8 lg:pt-0 px-4 flex-1">
             {/* Post Creation: Launch Station */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className={clsx(
                     "bubble p-5 md:p-8 mb-6 md:mb-12 group/composer relative",
                     showEmojiPicker && "z-[70]"
                 )}
             >
-                <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -ml-32 -mt-32 transition-colors duration-1000 group-focus-within/composer:bg-primary/10" />
+                <div
+                    className="absolute top-0 left-0 rounded-full -ml-32 -mt-32 transition-colors duration-700 group-focus-within/composer:bg-primary/10"
+                    style={{
+                        width: reduceEffects ? '12rem' : '16rem',
+                        height: reduceEffects ? '12rem' : '16rem',
+                        backgroundColor: 'rgba(var(--primary-rgb, 0,122,255), 0.05)',
+                        filter: reduceEffects ? 'blur(56px)' : 'blur(100px)',
+                    }}
+                />
 
                 <form onSubmit={handleCreatePost} className="relative z-10">
                     <div className="flex gap-4 md:gap-6">
@@ -339,7 +349,7 @@ export const Feed = () => {
 
                 {posts.length === 0 && (
                     <motion.div
-                        initial={{ opacity: 0 }}
+                        initial={reduceMotion ? false : { opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className={clsx(
                             'text-center py-20 bg-surface/50 transition-colors shadow-sm',

@@ -13,6 +13,7 @@ import { BuddyLogic } from './games/BuddyLogic';
 import { BuddyFlow } from './games/BuddyFlow';
 import type { WallMode } from './games/BuddySnake';
 import { Share2, Brain, Flag, Calculator } from 'lucide-react';
+import { usePerformanceMode } from '../../hooks/usePerformanceMode';
 
 interface GameHubProps {
     isOpen: boolean;
@@ -34,6 +35,7 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
     const [activeGame, setActiveGame] = useState<GameId>(null);
     const [snakeMode, setSnakeMode] = useState<WallMode>('solid');
+    const { reduceMotion, reduceEffects } = usePerformanceMode();
 
     const games: GameConfig[] = [
         { id: 'tap', titleKey: 'game.tap.title', descKey: 'game.tap.desc', icon: MousePointer2, color: 'from-blue-500 to-indigo-600', component: BuddyTap },
@@ -53,17 +55,27 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
     const activeGameConfig = activeGame ? games.find(g => g.id === activeGame) : null;
 
     return (
-        <AnimatePresence>
+        <AnimatePresence initial={!reduceMotion}>
             <motion.div
-                initial={{ opacity: 0 }}
+                initial={reduceMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] bg-surface/95 backdrop-blur-3xl flex flex-col overflow-hidden select-none"
+                exit={reduceMotion ? undefined : { opacity: 0 }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
+                className={reduceEffects
+                    ? 'fixed inset-0 z-[100] bg-surface/98 backdrop-blur-xl flex flex-col overflow-hidden select-none'
+                    : 'fixed inset-0 z-[100] bg-surface/95 backdrop-blur-3xl flex flex-col overflow-hidden select-none'
+                }
             >
                 {/* Background Decor */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 blur-[150px] rounded-full" />
+                    <div className={reduceEffects
+                        ? 'absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-primary/15 blur-[80px] rounded-full'
+                        : 'absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full'
+                    } />
+                    <div className={reduceEffects
+                        ? 'absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-secondary/15 blur-[80px] rounded-full'
+                        : 'absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 blur-[150px] rounded-full'
+                    } />
                 </div>
 
                 {/* ─── HEADER ─── */}
@@ -72,7 +84,7 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
                     <div className="flex items-center gap-3 min-w-0">
                         {activeGame && (
                             <motion.button
-                                initial={{ x: -10, opacity: 0 }}
+                                initial={reduceMotion ? false : { x: -10, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 onClick={() => setActiveGame(null)}
                                 className="flex-shrink-0 px-3 py-2 bg-surface-container-high/60 border border-outline/10 rounded-xl backdrop-blur-xl text-xs font-black text-on-surface hover:bg-surface-container-highest transition-all flex items-center gap-1.5"
@@ -94,8 +106,8 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
 
                     {/* Right: Close */}
                     <motion.button
-                        whileHover={{ scale: 1.1, rotate: 90 }}
-                        whileTap={{ scale: 0.9 }}
+                        whileHover={reduceMotion ? undefined : { scale: 1.05, rotate: 90 }}
+                        whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                         onClick={onClose}
                         className="flex-shrink-0 p-2.5 lg:p-3 bg-error/10 text-error rounded-xl lg:rounded-2xl border border-error/20 backdrop-blur-xl hover:bg-error hover:text-white transition-all duration-300 ml-3"
                     >
@@ -105,33 +117,44 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
 
                 {/* ─── CONTENT ─── */}
                 <div className="relative z-10 flex-1 min-h-0 overflow-hidden">
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" initial={!reduceMotion}>
                         {!activeGame ? (
                             /* ═══ GAME LIST ═══ */
                             <motion.div
                                 key="menu"
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={reduceMotion ? false : { opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
+                                exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}
                                 className="h-full overflow-y-auto overscroll-contain px-3 lg:px-8 pb-8"
                             >
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5 max-w-6xl mx-auto pt-2 lg:pt-4">
                                     {games.map((game, idx) => (
                                         <motion.button
                                             key={game.id}
-                                            initial={{ opacity: 0, y: 15 }}
+                                            initial={reduceMotion ? false : { opacity: 0, y: 15 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: idx * 0.05, duration: 0.3 }}
-                                            whileHover={{ scale: 1.02, y: -2 }}
-                                            whileTap={{ scale: 0.98 }}
+                                            transition={reduceMotion
+                                                ? { duration: 0.15 }
+                                                : { delay: Math.min(idx * 0.04, 0.2), duration: 0.25 }
+                                            }
+                                            whileHover={reduceMotion ? undefined : { scale: 1.02, y: -2 }}
+                                            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
                                             onClick={() => setActiveGame(game.id)}
                                             className="group relative flex items-center gap-3.5 p-3.5 lg:p-5 rounded-2xl lg:rounded-[1.8rem] bg-surface-container-high/30 border border-outline/5 backdrop-blur-xl hover:bg-surface-container-highest/40 hover:border-primary/15 transition-all text-left overflow-hidden"
                                         >
                                             {/* Glow */}
-                                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${game.color} blur-[50px] opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+                                            <div
+                                                className={`absolute top-0 right-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-20 transition-opacity`}
+                                                style={{
+                                                    width: reduceEffects ? '4.5rem' : '6rem',
+                                                    height: reduceEffects ? '4.5rem' : '6rem',
+                                                    filter: reduceEffects ? 'blur(28px)' : 'blur(50px)',
+                                                    transitionDuration: reduceMotion ? '250ms' : '500ms',
+                                                }}
+                                            />
 
                                             {/* Icon */}
-                                            <div className={`relative flex-shrink-0 w-11 h-11 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300`}>
+                                            <div className={`relative flex-shrink-0 w-11 h-11 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center shadow-lg ${reduceMotion ? '' : 'group-hover:scale-105'} transition-transform duration-300`}>
                                                 <game.icon className="w-5 h-5 lg:w-7 lg:h-7 text-white" />
                                             </div>
 
@@ -157,9 +180,9 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
                             /* ═══ ACTIVE GAME ═══ */
                             <motion.div
                                 key="game-content"
-                                initial={{ opacity: 0, scale: 0.97 }}
+                                initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 1.03 }}
+                                exit={reduceMotion ? undefined : { opacity: 0, scale: 1.03 }}
                                 className="h-full overflow-y-auto overscroll-contain flex flex-col lg:flex-row items-start lg:items-center justify-center gap-3 lg:gap-10 px-3 lg:px-8 pb-8"
                             >
                                 {/* Info Panel (compact on mobile) */}

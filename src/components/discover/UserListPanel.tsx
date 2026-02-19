@@ -97,7 +97,7 @@ export const UserListPanel = () => {
     };
 
     return (
-        <div className="w-80 hidden xl:flex flex-col gap-6 sticky top-8 h-fit">
+        <div className="w-80 hidden xl:flex flex-col gap-6 sticky top-0 h-fit">
             <div className="bubble p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-black branding-text-highlight uppercase tracking-tight">

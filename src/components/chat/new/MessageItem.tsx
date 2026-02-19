@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Reply, Forward, MoreVertical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
 interface MessageItemProps {
     message: Message;
@@ -17,6 +18,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, isOwn, onCont
     const { t } = useTranslation();
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isLongPress = useRef(false);
+    const { reduceMotion } = usePerformanceMode();
 
     const handleTouchStart = (e: React.TouchEvent) => {
         isLongPress.current = false;
@@ -41,7 +43,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, isOwn, onCont
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             className={clsx(
                 "flex flex-col mb-2 max-w-[85%] relative group message-item touch-manipulation",

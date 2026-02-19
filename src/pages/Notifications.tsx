@@ -17,12 +17,14 @@ import { useTranslation } from 'react-i18next';
 import { Avatar } from '../components/ui/Avatar';
 import { clsx } from 'clsx';
 import { notificationService, type Notification } from '../services/notificationService';
+import { supabase } from '../lib/supabase';
 
 export const Notifications = () => {
     const { t } = useTranslation();
     const [filter, setFilter] = useState<'all' | 'requests' | 'messages' | 'activity'>('all');
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
+    const [autoMarked, setAutoMarked] = useState(false);
 
     useEffect(() => {
         fetchNotifications();
@@ -42,7 +44,55 @@ export const Notifications = () => {
     const fetchNotifications = async () => {
         try {
             const data = await notificationService.getNotifications();
-            setNotifications(data);
+
+            // Enrich notifications with actor profile (username/full_name/avatar)
+            const actorIds = Array.from(
+                new Set(
+                    data
+                        .map(n => n.actor_id)
+                        .filter((id): id is string => Boolean(id))
+                )
+            );
+
+            let profilesMap: Record<string, { username: string; full_name: string; avatar_url: string }> = {};
+
+            if (actorIds.length > 0) {
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id, username, full_name, avatar_url')
+                    .in('id', actorIds);
+
+                if (!profilesError && profiles) {
+                    profilesMap = profiles.reduce((acc, p) => {
+                        acc[p.id] = {
+                            username: p.username,
+                            full_name: p.full_name,
+                            avatar_url: p.avatar_url
+                        };
+                            return acc;
+                    }, {} as Record<string, { username: string; full_name: string; avatar_url: string }>);
+                }
+            }
+
+            const withActors: Notification[] = data.map(n => ({
+                ...n,
+                actor: n.actor_id && profilesMap[n.actor_id]
+                    ? profilesMap[n.actor_id]
+                    : n.actor
+            }));
+
+            setNotifications(withActors);
+
+            // Auto-mark all as read when opening the notifications page
+            if (!autoMarked && withActors.some(n => !n.is_read)) {
+                try {
+                    await notificationService.markAllAsRead();
+                    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+                    setAutoMarked(true);
+                } catch (err) {
+                    console.error('Failed to auto-mark notifications as read:', err);
+                }
+            }
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
         } finally {

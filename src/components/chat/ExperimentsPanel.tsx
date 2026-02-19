@@ -12,25 +12,27 @@ export const ExperimentsPanel = () => {
     ];
 
     return (
-        <div className="bubble p-8 h-full relative group/experiments transition-all duration-700 hover:shadow-primary/5 border border-outline-variant/10">
+        <div className="bubble p-6 h-full relative group/experiments transition-all duration-700 hover:shadow-primary/5 border border-outline-variant/10">
             {/* Atmosphere */}
             <div className="absolute inset-0 bg-gradient-to-br from-tertiary/5 via-transparent to-transparent opacity-50" />
 
-            {/* Overflowing Beta Badge */}
-            <div className="absolute -top-3 -right-4 z-30 pointer-events-none rotate-6">
-                <div className="bg-tertiary text-on-tertiary text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-2xl shadow-[0_8px_20px_rgba(var(--tertiary),0.4)] border-2 border-white/10 italic">
-                    {t('chat.experiments.in_development')}
+            {/* Overflowing Beta Badge with Loop Animation - Fixed z-index and clipping */}
+            <div className="absolute -top-3 -right-4 z-50 pointer-events-none rotate-6">
+                <div className="bg-tertiary text-on-tertiary text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-2xl shadow-[0_8px_20px_rgba(var(--tertiary),0.4)] border-2 border-white/10 italic overflow-hidden flex whitespace-nowrap">
+                    <div className="flex items-center">
+                        <span>{t('chat.experiments.in_development')}</span>
+                    </div>
                 </div>
             </div>
 
             <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="p-3 bg-tertiary/10 rounded-2xl border border-tertiary/20 shadow-inner group-hover/experiments:scale-110 transition-transform duration-500">
-                        <FlaskConical size={24} className="text-tertiary" />
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="p-2.5 bg-tertiary/10 rounded-2xl border border-tertiary/20 shadow-inner group-hover/experiments:scale-110 transition-transform duration-500">
+                        <FlaskConical size={20} className="text-tertiary" />
                     </div>
                     <div>
-                        <h3 className="font-black text-xl text-on-surface uppercase tracking-tight italic">{t('chat.experiments.title')}</h3>
-                        <p className="text-[10px] font-black text-tertiary uppercase tracking-widest opacity-60">Uplink Beta</p>
+                        <h3 className="font-black text-lg text-on-surface uppercase tracking-tight italic">{t('chat.experiments.title')}</h3>
+                        <p className="text-[9px] font-black text-tertiary uppercase tracking-widest opacity-60">Uplink Beta</p>
                     </div>
                 </div>
 
@@ -41,7 +43,7 @@ export const ExperimentsPanel = () => {
                             <motion.div
                                 key={idx}
                                 whileHover={{ x: 8 }}
-                                className="group p-5 rounded-[28px] bg-white/5 border border-white/5 hover:border-primary/20 hover:bg-primary/5 transition-all cursor-pointer relative overflow-hidden"
+                                className="group p-4 rounded-[24px] bg-white/5 border border-white/5 hover:border-primary/20 hover:bg-primary/5 transition-all cursor-pointer relative overflow-hidden"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Smile, Squirrel, Utensils, Trophy, Lamp, LayoutGrid, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { usePerformanceMode } from '../../hooks/usePerformanceMode';
 
 interface EmojiCategory {
     id: string;
@@ -54,6 +55,7 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
     const { t } = useTranslation();
     const [activeCategory, setActiveCategory] = useState('smileys');
     const containerRef = useRef<HTMLDivElement>(null);
+    const { reduceMotion } = usePerformanceMode();
 
     // Handle click outside to close
     useEffect(() => {
@@ -71,9 +73,9 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
     return (
         <motion.div
             ref={containerRef}
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.9, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9, y: 10 }}
             className={clsx(
                 "w-72 sm:w-80 h-[380px] glass rounded-[32px] shadow-2xl overflow-hidden flex flex-col z-[101]",
                 className

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, MousePointer2, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { playSound } from '../../../utils/sounds';
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
 interface Particle {
     id: number;
@@ -23,9 +24,10 @@ export const BuddyTap: React.FC = () => {
     const [particles, setParticles] = useState<Particle[]>([]);
     const [combo, setCombo] = useState(0);
     const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const { reduceMotion, reduceEffects } = usePerformanceMode();
 
     const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
-        playSound('click', 0.4);
+        playSound('click', reduceEffects ? 0.25 : 0.4);
         const bonus = Math.floor(combo / 10);
         const newScore = score + 1 + bonus;
 
@@ -43,24 +45,27 @@ export const BuddyTap: React.FC = () => {
         const clientX = 'clientX' in e ? e.clientX : (e as React.TouchEvent).touches[0].clientX;
         const clientY = 'clientY' in e ? e.clientY : (e as React.TouchEvent).touches[0].clientY;
 
-        const newParticle: Particle = {
-            id: Date.now(),
-            x: clientX,
-            y: clientY,
-            vx: (Math.random() - 0.5) * 100,
-            vy: -150 - Math.random() * 50,
-            vr: (Math.random() - 0.5) * 360
-        };
+        if (!reduceEffects) {
+            const newParticle: Particle = {
+                id: Date.now(),
+                x: clientX,
+                y: clientY,
+                vx: (Math.random() - 0.5) * 100,
+                vy: -150 - Math.random() * 50,
+                vr: (Math.random() - 0.5) * 360
+            };
 
-        setParticles(prev => [...prev, newParticle].slice(-20));
+            setParticles(prev => [...prev, newParticle].slice(-12));
+        }
     };
 
     useEffect(() => {
+        if (reduceEffects) return;
         const timer = setInterval(() => {
-            setParticles(prev => prev.filter(p => Date.now() - p.id < 1000));
-        }, 100);
+            setParticles(prev => prev.filter(p => Date.now() - p.id < 800));
+        }, 120);
         return () => clearInterval(timer);
-    }, []);
+    }, [reduceEffects]);
 
     const comboProgress = Math.min(combo / 50, 1);
 
@@ -142,20 +147,20 @@ export const BuddyTap: React.FC = () => {
                 >
                     {/* Outer Pulse Ring */}
                     <motion.div
-                        animate={{
+                        animate={reduceMotion ? undefined : {
                             opacity: [0.05, 0.15, 0.05],
-                            scale: [1, 1.4, 1],
+                            scale: [1, 1.35, 1],
                         }}
-                        transition={{ duration: 4, repeat: Infinity }}
+                        transition={reduceMotion ? undefined : { duration: 4, repeat: Infinity }}
                         className="absolute inset-[-70px] bg-primary/20 blur-[90px] rounded-full pointer-events-none"
                     />
                     {/* Inner Glow */}
                     <motion.div
-                        animate={{
+                        animate={reduceMotion ? undefined : {
                             opacity: [0.15, 0.35, 0.15],
                             scale: [1, 1.12, 1],
                         }}
-                        transition={{ duration: 2.5, repeat: Infinity }}
+                        transition={reduceMotion ? undefined : { duration: 2.5, repeat: Infinity }}
                         className="absolute inset-[-25px] bg-primary/25 blur-[45px] rounded-full pointer-events-none"
                     />
 

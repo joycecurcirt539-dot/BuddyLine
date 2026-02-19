@@ -119,22 +119,14 @@ export const Friends = () => {
         <div className="max-w-none flex gap-8 pb-20 px-4 sm:px-0">
             <div className="flex-1 min-w-0 space-y-6">
                 {/* Dual Search Header */}
-                <div className="bubble p-4 sm:p-6 lg:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                        <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-on-surface tracking-tight leading-none mb-1 sm:mb-2">
-                                {t('common.friends')}
-                            </h1>
-                            <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
-                                {t('friends_page.active_friends', { count: friends.length })}
-                            </p>
-                        </div>
-
-                        <div className="flex bg-surface-container rounded-2xl p-1 border border-outline-variant/5 self-start sm:self-auto w-full sm:w-auto">
+                <div className="bubble p-4 sm:p-6 lg:p-8 space-y-6">
+                    <div className="flex flex-col md:flex-row items-center gap-4">
+                        {/* Tabs on the Left */}
+                        <div className="flex bg-surface-container rounded-2xl p-1 border border-outline-variant/5 w-full md:w-auto shrink-0">
                             <button
                                 onClick={() => setActiveTab('friends')}
                                 className={clsx(
-                                    "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all text-center",
+                                    "flex-1 md:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all text-center",
                                     activeTab === 'friends'
                                         ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
                                         : "text-on-surface-variant hover:text-on-surface"
@@ -145,7 +137,7 @@ export const Friends = () => {
                             <button
                                 onClick={() => setActiveTab('requests')}
                                 className={clsx(
-                                    "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all relative text-center",
+                                    "flex-1 md:flex-none px-4 md:px-6 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all relative text-center",
                                     activeTab === 'requests'
                                         ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
                                         : "text-on-surface-variant hover:text-on-surface"
@@ -159,37 +151,35 @@ export const Friends = () => {
                                 )}
                             </button>
                         </div>
-                    </div>
 
-                    <form onSubmit={handleSearch} className="relative max-w-3xl mx-auto">
-                        <div className="flex flex-col sm:flex-row items-stretch gap-3">
-                            <div className="flex-1 relative group">
-                                <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                                    {searchType === 'username' ? (
-                                        <AtSign size={20} className="text-primary transition-transform group-focus-within:scale-110" />
-                                    ) : (
-                                        <UserIcon size={20} className="text-primary transition-transform group-focus-within:scale-110" />
-                                    )}
+                        {/* Search on the Right */}
+                        <form onSubmit={handleSearch} className="relative flex-1 w-full">
+                            <div className="flex items-stretch gap-3">
+                                <div className="flex-1 relative group">
+                                    <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                                        {searchType === 'username' ? (
+                                            <AtSign size={18} className="text-primary transition-transform group-focus-within:scale-110" />
+                                        ) : (
+                                            <UserIcon size={18} className="text-primary transition-transform group-focus-within:scale-110" />
+                                        )}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (searchType === 'username' && val && !val.startsWith('@') && !searchQuery.startsWith('@')) {
+                                                setSearchQuery('@' + val);
+                                            } else {
+                                                setSearchQuery(val);
+                                            }
+                                        }}
+                                        placeholder={searchType === 'username' ? t('friends_page.search_username_placeholder') : t('friends_page.search_name_placeholder')}
+                                        className="w-full h-[56px] pl-14 pr-6 bg-surface-container-high rounded-2xl border border-outline-variant/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface text-sm placeholder:opacity-40"
+                                    />
                                 </div>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (searchType === 'username' && val && !val.startsWith('@') && !searchQuery.startsWith('@')) {
-                                            setSearchQuery('@' + val);
-                                        } else {
-                                            setSearchQuery(val);
-                                        }
-                                    }}
-                                    placeholder={searchType === 'username' ? t('friends_page.search_username_placeholder') : t('friends_page.search_name_placeholder')}
-                                    className="w-full h-[64px] pl-14 pr-6 bg-surface-container-high rounded-[28px] border border-outline-variant/10 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-bold text-on-surface text-base placeholder:opacity-40"
-                                />
-                            </div>
 
-                            <div className="flex gap-2 h-[64px]">
-                                {/* Custom Search Type Selector */}
-                                <div className="relative h-full">
+                                <div className="flex gap-2 h-[56px]">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -197,9 +187,9 @@ export const Friends = () => {
                                             setSearchType(nextType);
                                             setSearchQuery('');
                                         }}
-                                        className="h-full px-6 bg-surface-container-high rounded-[28px] border border-outline-variant/10 flex items-center gap-3 hover:bg-surface-container transition-all active:scale-95 group"
+                                        className="h-full px-4 bg-surface-container-high rounded-2xl border border-outline-variant/10 flex items-center gap-2 hover:bg-surface-container transition-all active:scale-95 group"
                                     >
-                                        <span className="font-black text-[10px] uppercase tracking-[0.15em] text-primary whitespace-nowrap">
+                                        <span className="font-black text-[9px] uppercase tracking-[0.1em] text-primary whitespace-nowrap hidden sm:inline">
                                             {searchType === 'username' ? t('friends_page.type_username') : t('friends_page.type_name')}
                                         </span>
                                         <div className="w-5 h-5 flex items-center justify-center bg-primary/10 text-primary rounded-full group-hover:bg-primary group-hover:text-on-primary transition-colors">
@@ -211,19 +201,18 @@ export const Friends = () => {
                                             </motion.div>
                                         </div>
                                     </button>
-                                </div>
 
-                                <Button
-                                    type="submit"
-                                    disabled={!searchQuery.trim() || isSearching}
-                                    className="h-full px-10 rounded-[28px] flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-sm font-black uppercase tracking-widest"
-                                >
-                                    {isSearching ? <Loader2 className="animate-spin" size={22} /> : <Search size={22} />}
-                                    <span className="hidden md:inline">{t('common.search')}</span>
-                                </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={!searchQuery.trim() || isSearching}
+                                        className="h-full px-6 rounded-2xl flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-xs font-black uppercase tracking-widest"
+                                    >
+                                        {isSearching ? <Loader2 className="animate-spin" size={18} /> : <Search size={18} />}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
 
                 {/* Results Overlay */}

@@ -34,14 +34,8 @@ export const notificationService = {
 
         const { data, error } = await supabase
             .from('notifications')
-            .select(`
-        *,
-        actor:actor_id (
-          username,
-          full_name,
-          avatar_url
-        )
-      `)
+            // Simple select without broken join; actor details can be resolved separately if needed
+            .select('*')
             .eq('recipient_id', user.id)
             .order('created_at', { ascending: false });
 

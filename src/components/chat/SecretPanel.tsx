@@ -1,8 +1,22 @@
 import { Lock, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export const SecretPanel = () => {
+interface SecretPanelProps {
+    variant?: 'default' | 'compact';
+}
+
+export const SecretPanel = ({ variant = 'default' }: SecretPanelProps) => {
     const { t } = useTranslation();
+
+    if (variant === 'compact') {
+        return (
+            <button className="p-3 bg-tertiary/10 text-tertiary hover:bg-tertiary hover:text-on-tertiary rounded-2xl border border-tertiary/20 shadow-lg transition-all active:scale-95 group flex items-center gap-2">
+                <EyeOff size={20} className="group-hover:rotate-12 transition-transform" />
+                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">{t('chat.secrets.title')}</span>
+            </button>
+        );
+    }
+
     return (
         <div className="bubble p-6 mb-6 relative group border border-outline-variant/10">
             {/* Atmosphere */}

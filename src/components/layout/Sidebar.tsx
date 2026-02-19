@@ -49,32 +49,32 @@ export const Sidebar = ({ onLogoClick }: { onLogoClick: () => void }) => {
     };
 
     return (
-        <aside className="hidden lg:flex w-72 h-screen flex-col bg-surface fixed top-0 left-0 z-40 px-4 py-8 gap-4 select-none overflow-hidden">
-            {/* 1. Logo & Brand Bubble */}
+        <aside className="hidden lg:flex w-72 h-screen flex-col fixed top-0 left-0 z-40 px-6 py-8 gap-4 select-none">
+            {/* 1. Logo & Brand Bubble (same shell size as nav bubbles) */}
             <motion.div
                 variants={bubbleVariants}
                 initial="initial"
                 animate="animate"
                 whileHover={{ scale: 1.02 }}
                 onClick={onLogoClick}
-                className="bg-surface-container-high/40 backdrop-blur-2xl border border-outline/10 p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 group cursor-pointer active:scale-95 transition-transform"
+                className="bg-surface-container-high/30 backdrop-blur-3xl border border-outline/5 p-3 rounded-[2.5rem] shadow-xl flex items-center gap-3 group cursor-pointer active:scale-95 transition-transform shrink-0"
             >
                 <motion.div
                     animate={{
-                        y: [0, -5, 0],
-                        rotate: [0, 5, -5, 0]
+                        y: [0, -4, 0],
+                        rotate: [0, 4, -4, 0]
                     }}
                     transition={{
                         duration: 6,
                         repeat: Infinity,
                         ease: "easeInOut"
                     }}
-                    className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/10"
+                    className="w-11 h-11 rounded-2xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/10"
                 >
-                    <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+                    <img src="/logo.png" alt="Logo" className="w-7 h-7 object-contain" />
                 </motion.div>
                 <div className="flex flex-col">
-                    <span className="text-2xl font-black text-primary tracking-tighter italic uppercase">
+                    <span className="text-xl font-black text-primary tracking-tighter italic uppercase leading-tight">
                         BuddyLine
                     </span>
                     <span className="text-[9px] font-black text-on-surface-variant/60 uppercase tracking-[0.3em]">
@@ -84,7 +84,7 @@ export const Sidebar = ({ onLogoClick }: { onLogoClick: () => void }) => {
             </motion.div>
 
             {/* 2 & 3. Navigation Bubbles */}
-            <div className="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar px-2">
                 {navGroups.map((group, groupIdx) => (
                     <motion.div
                         key={groupIdx}

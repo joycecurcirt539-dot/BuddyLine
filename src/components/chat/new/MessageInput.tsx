@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { EmojiPicker } from '../../ui/EmojiPicker';
 import type { Message } from '../../../hooks/useChat';
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
 interface MessageInputProps {
     onSendMessage: (content: string, image: File | null) => Promise<void>;
@@ -29,6 +30,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { reduceMotion } = usePerformanceMode();
 
     // Populate input when editing
     useEffect(() => {
@@ -107,9 +109,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 <AnimatePresence>
                     {(replyingTo || editingMessage) && (
                         <motion.div
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
+                            exit={reduceMotion ? undefined : { opacity: 0, y: 10 }}
                             className="absolute bottom-full mb-2 left-0 right-0 bg-surface-container-high/90 backdrop-blur-md rounded-2xl p-3 border border-outline-variant/10 shadow-lg flex items-center justify-between z-10"
                         >
                             <div className="flex items-center gap-3 overflow-hidden">
@@ -143,9 +145,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 <AnimatePresence>
                     {imagePreview && (
                         <motion.div
-                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            exit={reduceMotion ? undefined : { opacity: 0, y: 10, scale: 0.95 }}
                             className="absolute bottom-full mb-4 left-0 w-32 h-32 rounded-3xl overflow-hidden border-2 border-primary/20 shadow-2xl z-20 group/preview"
                         >
                             <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
@@ -225,8 +227,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
                     {/* Send Button Hub */}
                     <motion.button
-                        whileHover={{ scale: 1.05, rotate: message.trim() ? -5 : 0 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={reduceMotion ? undefined : { scale: 1.05, rotate: message.trim() ? -5 : 0 }}
+                        whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                         type="button"
                         onClick={() => handleSubmit()}
                         disabled={(!message.trim() && !selectedImage) || uploading}

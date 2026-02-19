@@ -4,6 +4,7 @@ import { UserBadge } from './UserBadge';
 import { Search, UserPlus, Loader2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { usePerformanceMode } from '../../hooks/usePerformanceMode';
 
 interface SearchResult {
     id: string;
@@ -24,22 +25,23 @@ interface SearchOverlayProps {
 
 export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest, actionLoading }: SearchOverlayProps) => {
     const { t } = useTranslation();
+    const { reduceMotion, reduceEffects } = usePerformanceMode();
 
     return (
-        <AnimatePresence>
+        <AnimatePresence initial={!reduceMotion}>
             {isOpen && (
                 <>
                     <motion.div
-                        initial={{ opacity: 0 }}
+                        initial={reduceMotion ? false : { opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        exit={reduceMotion ? undefined : { opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+                        className={reduceEffects ? "fixed inset-0 bg-black/40 z-[100]" : "fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"}
                     />
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={reduceMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        exit={reduceMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-lg bg-surface border border-outline-variant/20 rounded-[32px] shadow-2xl z-[101] overflow-hidden glass"
                     >
                         <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between">

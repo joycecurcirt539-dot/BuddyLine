@@ -698,12 +698,17 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                 <button
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
+                                                                        const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+                                                                        setMenuPosition({
+                                                                            x: rect.right,
+                                                                            y: rect.bottom + 4,
+                                                                        });
                                                                         setActiveCommentMenuId(activeCommentMenuId === comment.id ? null : comment.id);
                                                                     }}
                                                                     className={clsx(
                                                                         "comment-menu-btn p-1 rounded-full transition-all",
-                                                                        "hidden md:flex text-primary hover:text-primary/80 bg-primary/5 hover:bg-primary/10", // Desktop styles
-                                                                        activeCommentMenuId === comment.id && "flex !bg-primary/20" // Visible when active
+                                                                        "hidden md:flex text-primary hover:text-primary/80 bg-primary/5 hover:bg-primary/10",
+                                                                        activeCommentMenuId === comment.id && "flex !bg-primary/20"
                                                                     )}
                                                                     title={t('common.more_options')}
                                                                 >
@@ -786,6 +791,11 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                             <button
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
+                                                                                    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+                                                                                    setMenuPosition({
+                                                                                        x: rect.right,
+                                                                                        y: rect.bottom + 4,
+                                                                                    });
                                                                                     setActiveCommentMenuId(activeCommentMenuId === reply.id ? null : reply.id);
                                                                                 }}
                                                                                 className={clsx(

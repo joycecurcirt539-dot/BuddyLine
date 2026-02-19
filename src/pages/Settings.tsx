@@ -38,25 +38,6 @@ export const Settings = () => {
 
     return (
         <div className="w-full pb-20 lg:pb-10 relative min-h-screen">
-            {/* Desktop Header / Global Header */}
-            <header className={clsx("mb-8 lg:mb-12", activeCategory && "hidden lg:block")}>
-                <div className="flex items-center gap-4 mb-3">
-                    <div className="w-12 h-1 bg-primary rounded-full shadow-[0_0_12px_currentColor]" />
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em]"
-                    >
-                        {t('settings.system_access')}
-                    </motion.div>
-                </div>
-                <h1 className="text-4xl lg:text-6xl font-black text-on-surface mb-2 uppercase italic tracking-tighter">
-                    {t('settings.title')}
-                </h1>
-                <p className="text-on-surface-variant font-bold uppercase tracking-widest text-xs opacity-60">
-                    {t('settings.subtitle')}
-                </p>
-            </header>
 
             {/* Mobile Back Button */}
             {activeCategory && (
@@ -144,7 +125,7 @@ export const Settings = () => {
                 </AnimatePresence>
 
                 {/* Desktop Grid Layout (Hidden on Mobile) */}
-                <div className="hidden lg:grid grid-cols-1 gap-12 mt-8">
+                <div className="hidden lg:grid grid-cols-1 gap-12 mt-0">
                     {/* Identity Section (Read Only / Redirect) */}
                     {!isGuest && (
                         <motion.section
