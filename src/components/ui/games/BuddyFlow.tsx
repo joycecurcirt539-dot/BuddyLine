@@ -97,7 +97,7 @@ export const BuddyFlow: React.FC = () => {
     });
     const [isWon, setIsWon] = useState(false);
     const gridRef = useRef<HTMLDivElement>(null);
-    const { reduceMotion, reduceEffects } = usePerformanceMode();
+    const { reduceEffects } = usePerformanceMode();
 
     const initLevel = useCallback(() => {
         const generated = generateSolvableLevel();

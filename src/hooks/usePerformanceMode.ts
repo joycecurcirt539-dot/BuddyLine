@@ -22,7 +22,7 @@ export const usePerformanceMode = (): PerformanceMode => {
             mediaQuery.addEventListener('change', updatePreference);
         } else {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error - older Safari
+            // @ts-ignore - older Safari
             mediaQuery.addListener(updatePreference);
         }
 
@@ -31,7 +31,7 @@ export const usePerformanceMode = (): PerformanceMode => {
                 mediaQuery.removeEventListener('change', updatePreference);
             } else {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error - older Safari
+                // @ts-ignore - older Safari
                 mediaQuery.removeListener(updatePreference);
             }
         };
