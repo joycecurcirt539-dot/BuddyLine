@@ -337,7 +337,25 @@
         "no_sent_requests": "No pending requests",
         "active_friends_one": "{{count}} Active Friend",
         "active_friends_other": "{{count}} Active Friends",
-        "coming_soon": "Coming Soon"
+        "coming_soon": "Coming Soon",
+        "sidebar": {
+            "title": "Laboratory",
+            "subtitle": "In Development",
+            "circles": {
+                "name": "Circles",
+                "desc": "Group your friends by interests"
+            },
+            "activity": {
+                "name": "Watch Together",
+                "desc": "Watch videos with friends"
+            },
+            "nodes": {
+                "name": "Private Nodes",
+                "desc": "P2P chats bypassing the server"
+            },
+            "network_strength": "Development Status",
+            "connection_density": "at 65%"
+        }
     },
     "profile_page": {
         "loading": "Loading profile...",
