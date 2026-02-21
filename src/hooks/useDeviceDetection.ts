@@ -168,9 +168,13 @@ export const useDeviceDetection = (): DeviceInfo => {
         };
     }, []);
 
-    // Listen for viewport changes
+    // Listen for viewport changes with a threshold to avoid address bar issues
     useEffect(() => {
-        const handleResize = () => setViewportWidth(window.innerWidth);
+        const handleResize = () => {
+            const newWidth = window.innerWidth;
+            // Only update if difference > 20px (prevents address bar flicker re-renders)
+            setViewportWidth(prev => Math.abs(prev - newWidth) > 20 ? newWidth : prev);
+        };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);

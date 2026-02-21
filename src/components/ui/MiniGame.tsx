@@ -32,7 +32,63 @@ interface GameConfig {
     component: React.FC;
 }
 
-export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
+// Memoize game list item for performance
+const GameCard = React.memo(({ game, idx, reduceMotion, reduceEffects, t, onClick }: {
+    game: GameConfig;
+    idx: number;
+    reduceMotion: boolean;
+    reduceEffects: boolean;
+    t: (key: string) => string;
+    onClick: (id: GameId) => void;
+}) => (
+    <motion.button
+        initial={reduceMotion ? false : { opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={reduceMotion
+            ? { duration: 0.15 }
+            : { delay: Math.min(idx * 0.04, 0.2), duration: 0.25 }
+        }
+        whileHover={reduceMotion ? undefined : { scale: 1.02, y: -2 }}
+        whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+        onClick={() => onClick(game.id)}
+        className="group relative flex items-center gap-3.5 p-3.5 lg:p-5 rounded-2xl lg:rounded-[1.8rem] bg-surface-container-high/30 border border-outline/5 backdrop-blur-xl hover:bg-surface-container-highest/40 hover:border-primary/15 transition-all text-left overflow-hidden w-full"
+    >
+        {/* Glow */}
+        <div
+            className={`absolute top-0 right-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-20 transition-opacity`}
+            style={{
+                width: reduceEffects ? '4.5rem' : '6rem',
+                height: reduceEffects ? '4.5rem' : '6rem',
+                filter: reduceEffects ? 'blur(28px)' : 'blur(50px)',
+                transitionDuration: reduceMotion ? '250ms' : '500ms',
+            }}
+        />
+
+        {/* Icon */}
+        <div className={`relative flex-shrink-0 w-11 h-11 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center shadow-lg ${reduceMotion ? '' : 'group-hover:scale-105'} transition-transform duration-300`}>
+            <game.icon className="w-5 h-5 lg:w-7 lg:h-7 text-white" />
+        </div>
+
+        {/* Text */}
+        <div className="relative min-w-0 flex-1">
+            <h3 className="text-sm lg:text-base font-black text-on-surface uppercase italic tracking-tight group-hover:text-primary transition-colors truncate">
+                {t(game.titleKey)}
+            </h3>
+            <p className="text-[10px] lg:text-xs font-medium text-on-surface-variant/50 leading-snug mt-0.5 line-clamp-2">
+                {t(game.descKey)}
+            </p>
+        </div>
+
+        {/* Arrow */}
+        <div className="relative flex-shrink-0 text-primary/30 group-hover:text-primary/80 transition-colors">
+            <span className="text-lg font-black">›</span>
+        </div>
+    </motion.button>
+));
+
+GameCard.displayName = 'GameCard';
+
+export const MiniGame: React.FC<GameHubProps> = React.memo(({ isOpen, onClose }) => {
     const { t } = useTranslation();
     const [activeGame, setActiveGame] = useState<GameId>(null);
     const [snakeMode, setSnakeMode] = useState<WallMode>('solid');
@@ -126,50 +182,15 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
                             >
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5 max-w-6xl mx-auto pt-2 lg:pt-4">
                                     {games.map((game, idx) => (
-                                        <motion.button
+                                        <GameCard
                                             key={game.id}
-                                            initial={reduceMotion ? false : { opacity: 0, y: 15 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={reduceMotion
-                                                ? { duration: 0.15 }
-                                                : { delay: Math.min(idx * 0.04, 0.2), duration: 0.25 }
-                                            }
-                                            whileHover={reduceMotion ? undefined : { scale: 1.02, y: -2 }}
-                                            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-                                            onClick={() => setActiveGame(game.id)}
-                                            className="group relative flex items-center gap-3.5 p-3.5 lg:p-5 rounded-2xl lg:rounded-[1.8rem] bg-surface-container-high/30 border border-outline/5 backdrop-blur-xl hover:bg-surface-container-highest/40 hover:border-primary/15 transition-all text-left overflow-hidden"
-                                        >
-                                            {/* Glow */}
-                                            <div
-                                                className={`absolute top-0 right-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-20 transition-opacity`}
-                                                style={{
-                                                    width: reduceEffects ? '4.5rem' : '6rem',
-                                                    height: reduceEffects ? '4.5rem' : '6rem',
-                                                    filter: reduceEffects ? 'blur(28px)' : 'blur(50px)',
-                                                    transitionDuration: reduceMotion ? '250ms' : '500ms',
-                                                }}
-                                            />
-
-                                            {/* Icon */}
-                                            <div className={`relative flex-shrink-0 w-11 h-11 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center shadow-lg ${reduceMotion ? '' : 'group-hover:scale-105'} transition-transform duration-300`}>
-                                                <game.icon className="w-5 h-5 lg:w-7 lg:h-7 text-white" />
-                                            </div>
-
-                                            {/* Text */}
-                                            <div className="relative min-w-0 flex-1">
-                                                <h3 className="text-sm lg:text-base font-black text-on-surface uppercase italic tracking-tight group-hover:text-primary transition-colors truncate">
-                                                    {t(game.titleKey)}
-                                                </h3>
-                                                <p className="text-[10px] lg:text-xs font-medium text-on-surface-variant/50 leading-snug mt-0.5 line-clamp-2">
-                                                    {t(game.descKey)}
-                                                </p>
-                                            </div>
-
-                                            {/* Arrow */}
-                                            <div className="relative flex-shrink-0 text-primary/30 group-hover:text-primary/80 transition-colors">
-                                                <span className="text-lg font-black">›</span>
-                                            </div>
-                                        </motion.button>
+                                            game={game}
+                                            idx={idx}
+                                            reduceMotion={reduceMotion}
+                                            reduceEffects={reduceEffects}
+                                            t={t}
+                                            onClick={setActiveGame}
+                                        />
                                     ))}
                                 </div>
                             </motion.div>
@@ -233,4 +254,6 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
             </motion.div>
         </AnimatePresence>
     );
-};
+});
+
+MiniGame.displayName = 'MiniGame';
