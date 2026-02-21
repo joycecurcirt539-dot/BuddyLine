@@ -197,7 +197,10 @@ export const BuddyMines: React.FC = () => {
             </div>
 
             {/* Grid Area — compact cells */}
-            <div className={`relative p-2 bg-surface-container-low/30 rounded-[1.5rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} shadow-2xl accelerate`}>
+            <div
+                style={{ touchAction: 'none' }}
+                className={`relative p-2 bg-surface-container-low/30 rounded-[1.5rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} shadow-2xl accelerate`}
+            >
                 <div className="grid grid-cols-8 gap-[3px]">
                     {grid.map((row, r) => row.map((cell, c) => (
                         <button

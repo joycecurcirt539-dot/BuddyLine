@@ -142,7 +142,10 @@ export const BuddyMatch: React.FC = () => {
             </div>
 
             {/* Grid */}
-            <div className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-4 flex flex-col items-center justify-center overflow-hidden shadow-2xl accelerate`}>
+            <div
+                style={{ touchAction: 'none' }}
+                className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-4 flex flex-col items-center justify-center overflow-hidden shadow-2xl accelerate`}
+            >
                 {tiles.map((tile, index) => {
                     const config = ICON_CONFIGS[tile.type];
                     const Icon = config.icon;
