@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 full_name: 'Guest User',
                 username: 'guest'
             }
-        } as any);
+        } as unknown as User);
         setLoading(false);
     };
 
@@ -82,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 full_name: 'Guest User',
                 username: 'guest'
             }
-        } as any : user,
+        } as unknown as User : user,
         loading,
         isGuest,
         signOut,

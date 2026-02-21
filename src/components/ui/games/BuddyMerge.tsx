@@ -180,7 +180,7 @@ export const BuddyMerge: React.FC = () => {
                 setIsMoving(false);
             }, 150);
         }
-    }, [tiles, score, bestScore, addRandomTile, isGameOver, isMoving]);
+    }, [tiles, score, bestScore, addRandomTile, isGameOver, isMoving, reduceEffects]);
 
     // Keyboard support
     useEffect(() => {

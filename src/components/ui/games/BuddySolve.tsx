@@ -22,7 +22,7 @@ export const BuddySolve: React.FC = () => {
     const [isGameOver, setIsGameOver] = useState(false);
     const [equation, setEquation] = useState<Equation | null>(null);
     const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
-    const timerRef = useRef<any>(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const generateEquation = useCallback(() => {
         const level = Math.floor(score / 5);
@@ -101,12 +101,15 @@ export const BuddySolve: React.FC = () => {
 
     useEffect(() => {
         if (timeLeft === 0 && isActive) {
-            setIsGameOver(true);
-            setIsActive(false);
-            if (score > bestScore) {
-                setBestScore(score);
-                localStorage.setItem('buddyline_highscore_solve', score.toString());
-            }
+            const timer = setTimeout(() => {
+                setIsGameOver(true);
+                setIsActive(false);
+                if (score > bestScore) {
+                    setBestScore(score);
+                    localStorage.setItem('buddyline_highscore_solve', score.toString());
+                }
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [timeLeft, isActive, score, bestScore]);
 

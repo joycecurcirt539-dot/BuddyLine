@@ -23,7 +23,7 @@ export const BuddyMines: React.FC = () => {
     const [flagCount, setFlagCount] = useState(0);
     const [timer, setTimer] = useState(0);
     const [isFirstClick, setIsFirstClick] = useState(true);
-    const timerRef = useRef<any>(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const initGrid = useCallback(() => {
         const newGrid: Cell[][] = [];
@@ -58,7 +58,11 @@ export const BuddyMines: React.FC = () => {
         if (gameState === 'playing' && !isFirstClick) {
             timerRef.current = setInterval(() => setTimer(t => t + 1), 1000);
         }
-        return () => clearInterval(timerRef.current);
+        return () => {
+            if (timerRef.current !== null) {
+                clearInterval(timerRef.current);
+            }
+        };
     }, [gameState, isFirstClick]);
 
     const revealCell = useCallback((r: number, c: number) => {

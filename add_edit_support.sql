@@ -1,7 +1,0 @@
--- Add edited_at columns for tracking edits
-ALTER TABLE public.posts
-ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ DEFAULT NULL;
-ALTER TABLE public.comments
-ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ DEFAULT NULL;
-ALTER TABLE public.messages
-ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ DEFAULT NULL;

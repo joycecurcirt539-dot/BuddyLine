@@ -89,14 +89,13 @@ export const useChat = () => {
         }
 
         // 3. Format raw data into Chat objects
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formattedChats: Chat[] = chatsData.map((c: any) => ({
-            id: c.id,
-            type: c.type,
-            name: c.name,
-            updated_at: c.updated_at,
-            participants: c.chat_members.map((m: any) => m.profile),
-            image_url: c.image_url,
+        const formattedChats: Chat[] = chatsData.map((c: Record<string, unknown>) => ({
+            id: c.id as string,
+            type: c.type as 'direct' | 'group',
+            name: c.name as string | undefined,
+            updated_at: c.updated_at as string | undefined,
+            participants: (c.chat_members as { profile: Profile }[]).map(m => m.profile),
+            image_url: c.image_url as string | undefined,
         }));
 
         // 4. Fetch last message for each chat

@@ -5,6 +5,60 @@
 -- 0. Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================================
+-- ============================================================
+-- 0.5 STORAGE & AUTH ENHANCEMENTS
+-- ============================================================
+-- 4. Storage Setup (Avatars Bucket)
+-- Note: Run this in the SQL Editor to create the bucket and policies
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true) ON CONFLICT (id) DO NOTHING;
+-- 5. Storage Policies for Avatars
+-- Allow public access to view avatars
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+CREATE POLICY "Public Access" ON storage.objects FOR
+SELECT USING (bucket_id = 'avatars');
+-- Allow authenticated users to upload their own avatar
+DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
+CREATE POLICY "Users can upload their own avatar" ON storage.objects FOR
+INSERT WITH CHECK (
+        bucket_id = 'avatars'
+        AND auth.role() = 'authenticated'
+        AND (storage.foldername(name)) [1] = auth.uid()::text
+    );
+-- Allow users to update their own avatar
+DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
+CREATE POLICY "Users can update their own avatar" ON storage.objects FOR
+UPDATE USING (
+        bucket_id = 'avatars'
+        AND auth.role() = 'authenticated'
+        AND (storage.foldername(name)) [1] = auth.uid()::text
+    );
+-- Allow users to delete their own avatar
+DROP POLICY IF EXISTS "Users can delete their own avatar" ON storage.objects;
+CREATE POLICY "Users can delete their own avatar" ON storage.objects FOR DELETE USING (
+    bucket_id = 'avatars'
+    AND auth.role() = 'authenticated'
+    AND (storage.foldername(name)) [1] = auth.uid()::text
+);
+-- 6. Optional: Auto-create profile on sign up
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS TRIGGER AS $$ BEGIN
+INSERT INTO public.profiles (id, username, full_name, avatar_url)
+VALUES (
+        NEW.id,
+        COALESCE(
+            NEW.raw_user_meta_data->>'username',
+            split_part(NEW.email, '@', 1)
+        ),
+        COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+        NEW.raw_user_meta_data->>'avatar_url'
+    );
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+AFTER
+INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 -- 1. TABLES
 -- ============================================================
 -- 1.1 Profiles
@@ -16,6 +70,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     bio TEXT,
     status TEXT CHECK (status IN ('online', 'offline', 'away')) DEFAULT 'offline',
     last_seen TIMESTAMPTZ DEFAULT now(),
+    is_verified BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 -- 1.2 Friendships
@@ -100,7 +155,7 @@ CREATE TABLE IF NOT EXISTS public.post_likes (
     post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now(),
-    UNIQUE(post_id, user_id)
+    CONSTRAINT uq_post_user_like UNIQUE(post_id, user_id)
 );
 -- 1.9 Post Views
 CREATE TABLE IF NOT EXISTS public.post_views (
@@ -108,7 +163,7 @@ CREATE TABLE IF NOT EXISTS public.post_views (
     post_id UUID REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now(),
-    UNIQUE(post_id, user_id)
+    CONSTRAINT uq_post_user_like UNIQUE(post_id, user_id)
 );
 -- 1.10 Notifications
 CREATE TABLE IF NOT EXISTS public.notifications (
@@ -134,6 +189,7 @@ CREATE INDEX IF NOT EXISTS idx_friendships_user_id ON public.friendships(user_id
 CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON public.friendships(friend_id);
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON public.posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON public.comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON public.comments(parent_id);
 -- ============================================================
 -- 3. HELPER FUNCTIONS
 -- ============================================================
@@ -221,6 +277,8 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_message_sent ON public.messages;
+DROP TRIGGER IF EXISTS on_message_action ON public.messages;
+DROP TRIGGER IF EXISTS on_message_notification ON public.messages;
 CREATE TRIGGER on_message_sent
 AFTER
 INSERT ON public.messages FOR EACH ROW EXECUTE FUNCTION public.handle_message_sent();
@@ -240,6 +298,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_friendship_notification ON public.friendships;
+DROP TRIGGER IF EXISTS on_friendship_action ON public.friendships;
 CREATE TRIGGER on_friendship_notification
 AFTER
 INSERT
@@ -286,10 +345,12 @@ RETURN OLD;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_like_created ON public.post_likes;
+DROP TRIGGER IF EXISTS on_like_deleted ON public.post_likes;
+DROP TRIGGER IF EXISTS on_like_action ON public.post_likes;
+DROP TRIGGER IF EXISTS on_like_notification ON public.post_likes;
 CREATE TRIGGER on_like_created
 AFTER
 INSERT ON public.post_likes FOR EACH ROW EXECUTE FUNCTION public.handle_new_like();
-DROP TRIGGER IF EXISTS on_like_deleted ON public.post_likes;
 CREATE TRIGGER on_like_deleted
 AFTER DELETE ON public.post_likes FOR EACH ROW EXECUTE FUNCTION public.handle_removed_like();
 -- 4.3 Views Counter
@@ -301,6 +362,7 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_view_created ON public.post_views;
+DROP TRIGGER IF EXISTS on_view_action ON public.post_views;
 CREATE TRIGGER on_view_created
 AFTER
 INSERT ON public.post_views FOR EACH ROW EXECUTE FUNCTION public.handle_new_view();
@@ -364,6 +426,8 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_comment_created ON public.comments;
+DROP TRIGGER IF EXISTS on_comment_action ON public.comments;
+DROP TRIGGER IF EXISTS on_comment_notification ON public.comments;
 CREATE TRIGGER on_comment_created
 AFTER
 INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.handle_new_comment();
@@ -501,7 +565,9 @@ DROP POLICY IF EXISTS "insert_post_likes" ON public.post_likes;
 CREATE POLICY "insert_post_likes" ON public.post_likes FOR
 INSERT WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "delete_post_likes" ON public.post_likes;
-CREATE POLICY "delete_post_likes" ON public.post_likes FOR DELETE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "delete_own_likes" ON public.post_likes;
+CREATE POLICY "delete_own_likes" ON public.post_likes FOR DELETE USING (auth.uid() = user_id);
+GRANT DELETE ON public.post_likes TO authenticated;
 -- ── Post Views ──
 DROP POLICY IF EXISTS "view_post_views" ON public.post_views;
 CREATE POLICY "view_post_views" ON public.post_views FOR

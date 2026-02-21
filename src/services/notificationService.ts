@@ -90,7 +90,7 @@ export const notificationService = {
     },
 
     // Realtime subscription helper
-    subscribeToNotifications(callback: (payload: any) => void) {
+    subscribeToNotifications(callback: (payload: Record<string, unknown>) => void) {
         return supabase
             .channel('public:notifications')
             .on(

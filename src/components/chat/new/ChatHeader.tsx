@@ -31,6 +31,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const { onlineUsers } = usePresence();
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -57,7 +58,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     const displayName = chat.type === 'group' ? chat.name : (otherMember?.full_name || otherMember?.username);
     const displayAvatar = chat.type === 'group' ? chat.image_url : otherMember?.avatar_url;
-    const { onlineUsers } = usePresence();
     const isOnline = otherMember ? onlineUsers.has(otherMember.id) : false;
 
     return (

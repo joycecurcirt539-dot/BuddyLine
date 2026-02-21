@@ -47,6 +47,15 @@ export const usePerformanceMode = (): PerformanceMode => {
         reduceMotion ||
         (device.isMobile && !device.isStandalone);
 
+    useEffect(() => {
+        if (typeof document === 'undefined') return;
+        if (reduceEffects) {
+            document.documentElement.classList.add('reduce-effects');
+        } else {
+            document.documentElement.classList.remove('reduce-effects');
+        }
+    }, [reduceEffects]);
+
     return {
         reduceMotion,
         reduceEffects,

@@ -340,3 +340,31 @@ body::before {
     scrollbar-color: var(--color-primary) transparent;
   }
 }
+
+/* PERFORMANCE OVERRIDES FOR LOW-END DEVICES */
+html.reduce-effects * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transition-duration: 0.1s !important;
+  animation-duration: 0.1s !important;
+  transition-delay: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* Ensure background remains readable when blur is stripped */
+html.reduce-effects .glass,
+html.reduce-effects .bubble,
+html.reduce-effects .liquid-glass {
+  background-color: var(--color-surface-container-high) !important;
+  box-shadow: none !important;
+}
+
+.dark.reduce-effects .glass,
+.dark.reduce-effects .bubble,
+.dark.reduce-effects .liquid-glass {
+  background-color: var(--color-surface-container-lowest) !important;
+}
+
+html.reduce-effects body::before {
+  display: none !important;
+}

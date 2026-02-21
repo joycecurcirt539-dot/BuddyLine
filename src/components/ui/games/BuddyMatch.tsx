@@ -64,10 +64,13 @@ export const BuddyMatch: React.FC = () => {
         if (flippedIndices.length === 2) {
             const [first, second] = flippedIndices;
             if (tiles[first].type === tiles[second].type) {
-                setTiles(prev => prev.map((tile, idx) =>
-                    (idx === first || idx === second) ? { ...tile, isMatched: true } : tile
-                ));
-                setFlippedIndices([]);
+                const timer = setTimeout(() => {
+                    setTiles(prev => prev.map((tile, idx) =>
+                        (idx === first || idx === second) ? { ...tile, isMatched: true } : tile
+                    ));
+                    setFlippedIndices([]);
+                }, 0);
+                return () => clearTimeout(timer);
             } else {
                 const timer = setTimeout(() => {
                     setTiles(prev => prev.map((tile, idx) =>
@@ -83,8 +86,11 @@ export const BuddyMatch: React.FC = () => {
     useEffect(() => {
         if (isComplete) {
             if (moves < bestMoves) {
-                setBestMoves(moves);
-                localStorage.setItem('buddyline_highscore_match', moves.toString());
+                const timer = setTimeout(() => {
+                    setBestMoves(moves);
+                    localStorage.setItem('buddyline_highscore_match', moves.toString());
+                }, 0);
+                return () => clearTimeout(timer);
             }
         }
     }, [tiles, moves, bestMoves, isComplete]);

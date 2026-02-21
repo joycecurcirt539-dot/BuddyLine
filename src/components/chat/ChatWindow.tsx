@@ -70,7 +70,7 @@ export const ChatWindow = ({
                 playSound('received');
             }
         }
-    }, [messages, replyingTo, editingMessage]);
+    }, [messages, replyingTo, editingMessage, user?.id]);
 
     // Message Actions
     const handleContextMenu = (e: React.MouseEvent | React.TouchEvent, message: Message) => {

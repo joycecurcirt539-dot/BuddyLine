@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bell,
@@ -26,22 +26,7 @@ export const Notifications = () => {
     const [loading, setLoading] = useState(true);
     const [autoMarked, setAutoMarked] = useState(false);
 
-    useEffect(() => {
-        fetchNotifications();
-
-        // Subscribe to real-time updates
-        const subscription = notificationService.subscribeToNotifications((payload) => {
-            if (payload.new) {
-                fetchNotifications(); // Simple refresh for now
-            }
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
-
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         try {
             const data = await notificationService.getNotifications();
 
@@ -69,7 +54,7 @@ export const Notifications = () => {
                             full_name: p.full_name,
                             avatar_url: p.avatar_url
                         };
-                            return acc;
+                        return acc;
                     }, {} as Record<string, { username: string; full_name: string; avatar_url: string }>);
                 }
             }
@@ -98,7 +83,22 @@ export const Notifications = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [autoMarked]);
+
+    useEffect(() => {
+        fetchNotifications();
+
+        // Subscribe to real-time updates
+        const subscription = notificationService.subscribeToNotifications((payload) => {
+            if (payload.new) {
+                fetchNotifications(); // Simple refresh for now
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [fetchNotifications]);
 
     const filteredNotifications = notifications.filter(n => {
         if (filter === 'all') return true;
@@ -199,7 +199,7 @@ export const Notifications = () => {
                 ].map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setFilter(tab.id as any)}
+                        onClick={() => setFilter(tab.id as 'all' | 'requests' | 'messages' | 'activity')}
                         className={clsx(
                             "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap",
                             filter === tab.id

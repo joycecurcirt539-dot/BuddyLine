@@ -109,8 +109,14 @@ export const MessageContextMenu = ({
     );
 };
 
-// Sub-components
-const MenuItem = ({ icon: Icon, label, onClick, destructive }: any) => (
+interface MenuItemProps {
+    icon: React.ElementType;
+    label: string;
+    onClick: () => void;
+    destructive?: boolean;
+}
+
+const MenuItem = ({ icon: Icon, label, onClick, destructive }: MenuItemProps) => (
     <button
         onClick={onClick}
         className={clsx(
@@ -123,7 +129,7 @@ const MenuItem = ({ icon: Icon, label, onClick, destructive }: any) => (
     </button>
 );
 
-const MobileMenuItem = ({ icon: Icon, label, onClick, destructive }: any) => (
+const MobileMenuItem = ({ icon: Icon, label, onClick, destructive }: MenuItemProps) => (
     <button
         onClick={onClick}
         className={clsx(

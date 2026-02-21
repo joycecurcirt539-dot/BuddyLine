@@ -21,7 +21,7 @@ class SoundManager {
 
     private initContext() {
         if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            this.audioContext = new (window.AudioContext || (window as Window & typeof globalThis & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
         }
         if (this.audioContext.state === 'suspended') {
             this.audioContext.resume();

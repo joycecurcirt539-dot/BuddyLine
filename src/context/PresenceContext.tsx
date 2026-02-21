@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
@@ -16,8 +17,10 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     useEffect(() => {
         if (!user) {
-            setOnlineUsers(prev => prev.size === 0 ? prev : new Set());
-            return;
+            const timer = setTimeout(() => {
+                setOnlineUsers(prev => prev.size === 0 ? prev : new Set());
+            }, 0);
+            return () => clearTimeout(timer);
         }
 
         // 1. Update own status to 'online' in DB when connecting
