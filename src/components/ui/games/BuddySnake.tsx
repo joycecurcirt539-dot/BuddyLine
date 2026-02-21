@@ -201,7 +201,10 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
             </div>
 
             {/* Canvas — absolute-positioned segments for smooth visuals */}
-            <div className={`relative w-full aspect-square bg-surface-container-low/30 border border-outline/8 rounded-2xl lg:rounded-[2rem] shadow-2xl overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}>
+            <div
+                style={{ touchAction: 'none' }}
+                className={`relative w-full aspect-square bg-surface-container-low/30 border border-outline/8 rounded-2xl lg:rounded-[2rem] shadow-2xl overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}
+            >
                 {/* Subtle grid lines */}
                 <div className="absolute inset-0 pointer-events-none">
                     {Array.from({ length: GRID_SIZE - 1 }).map((_, i) => (

@@ -70,7 +70,10 @@ export const BuddyTap: React.FC = () => {
     const comboProgress = Math.min(combo / 50, 1);
 
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28 accelerate">
+        <div
+            style={{ touchAction: 'none' }}
+            className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28 accelerate"
+        >
             {/* Floating Stats */}
             <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
                 <div className="flex flex-col gap-1">

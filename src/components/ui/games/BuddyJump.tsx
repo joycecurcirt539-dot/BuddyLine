@@ -53,16 +53,24 @@ export const BuddyJump: React.FC = () => {
         setGameState('playing');
     }, []);
 
-    const handleInput = (e: React.MouseEvent | React.TouchEvent) => {
+    const handleInput = useCallback((e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
         if (gameState !== 'playing') return;
 
-        const clientX = 'clientX' in e ? e.clientX : (e as React.TouchEvent).touches[0].clientX;
+        let clientX: number;
+        if ('touches' in e) {
+            clientX = e.touches[0].clientX;
+        } else {
+            clientX = (e as MouseEvent).clientX;
+        }
+
         if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             const x = ((clientX - rect.left) / rect.width) * GAME_WIDTH;
+            // Use ref for position to avoid state-update lag in the loop if needed, 
+            // but for now let's just ensure touch-action is blocked.
             setPlayer(prev => ({ ...prev, x }));
         }
-    };
+    }, [gameState]);
 
     useEffect(() => {
         if (gameState !== 'playing') return;
@@ -169,6 +177,7 @@ export const BuddyJump: React.FC = () => {
                 ref={containerRef}
                 onMouseMove={handleInput}
                 onTouchMove={handleInput}
+                style={{ touchAction: 'none' }}
                 className={`relative overflow-hidden bg-gradient-to-b from-surface-container-low/60 to-surface-container-low border border-outline/10 rounded-2xl lg:rounded-[2rem] shadow-2xl cursor-crosshair group aspect-[3/4] w-full max-w-[280px] ${reduceEffects ? '' : 'backdrop-blur-xl'} h-auto accelerate`}
             >
                 {/* Background Objects */}
@@ -259,13 +268,19 @@ export const BuddyJump: React.FC = () => {
                 ))}
 
                 {/* Player */}
-                <motion.div
-                    animate={{
+                <div
+                    style={{
+                        position: 'absolute',
                         left: `${(player.x / GAME_WIDTH) * 100}%`,
-                        top: `${((player.y - cameraY) / GAME_HEIGHT) * 100}%`
+                        top: `${((player.y - cameraY) / GAME_HEIGHT) * 100}%`,
+                        width: '12%',
+                        aspectRatio: '1/1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transform: 'translate(-50%, -100%)',
+                        willChange: 'left, top'
                     }}
-                    transition={{ type: "tween", ease: "linear", duration: 0.1 }}
-                    className="absolute w-[12%] aspect-square flex items-center justify-center -translate-x-1/2 -translate-y-full"
                 >
                     {/* Player trail */}
                     {player.vy < 0 && (
@@ -280,7 +295,7 @@ export const BuddyJump: React.FC = () => {
                     >
                         <img src="/logo.png" className="w-[80%] h-[80%] object-contain" alt="" />
                     </motion.div>
-                </motion.div>
+                </div>
             </div>
         </div>
     );

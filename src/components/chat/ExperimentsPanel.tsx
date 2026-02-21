@@ -12,9 +12,7 @@ export const ExperimentsPanel = () => {
     ];
 
     return (
-        <div className="bubble p-6 h-full relative group/experiments transition-all duration-700 hover:shadow-primary/5 border border-outline-variant/10">
-            {/* Atmosphere */}
-            <div className="absolute inset-0 bg-gradient-to-br from-tertiary/5 via-transparent to-transparent opacity-50" />
+        <div className="p-6 h-full relative group/experiments transition-all duration-700">
 
             {/* Overflowing Beta Badge with Loop Animation - Fixed z-index and clipping */}
             <div className="absolute -top-3 -right-4 z-50 pointer-events-none rotate-6">
