@@ -253,6 +253,7 @@ export const BuddyFlow: React.FC = () => {
             {/* Grid Area */}
             <div
                 ref={gridRef}
+                style={{ touchAction: 'none' }}
                 onMouseDown={handleStart}
                 onMouseMove={handleMove}
                 onMouseUp={handleEnd}

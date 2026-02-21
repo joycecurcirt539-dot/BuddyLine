@@ -242,8 +242,11 @@ export const BuddyMerge: React.FC = () => {
                 </div>
             </div>
 
-            {/* Grid */}
-            <div className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-2 shadow-2xl accelerate`}>
+            {/* Game Grid */}
+            <div
+                style={{ touchAction: 'none' }}
+                className="relative w-full aspect-square bg-surface-container-high/50 p-2 rounded-2xl lg:rounded-[2.5rem] border border-outline/10 shadow-2xl overflow-hidden"
+            >
                 {/* Empty Cells Layer */}
                 <div className="absolute inset-2 grid grid-cols-4 grid-rows-4 gap-2">
                     {Array.from({ length: 16 }).map((_, i) => (
