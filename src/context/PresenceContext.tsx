@@ -14,25 +14,34 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const { user } = useAuth();
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
     const channelRef = useRef<RealtimeChannel | null>(null);
+    const lastStatusRef = useRef<'online' | 'offline' | null>(null);
 
     useEffect(() => {
         if (!user) {
+            // Use a small delay or check to avoid sync render warning
             const timer = setTimeout(() => {
-                setOnlineUsers(prev => prev.size === 0 ? prev : new Set());
+                setOnlineUsers(new Set());
             }, 0);
             return () => clearTimeout(timer);
         }
 
         // 1. Update own status to 'online' in DB when connecting
         const updateStatus = async (status: 'online' | 'offline') => {
-            const lastSeen = new Date().toISOString();
-            await supabase
-                .from('profiles')
-                .update({
-                    status,
-                    last_seen: lastSeen
-                })
-                .eq('id', user.id);
+            if (lastStatusRef.current === status) return;
+            lastStatusRef.current = status;
+
+            try {
+                const lastSeen = new Date().toISOString();
+                await supabase
+                    .from('profiles')
+                    .update({
+                        status,
+                        last_seen: lastSeen
+                    })
+                    .eq('id', user.id);
+            } catch (err) {
+                console.error('Error updating status:', err);
+            }
         };
 
         updateStatus('online');
@@ -46,26 +55,25 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             },
         });
 
-        channel
-            .on('presence', { event: 'sync' }, () => {
+        // Use a ref to store the latest users to avoid rapid state updates during sync/join/leave bursts
+        let presencePending = false;
+        const syncUsers = () => {
+            if (presencePending) return;
+            presencePending = true;
+
+            // Small delay to batch multiple presence events
+            setTimeout(() => {
                 const newState = channel.presenceState();
                 const users = new Set(Object.keys(newState));
                 setOnlineUsers(users);
-            })
-            .on('presence', { event: 'join' }, ({ key }) => {
-                setOnlineUsers(prev => {
-                    const next = new Set(prev);
-                    next.add(key);
-                    return next;
-                });
-            })
-            .on('presence', { event: 'leave' }, ({ key }) => {
-                setOnlineUsers(prev => {
-                    const next = new Set(prev);
-                    next.delete(key);
-                    return next;
-                });
-            })
+                presencePending = false;
+            }, 100);
+        };
+
+        channel
+            .on('presence', { event: 'sync' }, syncUsers)
+            .on('presence', { event: 'join' }, syncUsers)
+            .on('presence', { event: 'leave' }, syncUsers)
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
                     await channel.track({ online_at: new Date().toISOString() });
@@ -79,7 +87,7 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             updateStatus('offline');
             channel.unsubscribe();
         };
-    }, [user]);
+    }, [user?.id]); // Only re-subscribe if user ID changes
 
     return (
         <PresenceContext.Provider value={{ onlineUsers }}>

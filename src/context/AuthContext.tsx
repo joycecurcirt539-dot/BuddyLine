@@ -12,6 +12,15 @@ interface AuthContextType {
     continueAsGuest: () => void;
 }
 
+const GUEST_USER = {
+    id: 'guest_user',
+    email: 'guest@buddyline.app',
+    user_metadata: {
+        full_name: 'Guest User',
+        username: 'guest'
+    }
+} as unknown as User;
+
 const AuthContext = createContext<AuthContextType>({
     user: null,
     session: null,
@@ -62,33 +71,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const continueAsGuest = () => {
         setIsGuest(true);
         localStorage.setItem('buddyline_guest', 'true');
-        // Set a mock user object for consistency
-        setUser({
-            id: 'guest_user',
-            email: 'guest@buddyline.app',
-            user_metadata: {
-                full_name: 'Guest User',
-                username: 'guest'
-            }
-        } as unknown as User);
+        setUser(GUEST_USER);
         setLoading(false);
     };
 
-    const value = {
+    const value = React.useMemo(() => ({
         session,
-        user: isGuest ? {
-            id: 'guest_user',
-            email: 'guest@buddyline.app',
-            user_metadata: {
-                full_name: 'Guest User',
-                username: 'guest'
-            }
-        } as unknown as User : user,
+        user: isGuest ? GUEST_USER : user,
         loading,
         isGuest,
         signOut,
         continueAsGuest,
-    };
+    }), [session, user, loading, isGuest]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

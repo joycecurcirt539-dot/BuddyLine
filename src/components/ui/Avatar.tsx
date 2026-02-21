@@ -1,3 +1,4 @@
+import React from 'react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { AVATAR_PRESETS, type AvatarPresetKey } from '../../constants/avatarPresets';
@@ -11,23 +12,33 @@ interface AvatarProps {
     alt?: string;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
     className?: string;
-    status?: 'online' | 'offline' | 'away';
+    status?: 'online' | 'offline' | 'away' | 'busy';
 }
 
-export const Avatar = ({ src, alt, size = 'md', className, status }: AvatarProps) => {
+export const Avatar = React.memo(({ src, alt, size = 'md', className, status }: AvatarProps) => {
     const sizes = {
         xs: 'w-6 h-6',
         sm: 'w-8 h-8',
         md: 'w-10 h-10',
         lg: 'w-12 h-12',
         xl: 'w-24 h-24',
-        '2xl': 'w-32 h-32 lg:w-48 lg:h-48',
+        '2xl': 'w-32 h-32 lg:w-48 lg:h-48'
     };
 
     const statusColors = {
         online: 'bg-green-500',
         offline: 'bg-gray-400',
         away: 'bg-yellow-500',
+        busy: 'bg-red-500'
+    };
+
+    const dotSizes = {
+        xs: 'w-2 h-2',
+        sm: 'w-2.5 h-2.5',
+        md: 'w-3.5 h-3.5',
+        lg: 'w-4 h-4',
+        xl: 'w-6 h-6',
+        '2xl': 'w-6 h-6 lg:w-8 lg:h-8 border-4'
     };
 
     const isPreset = src && src.startsWith('preset:');
@@ -40,7 +51,6 @@ export const Avatar = ({ src, alt, size = 'md', className, status }: AvatarProps
             <div
                 className={cn(
                     'relative overflow-hidden rounded-full flex items-center justify-center border border-outline-variant/10 transition-colors duration-300',
-                    presetKey ? 'logo-container-highlight' : 'bg-surface-container-low',
                     presetKey ? 'logo-container-highlight' : 'bg-surface-container-low',
                     sizes[size as keyof typeof sizes],
                     className
@@ -65,10 +75,8 @@ export const Avatar = ({ src, alt, size = 'md', className, status }: AvatarProps
                 <span
                     className={cn(
                         'absolute block rounded-full ring-2 ring-surface transition-all duration-300 z-10',
-                        size === 'xs' ? 'w-2 h-2 bottom-0 right-0' :
-                            size === 'sm' ? 'w-2.5 h-2.5 bottom-0 right-0' :
-                                size === '2xl' ? 'w-6 h-6 lg:w-8 lg:h-8 border-4 bottom-1 right-1' :
-                                    'w-3.5 h-3.5 bottom-0.5 right-0.5',
+                        size === 'xl' || size === '2xl' ? 'bottom-1 right-1' : 'bottom-0.5 right-0.5',
+                        dotSizes[size as keyof typeof dotSizes],
                         statusColors[status],
                         status === 'online' && 'shadow-[0_0_10px_rgba(34,197,94,0.4)] animate-pulse'
                     )}
@@ -76,4 +84,6 @@ export const Avatar = ({ src, alt, size = 'md', className, status }: AvatarProps
             )}
         </div>
     );
-};
+});
+
+Avatar.displayName = 'Avatar';

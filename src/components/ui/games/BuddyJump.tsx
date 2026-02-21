@@ -29,12 +29,24 @@ export const BuddyJump: React.FC = () => {
         return saved ? parseInt(saved) : 0;
     });
 
-    const [player, setPlayer] = useState({ x: 200, y: 250, vy: 0 });
+    const [player, setPlayer] = useState({ x: 200, y: 250, vy: JUMP_FORCE });
     const [platforms, setPlatforms] = useState<Platform[]>([]);
     const [cameraY, setCameraY] = useState(0);
 
     const gameLoopRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Use refs for high-frequency game state to avoid re-triggering effects
+    const playerRef = useRef({ x: 200, y: 250, vy: JUMP_FORCE });
+    const platformsRef = useRef<Platform[]>([]);
+    const cameraYRef = useRef(0);
+    const scoreRef = useRef(0);
+    const gameStateRef = useRef<'start' | 'playing' | 'gameover'>(gameState);
+
+    // Sync ref with state for UI components
+    useEffect(() => {
+        gameStateRef.current = gameState;
+    }, [gameState]);
 
     const initGame = useCallback(() => {
         const initialPlatforms: Platform[] = [];
@@ -46,6 +58,12 @@ export const BuddyJump: React.FC = () => {
                 width: 80
             });
         }
+
+        platformsRef.current = initialPlatforms;
+        playerRef.current = { x: 200, y: 250, vy: JUMP_FORCE };
+        scoreRef.current = 0;
+        cameraYRef.current = 0;
+
         setPlatforms(initialPlatforms);
         setPlayer({ x: 200, y: 250, vy: JUMP_FORCE });
         setScore(0);
@@ -54,7 +72,7 @@ export const BuddyJump: React.FC = () => {
     }, []);
 
     const handleInput = useCallback((e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
-        if (gameState !== 'playing') return;
+        if (gameStateRef.current !== 'playing') return;
 
         let clientX: number;
         if ('touches' in e) {
@@ -66,70 +84,78 @@ export const BuddyJump: React.FC = () => {
         if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             const x = ((clientX - rect.left) / rect.width) * GAME_WIDTH;
-            // Use ref for position to avoid state-update lag in the loop if needed, 
-            // but for now let's just ensure touch-action is blocked.
+            playerRef.current.x = x;
             setPlayer(prev => ({ ...prev, x }));
         }
-    }, [gameState]);
+    }, []);
 
     useEffect(() => {
         if (gameState !== 'playing') return;
 
         const loop = () => {
-            setPlayer(p => {
-                let newY = p.y + p.vy;
-                let newVy = p.vy + GRAVITY;
+            if (gameStateRef.current !== 'playing') return;
 
-                if (newVy > 0) {
-                    const platform = platforms.find(plat =>
-                        p.y <= plat.y &&
-                        newY >= plat.y &&
-                        p.x >= plat.x - 20 &&
-                        p.x <= plat.x + plat.width + 20
-                    );
+            const p = playerRef.current;
+            let newY = p.y + p.vy;
+            let newVy = p.vy + GRAVITY;
 
-                    if (platform) {
-                        playSound('jump', 0.4);
-                        newVy = JUMP_FORCE;
-                        newY = platform.y;
-                    }
+            if (newVy > 0) {
+                const platform = platformsRef.current.find(plat =>
+                    p.y <= plat.y &&
+                    newY >= plat.y &&
+                    p.x >= plat.x - 20 &&
+                    p.x <= plat.x + plat.width + 20
+                );
+
+                if (platform) {
+                    playSound('jump', 0.4);
+                    newVy = JUMP_FORCE;
+                    newY = platform.y;
                 }
+            }
 
-                if (newY < cameraY + 150) {
-                    setCameraY(newY - 150);
+            if (newY < cameraYRef.current + 150) {
+                cameraYRef.current = (newY - 150);
+                setCameraY(newY - 150);
+            }
+
+            const heightVal = Math.floor(Math.abs(newY - 250) / 10);
+            if (heightVal > scoreRef.current) {
+                scoreRef.current = heightVal;
+                setScore(heightVal);
+            }
+
+            if (newY > cameraYRef.current + GAME_HEIGHT + 100) {
+                playSound('fall', 0.6);
+                setGameState('gameover');
+                if (heightVal > highScore) {
+                    setHighScore(heightVal);
+                    localStorage.setItem('buddyline_highscore_jump', heightVal.toString());
                 }
+                return;
+            }
 
-                const heightVal = Math.floor(Math.abs(newY - 250) / 10);
-                if (heightVal > score) setScore(heightVal);
+            playerRef.current = { ...p, y: newY, vy: newVy };
+            setPlayer(playerRef.current);
 
-                if (newY > cameraY + GAME_HEIGHT + 100) {
-                    playSound('fall', 0.6);
-                    setGameState('gameover');
-                    // Check against heightVal as it's the latest score
-                    if (heightVal > highScore) {
-                        setHighScore(heightVal);
-                        localStorage.setItem('buddyline_highscore_jump', heightVal.toString());
-                    }
-                    return p;
-                }
+            // Platform generation
+            const currentPlatforms = platformsRef.current;
+            const filtered = currentPlatforms.filter(plat => plat.y < cameraYRef.current + GAME_HEIGHT + 200);
+            const highest = filtered.reduce((min, plat) => plat.y < min ? plat.y : min, cameraYRef.current + GAME_HEIGHT);
 
-                return { ...p, y: newY, vy: newVy };
-            });
-
-            setPlatforms(prev => {
-                const filtered = prev.filter(p => p.y < cameraY + GAME_HEIGHT + 200);
-                const highest = filtered.reduce((min, p) => p.y < min ? p.y : min, cameraY + GAME_HEIGHT);
-
-                if (highest > cameraY - 100) {
-                    filtered.push({
-                        id: Date.now() + Math.random(),
-                        x: Math.random() * (GAME_WIDTH - 80),
-                        y: highest - PLATFORM_GAP,
-                        width: 60 + Math.random() * 40
-                    });
-                }
-                return filtered;
-            });
+            if (highest > cameraYRef.current - 100) {
+                filtered.push({
+                    id: Date.now() + Math.random(),
+                    x: Math.random() * (GAME_WIDTH - 80),
+                    y: highest - PLATFORM_GAP,
+                    width: 60 + Math.random() * 40
+                });
+                platformsRef.current = filtered;
+                setPlatforms(filtered);
+            } else if (filtered.length !== currentPlatforms.length) {
+                platformsRef.current = filtered;
+                setPlatforms(filtered);
+            }
 
             gameLoopRef.current = requestAnimationFrame(loop);
         };
@@ -138,7 +164,7 @@ export const BuddyJump: React.FC = () => {
         return () => {
             if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
         };
-    }, [gameState, platforms, cameraY, score, highScore]);
+    }, [gameState, highScore]); // Only depends on high-level state
 
 
 
