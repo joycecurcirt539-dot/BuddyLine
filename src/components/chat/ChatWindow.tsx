@@ -137,7 +137,7 @@ export const ChatWindow = ({
 
     const handleDelete = () => {
         if (contextMenu.message && onDeleteMessage) {
-            if (window.confirm(t('chat.confirm_delete'))) {
+            if (window.confirm(t('chat.actions.delete_confirm'))) {
                 onDeleteMessage(contextMenu.message.id);
             }
         }

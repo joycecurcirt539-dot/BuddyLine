@@ -1,5 +1,7 @@
 {
     "common": {
+        "you": "You",
+        "photo": "Photo",
         "loading": "Loading...",
         "error": "An error occurred",
         "settings": "Settings",
@@ -19,8 +21,6 @@
         "share": "Share",
         "remove": "Remove",
         "ai": "AI",
-        "you": "You",
-        "photo": "Photo",
         "reply": "Reply",
         "replying_to": "Replying to",
         "edit": "Edit",
@@ -285,11 +285,15 @@
             "delete_chat": "Delete Chat",
             "block": "Block",
             "delete_confirm": "Are you sure? This deletes the chat for everyone.",
+            "block_confirm": "Block",
             "voice_call": "Voice Call",
             "video_call": "Video Call"
         },
         "send": "Send Message",
-        "type_reply": "Type a reply..."
+        "type_reply": "Type a reply...",
+        "you": "You",
+        "photo": "Photo",
+        "block_forward_messages": "Block/Forward messages"
     },
     "friends_page": {
         "title": "Community",
@@ -312,16 +316,17 @@
             "deny": "Deny",
             "knocking": "is knocking at the gate"
         },
-        "no_requests": "Clear Horizons (No Requests)",
-        "request_sent": "Request sent!",
-        "already_friends": "You are already friends!",
+        "no_requests": "No new invites. You're all caught up!",
+        "request_sent": "Invite sent! 🚀",
+        "already_friends": "You are already buds!",
+        "username_taken": "This username is already taken!",
+        "no_friends": "No buds yet. Time to explore!",
         "search_username_placeholder": "Search by @username...",
         "search_name_placeholder": "Search by full name...",
         "type_username": "Username",
         "type_name": "Name",
         "search_results": "Search Results",
         "no_results": "No users found",
-        "no_friends": "No friends yet",
         "incoming_requests": "Incoming",
         "sent_requests": "My Requests",
         "no_sent_requests": "No pending requests",

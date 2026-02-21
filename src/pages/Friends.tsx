@@ -132,7 +132,7 @@ export const Friends = () => {
                                         : "text-on-surface-variant hover:text-on-surface"
                                 )}
                             >
-                                {t('friends_page.tabs.buds', 'Buds')}
+                                {t('friends_page.tabs.buds')}
                             </button>
                             <button
                                 onClick={() => setActiveTab('requests')}
@@ -143,7 +143,7 @@ export const Friends = () => {
                                         : "text-on-surface-variant hover:text-on-surface"
                                 )}
                             >
-                                {t('friends_page.tabs.invites', 'Invites')}
+                                {t('friends_page.tabs.invites')}
                                 {requests.length > 0 && (
                                     <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-tertiary text-on-tertiary rounded-full text-[9px] sm:text-[10px] flex items-center justify-center border-2 border-surface animate-bounce">
                                         {requests.length}
@@ -364,7 +364,7 @@ export const Friends = () => {
                                         <div className="py-20 text-center bg-surface-container-low/40 rounded-[40px] border border-dashed border-outline-variant/20">
                                             <Search size={48} className="mx-auto text-primary/20 mb-4" />
                                             <p className="text-on-surface-variant font-bold uppercase tracking-widest text-xs opacity-40">
-                                                {t('friends_page.no_sent_requests', 'No pending requests')}
+                                                {t('friends_page.no_sent_requests')}
                                             </p>
                                         </div>
                                     ) : (
@@ -396,7 +396,7 @@ export const Friends = () => {
                                                     {actionLoading === req.receiver?.username ? (
                                                         <Loader2 size={14} className="animate-spin" />
                                                     ) : (
-                                                        t('common.cancel', 'Cancel')
+                                                        t('common.cancel')
                                                     )}
                                                 </button>
                                             </motion.div>

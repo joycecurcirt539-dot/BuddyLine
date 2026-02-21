@@ -228,8 +228,8 @@ export const Profile = () => {
         const diffHours = Math.floor(diffMins / 60);
 
         if (diffMins < 1) return t('chat.status.just_now');
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffMins < 60) return t('chat.status.minutes_ago', { count: diffMins });
+        if (diffHours < 24) return t('chat.status.hours_ago', { count: diffHours });
         return date.toLocaleDateString();
     };
 
@@ -287,7 +287,8 @@ export const Profile = () => {
                                 onChange={handleUploadAvatar}
                                 accept="image/*"
                                 className="hidden"
-                                title="Upload Avatar"
+                                aria-label={t('common.upload_image')}
+                                title={t('common.upload_image')}
                             />
                         </div>
 

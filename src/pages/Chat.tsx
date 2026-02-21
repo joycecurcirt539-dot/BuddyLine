@@ -4,7 +4,7 @@ import { useChat } from '../hooks/useChat';
 import type { Chat as ChatType, Message } from '../hooks/useChat';
 import { ChatWindow } from '../components/chat/ChatWindow';
 import { Avatar } from '../components/ui/Avatar';
-import { Search, Plus, MessageSquare, X, Zap, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Search, Plus, MessageSquare, X, Zap, Loader2, Image as ImageIcon, CornerDownRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFriends } from '../hooks/useFriends';
 import type { Profile } from '../hooks/useFriends';
@@ -153,7 +153,7 @@ export const Chat = () => {
         }
         if (!activeChat) return;
         const other = activeChat.participants.find(p => p.id !== user?.id) || activeChat.participants[0];
-        if (window.confirm(`${t('chat.block_confirm') || 'Block'} ${other.full_name || other.username}?`)) {
+        if (window.confirm(`${t('chat.actions.block_confirm')} ${other.full_name || other.username}?`)) {
             const result = await blockUser(other.id);
             if (result.success) {
                 handleBack();
@@ -189,7 +189,7 @@ export const Chat = () => {
 
         await forwardMessage(forwardingMessage, chatId);
         setForwardingMessage(null);
-        alert(t('chat.message_forwarded', 'Message forwarded'));
+        alert(t('chat.message_forwarded'));
     };
 
     if (view === 'chat' && activeChat) {
@@ -438,7 +438,6 @@ export const Chat = () => {
                                                         className="ring-4 ring-surface shadow-2xl group-hover/card:ring-primary/20 transition-all duration-500"
                                                     />
                                                 </div>
-
                                                 {/* Card Content */}
                                                 <div className="bubble p-5 pl-20 hover:bg-surface-container-highest/80 relative overflow-hidden h-full flex flex-col justify-center">
                                                     <div className="flex justify-between items-start mb-1">
@@ -458,7 +457,9 @@ export const Chat = () => {
                                                         {chat.last_message ? (
                                                             <>
                                                                 {chat.last_message.sender_id === user?.id && <span className="opacity-60">{t('common.you')}: </span>}
-                                                                {chat.last_message.content ? (
+                                                                {chat.last_message.is_forwarded ? (
+                                                                    <span className="italic flex items-center gap-1"><CornerDownRight size={12} /> {t('chat.message.forwarded')}</span>
+                                                                ) : chat.last_message.content ? (
                                                                     <span>{chat.last_message.content}</span>
                                                                 ) : (
                                                                     <span className="italic flex items-center gap-1"><ImageIcon size={12} /> {t('common.photo')}</span>
@@ -493,6 +494,6 @@ export const Chat = () => {
                     </div>
                 </motion.div>
             </div>
-        </div>
+        </div >
     );
 };
