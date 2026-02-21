@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PresenceProvider } from './context/PresenceContext';
+import { CallProvider } from './context/CallContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
@@ -23,25 +24,27 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <PresenceProvider>
-            <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
+            <CallProvider>
+              <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
 
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<Layout />}>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/friends" element={<Friends />} />
-                    <Route path="/chat" element={<Chat />} />
-                    <Route path="/notifications" element={<Notifications />} />
-                    <Route path="/profile/:id?" element={<Profile />} />
-                    <Route path="/settings" element={<Settings />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<Layout />}>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/friends" element={<Friends />} />
+                      <Route path="/chat" element={<Chat />} />
+                      <Route path="/notifications" element={<Notifications />} />
+                      <Route path="/profile/:id?" element={<Profile />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            <InstallPrompt />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <InstallPrompt />
+            </CallProvider>
           </PresenceProvider>
         </AuthProvider>
       </ThemeProvider>

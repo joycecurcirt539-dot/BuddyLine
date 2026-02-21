@@ -228,10 +228,10 @@ export const BuddyFlow: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none">
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none accelerate">
             {/* Stats */}
             <div className="flex justify-between items-center w-full">
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
                         <Zap className="w-3.5 h-3.5 text-primary" />
                     </div>
@@ -260,7 +260,7 @@ export const BuddyFlow: React.FC = () => {
                 onTouchStart={handleStart}
                 onTouchMove={handleMove}
                 onTouchEnd={handleEnd}
-                className="relative aspect-square w-full bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 backdrop-blur-xl grid grid-cols-7 grid-rows-7 gap-[2px] p-1 cursor-crosshair touch-none overflow-hidden shadow-2xl"
+                className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} grid grid-cols-7 grid-rows-7 gap-[2px] p-1 cursor-crosshair touch-none overflow-hidden shadow-2xl accelerate`}
             >
                 {/* Cells rendered directly — no SVG, no animation delays */}
                 {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, i) => {

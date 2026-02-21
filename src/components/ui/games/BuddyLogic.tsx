@@ -12,8 +12,11 @@ interface Sequence {
     type: string;
 }
 
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
+
 export const BuddyLogic: React.FC = () => {
     const { t } = useTranslation();
+    const { reduceEffects } = usePerformanceMode();
     const [score, setScore] = useState(0);
     const [bestScore, setBestScore] = useState(() => {
         const saved = localStorage.getItem('buddyline_highscore_logic');
@@ -131,10 +134,10 @@ export const BuddyLogic: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none">
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none accelerate">
             {/* Stats */}
             <div className="flex justify-between items-center w-full">
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
                         <Zap className="w-3.5 h-3.5 text-primary" />
                     </div>
@@ -152,7 +155,7 @@ export const BuddyLogic: React.FC = () => {
                 </div>
 
                 {/* Lives */}
-                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-2.5 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2 ${reduceEffects ? '' : 'backdrop-blur-2xl'} bg-surface-container-high/50 px-3 py-2.5 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     {[...Array(3)].map((_, i) => (
                         <motion.div
                             key={i}
@@ -166,7 +169,7 @@ export const BuddyLogic: React.FC = () => {
                     ))}
                 </div>
 
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} bg-surface-container-high/50 px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     <Trophy className="w-4 h-4 text-primary/60" />
                     <div className="flex flex-col items-end">
                         <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.best')}</span>
@@ -176,7 +179,7 @@ export const BuddyLogic: React.FC = () => {
             </div>
 
             {/* Main Area */}
-            <div className="relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 backdrop-blur-xl p-4 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
+            <div className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-4 flex flex-col items-center justify-center overflow-hidden shadow-2xl accelerate`}>
                 <AnimatePresence mode="wait">
                     {gameState === 'start' ? (
                         <motion.div

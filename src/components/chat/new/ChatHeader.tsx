@@ -8,6 +8,7 @@ import { Avatar } from '../../ui/Avatar';
 import { UserBadge } from '../../ui/UserBadge';
 import type { Chat } from '../../../hooks/useChat';
 import { usePresence } from '../../../hooks/usePresence';
+import { useCall } from '../../../context/CallContext';
 
 interface ChatHeaderProps {
     chat: Chat | null;
@@ -32,6 +33,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const { onlineUsers } = usePresence();
+    const { initiateCall } = useCall();
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -50,8 +52,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     if (!chat) return null;
 
-
-
     const otherMember = chat.type === 'group'
         ? null
         : chat.participants.find((p) => p.id !== currentUserId);
@@ -59,6 +59,14 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     const displayName = chat.type === 'group' ? chat.name : (otherMember?.full_name || otherMember?.username);
     const displayAvatar = chat.type === 'group' ? chat.image_url : otherMember?.avatar_url;
     const isOnline = otherMember ? onlineUsers.has(otherMember.id) : false;
+
+    const handleVoiceCall = () => {
+        if (otherMember) initiateCall(otherMember.id, 'audio');
+    };
+
+    const handleVideoCall = () => {
+        if (otherMember) initiateCall(otherMember.id, 'video');
+    };
 
     return (
         <div className="p-4 md:p-6 sticky top-0 z-40">
@@ -122,20 +130,24 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
                 {/* Actions Hub */}
                 <div className="flex items-center gap-2 md:gap-4">
-                    <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
-                        <button
-                            aria-label={t('chat.actions.voice_call')}
-                            className="p-3 text-on-surface-variant hover:text-primary rounded-xl hover:bg-primary/10 transition-all active:scale-90"
-                        >
-                            <Phone size={20} />
-                        </button>
-                        <button
-                            aria-label={t('chat.actions.video_call')}
-                            className="p-3 text-on-surface-variant hover:text-primary rounded-xl hover:bg-primary/10 transition-all active:scale-90"
-                        >
-                            <Video size={20} />
-                        </button>
-                    </div>
+                    {chat.type !== 'group' && (
+                        <div className="flex items-center gap-0.5 md:gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
+                            <button
+                                onClick={handleVoiceCall}
+                                aria-label={t('chat.actions.voice_call')}
+                                className="p-2 md:p-3 text-on-surface-variant hover:text-primary rounded-xl hover:bg-primary/10 transition-all active:scale-90"
+                            >
+                                <Phone size={18} className="md:w-5 md:h-5" />
+                            </button>
+                            <button
+                                onClick={handleVideoCall}
+                                aria-label={t('chat.actions.video_call')}
+                                className="p-2 md:p-3 text-on-surface-variant hover:text-primary rounded-xl hover:bg-primary/10 transition-all active:scale-90"
+                            >
+                                <Video size={18} className="md:w-5 md:h-5" />
+                            </button>
+                        </div>
+                    )}
 
                     <div className="w-[1px] h-8 bg-outline-variant/10 hidden md:block mx-1" />
 

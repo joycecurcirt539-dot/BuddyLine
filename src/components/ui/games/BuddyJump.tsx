@@ -17,8 +17,11 @@ const GRAVITY = 0.4;
 const JUMP_FORCE = -12;
 const PLATFORM_GAP = 120;
 
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
+
 export const BuddyJump: React.FC = () => {
     const { t } = useTranslation();
+    const { reduceEffects } = usePerformanceMode();
     const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover'>('start');
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(() => {
@@ -166,7 +169,7 @@ export const BuddyJump: React.FC = () => {
                 ref={containerRef}
                 onMouseMove={handleInput}
                 onTouchMove={handleInput}
-                className="relative overflow-hidden bg-gradient-to-b from-surface-container-low/60 to-surface-container-low border border-outline/10 rounded-2xl lg:rounded-[2rem] shadow-2xl cursor-crosshair group aspect-[3/4] w-full max-w-[280px] backdrop-blur-xl h-auto"
+                className={`relative overflow-hidden bg-gradient-to-b from-surface-container-low/60 to-surface-container-low border border-outline/10 rounded-2xl lg:rounded-[2rem] shadow-2xl cursor-crosshair group aspect-[3/4] w-full max-w-[280px] ${reduceEffects ? '' : 'backdrop-blur-xl'} h-auto accelerate`}
             >
                 {/* Background Objects */}
                 <div

@@ -206,11 +206,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         <button
                             type="button"
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                            className={clsx(
-                                "p-3 text-on-surface-variant/40 hover:text-primary rounded-2xl transition-all active:scale-90",
-                                showEmojiPicker && "text-primary bg-primary/5"
-                            )}
-                            aria-label="Emoji picker"
+                            aria-label={t('emoji.picker')}
                         >
                             <Smile size={22} className="sm:w-[26px] sm:h-[26px]" />
                         </button>

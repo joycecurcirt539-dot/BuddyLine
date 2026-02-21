@@ -243,7 +243,7 @@ export const BuddyMerge: React.FC = () => {
             </div>
 
             {/* Grid */}
-            <div className="relative aspect-square w-full bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 backdrop-blur-xl p-2 shadow-2xl">
+            <div className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-2 shadow-2xl accelerate`}>
                 {/* Empty Cells Layer */}
                 <div className="absolute inset-2 grid grid-cols-4 grid-rows-4 gap-2">
                     {Array.from({ length: 16 }).map((_, i) => (
@@ -253,11 +253,11 @@ export const BuddyMerge: React.FC = () => {
 
                 {/* Tiles Layer */}
                 <div className="absolute inset-2 grid grid-cols-4 grid-rows-4 gap-2 pointer-events-none">
-                    <AnimatePresence>
+                    <AnimatePresence initial={false}>
                         {tiles.map((tile) => (
                             <motion.div
                                 key={tile.id}
-                                layout
+                                layout={!reduceMotion}
                                 initial={tile.isNew && !reduceMotion ? { scale: 0, opacity: 0 } : false}
                                 animate={{
                                     scale: tile.isMerged && !reduceMotion ? [1, 1.25, 1] : 1,
@@ -265,17 +265,15 @@ export const BuddyMerge: React.FC = () => {
                                     zIndex: tile.isDeleting ? 0 : 1
                                 }}
                                 transition={{
-                                    layout: reduceMotion
-                                        ? { type: "spring", stiffness: 350, damping: 32, mass: 0.8 }
-                                        : { type: "spring", stiffness: 450, damping: 35, mass: 0.8 },
-                                    scale: { duration: reduceMotion ? 0.1 : 0.15 },
+                                    layout: { type: "spring", stiffness: 450, damping: 35, mass: 0.8 },
+                                    scale: { duration: 0.15 },
                                     opacity: { duration: 0.1 }
                                 }}
                                 style={{
                                     gridRowStart: tile.r + 1,
                                     gridColumnStart: tile.c + 1,
                                 }}
-                                className={`flex items-center justify-center font-black text-xl lg:text-2xl rounded-xl ${getTileStyle(tile.val)}`}
+                                className={`flex items-center justify-center font-black text-xl lg:text-2xl rounded-xl accelerate ${getTileStyle(tile.val)}`}
                             >
                                 {tile.val}
                             </motion.div>

@@ -105,6 +105,17 @@ body::before {
   opacity: 0.5;
   filter: blur(80px);
   pointer-events: none;
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Optimization for Mobile Backgrounds */
+@media (max-width: 768px) {
+  body::before {
+    filter: blur(40px); /* Lighter blur for mobile */
+    opacity: 0.3;
+  }
 }
 
 .dark body::before {
@@ -159,6 +170,8 @@ body::before {
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--color-outline-variant);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  /* Force GPU */
+  transform: translateZ(0);
 }
 
 .dark .liquid-glass {
@@ -167,6 +180,37 @@ body::before {
       rgba(var(--color-surface-container-lowest), 0.1) 100%);
   border: 1px solid var(--color-outline-variant);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* PERFORMANCE OVERRIDES FOR MOBILE DEVICES */
+@media (max-width: 1024px) {
+  .glass, .bubble, .liquid-glass, .backdrop-blur-md, .backdrop-blur-xl, .backdrop-blur-2xl {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  
+  .glass { background-color: var(--color-surface-container-low); }
+  .dark .glass { background-color: var(--color-surface-container-lowest); }
+  
+  .bubble {
+    background-color: var(--color-surface-container-high);
+    box-shadow: var(--md-elevation-1);
+    transition: none !important;
+  }
+  .dark .bubble { background-color: var(--color-surface-container-lowest); }
+  
+  .liquid-glass {
+    background: var(--color-surface-container-low);
+    box-shadow: var(--md-elevation-1);
+  }
+}
+
+/* Hardware Acceleration Class */
+.accelerate {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
 }
 
 /* Touch-friendly tap targets */

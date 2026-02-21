@@ -12,6 +12,8 @@ const CELL_SIZE_PCT = 100 / GRID_SIZE; // percentage per cell
 const INITIAL_SPEED = 150;
 const MIN_SPEED = 80;
 
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
+
 export type WallMode = 'solid' | 'portal';
 
 interface BuddySnakeProps {
@@ -20,6 +22,7 @@ interface BuddySnakeProps {
 
 export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) => {
     const { t } = useTranslation();
+    const { reduceEffects } = usePerformanceMode();
     const [snake, setSnake] = useState<Point[]>([{ x: 7, y: 7 }]);
     const [food, setFood] = useState<Point>({ x: 10, y: 10 });
     const [, setDirection] = useState<Direction>('RIGHT');
@@ -175,10 +178,10 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
     };
 
     return (
-        <div className="flex flex-col items-center gap-2 lg:gap-5 w-full max-w-[260px] lg:max-w-[340px] mx-auto">
+        <div className="flex flex-col items-center gap-2 lg:gap-5 w-full max-w-[260px] lg:max-w-[340px] mx-auto accelerate">
             {/* Stats */}
             <div className="flex justify-between items-center w-full px-1">
-                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-outline/10 shadow-lg">
+                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-outline/10 shadow-lg accelerate">
                     <div className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center">
                         <span className="text-[9px] font-black text-primary">#</span>
                     </div>
@@ -188,7 +191,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-outline/10 shadow-lg">
+                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-outline/10 shadow-lg accelerate">
                     <Trophy className="w-3.5 h-3.5 text-primary/60" />
                     <div className="flex flex-col items-end">
                         <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.high_score')}</span>
@@ -198,7 +201,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
             </div>
 
             {/* Canvas — absolute-positioned segments for smooth visuals */}
-            <div className="relative w-full aspect-square bg-surface-container-low/30 border border-outline/8 rounded-2xl lg:rounded-[2rem] shadow-2xl overflow-hidden backdrop-blur-xl">
+            <div className={`relative w-full aspect-square bg-surface-container-low/30 border border-outline/8 rounded-2xl lg:rounded-[2rem] shadow-2xl overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}>
                 {/* Subtle grid lines */}
                 <div className="absolute inset-0 pointer-events-none">
                     {Array.from({ length: GRID_SIZE - 1 }).map((_, i) => (

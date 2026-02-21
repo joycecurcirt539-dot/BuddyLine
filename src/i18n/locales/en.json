@@ -45,7 +45,9 @@
         "delete_confirm": "Are you sure you want to delete this post?",
         "views": "Views",
         "add_image": "Add image",
-        "invalid_image": "Please select a valid image file"
+        "invalid_image": "Please select a valid image file",
+        "upload_image": "Upload image",
+        "remove_image": "Remove image"
     },
     "game": {
         "best": "High Score",
@@ -143,7 +145,24 @@
     },
     "sidebar": {
         "buddyline": "BuddyLine",
-        "private_circle": "Only Friends"
+        "private_circle": "Only Friends",
+        "title": "Lab: Social Tech",
+        "subtitle": "In Development",
+        "circles": {
+            "name": "Friends Circles",
+            "desc": "Organize your buds into custom groups"
+        },
+        "activity": {
+            "name": "Activity Stream",
+            "desc": "Simultaneous video viewing"
+        },
+        "nodes": {
+            "name": "Private Nodes",
+            "desc": "Interaction only friends with friends"
+        },
+        "beta_tester": "Become a Beta Tester",
+        "network_strength": "Release Preparation",
+        "connection_density": "Development complete"
     },
     "settings": {
         "title": "Settings",
@@ -186,7 +205,11 @@
             "title": "System Language",
             "subtitle": "Universal communication"
         },
-        "system_access": "System Access"
+        "system_access": "System Access",
+        "devices_title": "Media Devices",
+        "devices_desc": "Camera and microphone settings",
+        "devices_error": "Could not access camera or microphone. Please check permissions.",
+        "coming_soon": "Coming Soon"
     },
     "chat": {
         "status": {
@@ -264,7 +287,9 @@
             "delete_confirm": "Are you sure? This deletes the chat for everyone.",
             "voice_call": "Voice Call",
             "video_call": "Video Call"
-        }
+        },
+        "send": "Send Message",
+        "type_reply": "Type a reply..."
     },
     "friends_page": {
         "title": "Community",
@@ -302,25 +327,7 @@
         "no_sent_requests": "No pending requests",
         "active_friends_one": "{{count}} Active Friend",
         "active_friends_other": "{{count}} Active Friends",
-        "sidebar": {
-            "title": "Lab: Social Tech",
-            "subtitle": "In Development",
-            "circles": {
-                "name": "Friends Circles",
-                "desc": "Organize your buds into custom groups"
-            },
-            "activity": {
-                "name": "Activity Stream",
-                "desc": "Simultaneous video viewing"
-            },
-            "nodes": {
-                "name": "Private Nodes",
-                "desc": "Interaction only friends with friends"
-            },
-            "beta_tester": "Become a Beta Tester",
-            "network_strength": "Release Preparation",
-            "connection_density": "Development complete"
-        }
+        "coming_soon": "Coming Soon"
     },
     "profile_page": {
         "loading": "Loading profile...",
@@ -378,8 +385,11 @@
             "username_taken": "Username is already taken",
             "invalid_username": "Invalid username or password",
             "check_email": "Please check your email to confirm your account!",
-            "already_exists": "What are you doing? This username or email is already taken! 🤔"
+            "already_exists": "What are you doing? This username or email is already taken! 🤔",
+            "username_too_short": "Username too short",
+            "invalid_email": "Please enter a valid email"
         },
+        "terminate_session": "TERMINATE SESSION",
         "placeholders": {
             "name": "John Doe",
             "username": "buddy_123",
@@ -434,5 +444,26 @@
         "mark_read": "Mark as read",
         "mark_all_read": "Mark all as read",
         "delete": "Delete"
+    },
+    "emoji": {
+        "picker": "Emoji picker"
+    },
+    "calls": {
+        "incoming": "Incoming Call",
+        "audio_call": "Audio Call",
+        "video_call": "Video Call",
+        "audio_call_active": "Audio Communication Active",
+        "failed": "Call Failed",
+        "status": {
+            "new": "Connecting...",
+            "connecting": "Connecting...",
+            "connected": "Active",
+            "disconnected": "Reconnecting...",
+            "failed": "Failed",
+            "closed": "Ended"
+        },
+        "p2p_secure": "P2P Secure",
+        "toggle_screen_share": "Toggle Screen Share",
+        "camera_settings": "Camera Settings"
     }
 }

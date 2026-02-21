@@ -58,7 +58,7 @@ export const Login = () => {
                     }
 
                     if (username.length < 3) {
-                        throw new Error('Username too short');
+                        throw new Error(t('login_page.errors.username_too_short'));
                     }
 
                     const cleanUsername = username.toLowerCase().trim();
@@ -111,11 +111,11 @@ export const Login = () => {
                 }
             } else if (view === 'forgot') {
                 if (!validateEmail(email)) {
-                    throw new Error('Please enter a valid email');
+                    throw new Error(t('login_page.errors.invalid_email'));
                 }
                 const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase().trim());
                 if (error) throw error;
-                setMessage('Code sent to your email!');
+                setMessage(t('login_page.forgot_password_desc'));
                 setView('reset');
             } else if (view === 'reset') {
                 if (password !== passwordConfirm) {

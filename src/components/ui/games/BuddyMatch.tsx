@@ -22,8 +22,11 @@ const ICON_CONFIGS = [
     { icon: Hash, gradient: 'from-indigo-500 to-indigo-600', glow: 'shadow-indigo-500/30' }
 ];
 
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
+
 export const BuddyMatch: React.FC = () => {
     const { t } = useTranslation();
+    const { reduceEffects } = usePerformanceMode();
     const [tiles, setTiles] = useState<Tile[]>([]);
     const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
     const [moves, setMoves] = useState(0);
@@ -105,10 +108,10 @@ export const BuddyMatch: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-3 lg:gap-6 w-full max-w-md mx-auto">
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none accelerate">
             {/* Stats Bar */}
             <div className="flex justify-between items-center w-full px-3">
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-4 py-2.5 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     <Hash className="w-4 h-4 text-primary" />
                     <div className="flex flex-col">
                         <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.moves')}</span>
@@ -139,7 +142,7 @@ export const BuddyMatch: React.FC = () => {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-4 gap-2.5 lg:gap-3 w-full aspect-square p-3 bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 backdrop-blur-xl shadow-2xl">
+            <div className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-4 flex flex-col items-center justify-center overflow-hidden shadow-2xl accelerate`}>
                 {tiles.map((tile, index) => {
                     const config = ICON_CONFIGS[tile.type];
                     const Icon = config.icon;

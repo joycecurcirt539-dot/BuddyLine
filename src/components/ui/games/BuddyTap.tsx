@@ -70,12 +70,12 @@ export const BuddyTap: React.FC = () => {
     const comboProgress = Math.min(combo / 50, 1);
 
     return (
-        <div className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28">
+        <div className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28 accelerate">
             {/* Floating Stats */}
             <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
                 <div className="flex flex-col gap-1">
                     <span className="text-[8px] font-black text-on-surface-variant/50 uppercase tracking-[0.2em]">{t('game.score')}</span>
-                    <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                    <div className={`flex items-center gap-2 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                         <Zap className="w-4 h-4 text-primary" />
                         <motion.span
                             key={score}
@@ -90,7 +90,7 @@ export const BuddyTap: React.FC = () => {
 
                 <div className="flex flex-col items-end gap-1">
                     <span className="text-[8px] font-black text-on-surface-variant/50 uppercase tracking-[0.2em]">{t('game.best')}</span>
-                    <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                    <div className={`flex items-center gap-2 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                         <Trophy className="w-3.5 h-3.5 text-primary/60" />
                         <span className="text-lg font-black text-on-surface/60 tabular-nums">{highScore}</span>
                     </div>

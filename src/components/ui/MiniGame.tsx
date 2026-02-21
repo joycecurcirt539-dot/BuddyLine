@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { clsx } from 'clsx';
 import { X, Gamepad2, MousePointer2, Swords, ArrowUpCircle, Grid3X3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { BuddyTap } from './games/BuddyTap';
@@ -61,22 +62,18 @@ export const MiniGame: React.FC<GameHubProps> = ({ isOpen, onClose }) => {
                 animate={{ opacity: 1 }}
                 exit={reduceMotion ? undefined : { opacity: 0 }}
                 transition={reduceMotion ? { duration: 0 } : { duration: 0.18 }}
-                className={reduceEffects
-                    ? 'fixed inset-0 z-[100] bg-surface/98 backdrop-blur-xl flex flex-col overflow-hidden select-none'
-                    : 'fixed inset-0 z-[100] bg-surface/95 backdrop-blur-3xl flex flex-col overflow-hidden select-none'
-                }
+                className={clsx(
+                    'fixed inset-0 z-[100] flex flex-col overflow-hidden select-none accelerate',
+                    reduceEffects ? 'bg-surface/98' : 'bg-surface/95 backdrop-blur-3xl'
+                )}
             >
                 {/* Background Decor */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
-                    <div className={reduceEffects
-                        ? 'absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-primary/15 blur-[80px] rounded-full'
-                        : 'absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full'
-                    } />
-                    <div className={reduceEffects
-                        ? 'absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-secondary/15 blur-[80px] rounded-full'
-                        : 'absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 blur-[150px] rounded-full'
-                    } />
-                </div>
+                {!reduceEffects && (
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[150px] rounded-full" />
+                        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 blur-[150px] rounded-full" />
+                    </div>
+                )}
 
                 {/* ─── HEADER ─── */}
                 <div className="relative z-10 flex-shrink-0 flex items-center justify-between px-4 lg:px-8 pt-4 lg:pt-6 pb-3 lg:pb-4">

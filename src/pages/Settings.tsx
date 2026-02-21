@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ThemeTogglePanel } from '../components/settings/ThemeTogglePanel';
 import { LanguageTogglePanel } from '../components/settings/LanguageTogglePanel';
-import { LogOut, Shield, Bell, Cpu, ArrowLeft, Palette, Globe, ChevronRight } from 'lucide-react';
+import { DeviceSettings } from '../components/settings/DeviceSettings';
+import { LogOut, Shield, Bell, Cpu, ArrowLeft, Palette, Globe, ChevronRight, Settings2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { clsx } from 'clsx';
 
-type SettingCategory = 'profile' | 'appearance' | 'system' | 'notifications' | 'privacy' | 'account' | null;
+type SettingCategory = 'profile' | 'appearance' | 'system' | 'media' | 'notifications' | 'privacy' | 'account' | null;
 
 import { useProfile } from '../hooks/useProfile';
 
@@ -29,6 +30,7 @@ export const Settings = () => {
     const categories = [
         { id: 'appearance', title: t('settings.visual.title'), desc: t('settings.visual.subtitle'), icon: Palette, color: 'text-tertiary', guestHidden: false },
         { id: 'system', title: t('settings.system.title'), desc: t('settings.system.subtitle'), icon: Globe, color: 'text-blue-500', guestHidden: false },
+        { id: 'media', title: t('settings.devices_title', 'Media Devices'), desc: t('settings.devices_desc', 'Camera and microphone settings'), icon: Settings2, color: 'text-primary', guestHidden: false },
         { id: 'notifications', title: t('settings.sections.notifications'), desc: t('settings.sections.notifications_desc'), icon: Bell, color: 'text-primary', guestHidden: true },
         { id: 'privacy', title: t('settings.sections.privacy'), desc: t('settings.sections.privacy_desc'), icon: Shield, color: 'text-tertiary', guestHidden: true },
         { id: 'account', title: t('settings.sections.account'), desc: t('settings.sections.account_desc'), icon: Cpu, color: 'text-amber-500', guestHidden: true },
@@ -96,7 +98,7 @@ export const Settings = () => {
                                     </div>
                                     <div>
                                         <h4 className="font-black uppercase tracking-tight italic text-red-600 text-sm">{t('settings.danger_zone.sign_out')}</h4>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-red-500/60 leading-tight italic">TERMINATE SESSION</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-red-500/60 leading-tight italic">{t('login_page.terminate_session')}</p>
                                     </div>
                                 </button>
                             </div>
@@ -112,12 +114,17 @@ export const Settings = () => {
 
                             {activeCategory === 'appearance' && <ThemeTogglePanel />}
                             {activeCategory === 'system' && <LanguageTogglePanel />}
+                            {activeCategory === 'media' && (
+                                <div className="bubble p-6">
+                                    <DeviceSettings />
+                                </div>
+                            )}
                             {(activeCategory === 'notifications' || activeCategory === 'privacy') && (
                                 <div className="bubble p-10 flex flex-col items-center justify-center text-center py-20">
                                     <Cpu size={48} className="text-on-surface-variant/20 mb-6" />
                                     <h4 className="text-on-surface font-black uppercase tracking-tight italic mb-2">{t(`settings.sections.${activeCategory}`)}</h4>
                                     <p className="text-on-surface-variant/60 font-medium text-sm">{t(`settings.sections.${activeCategory}_desc`)}</p>
-                                    <p className="mt-4 text-primary font-black text-[10px] uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full">Coming Soon</p>
+                                    <p className="mt-4 text-primary font-black text-[10px] uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full">{t('settings.coming_soon')}</p>
                                 </div>
                             )}
                         </motion.div>
@@ -162,9 +169,12 @@ export const Settings = () => {
                     )}
 
                     {/* Desktop Panels */}
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
                         <ThemeTogglePanel />
                         <LanguageTogglePanel />
+                        <div className="bubble p-8">
+                            <DeviceSettings />
+                        </div>
                     </div>
 
                     {!isGuest && (
@@ -191,7 +201,7 @@ export const Settings = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-black uppercase tracking-tight italic text-red-600">{t('settings.danger_zone.sign_out')}</h4>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-red-500/60 leading-tight italic">TERMINATE SESSION</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-red-500/60 leading-tight italic">{t('login_page.terminate_session')}</p>
                                 </div>
                             </button>
                         </div>

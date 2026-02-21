@@ -10,8 +10,11 @@ interface Equation {
     options: number[];
 }
 
+import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
+
 export const BuddySolve: React.FC = () => {
     const { t } = useTranslation();
+    const { reduceEffects } = usePerformanceMode();
     const [score, setScore] = useState(0);
     const [bestScore, setBestScore] = useState(() => {
         const saved = localStorage.getItem('buddyline_highscore_solve');
@@ -127,10 +130,10 @@ export const BuddySolve: React.FC = () => {
     const timerProgress = timeLeft / 30;
 
     return (
-        <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-sm mx-auto p-4 select-none">
+        <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-sm mx-auto p-4 select-none accelerate">
             {/* Stats */}
             <div className="flex justify-between items-center w-full">
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${feedback === 'correct' ? 'bg-green-500/20' : 'bg-primary/15'}`}>
                         <Zap className={`w-3.5 h-3.5 transition-colors ${feedback === 'correct' ? 'text-green-500' : 'text-primary'}`} />
                     </div>
@@ -148,7 +151,7 @@ export const BuddySolve: React.FC = () => {
                 </div>
 
                 {/* Timer - with circular progress */}
-                <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-2xl border backdrop-blur-2xl transition-all duration-300 shadow-lg ${timeLeft < 10 ? 'bg-error/15 border-error/20' : 'bg-surface-container-high/50 border-outline/10'}`}>
+                <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-2xl border ${reduceEffects ? '' : 'backdrop-blur-2xl'} transition-all duration-300 shadow-lg ${timeLeft < 10 ? 'bg-error/15 border-error/20' : 'bg-surface-container-high/50 border-outline/10'} accelerate`}>
                     <div className="relative w-6 h-6">
                         <svg className="w-6 h-6 -rotate-90" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" className="text-outline/10" />
@@ -165,7 +168,7 @@ export const BuddySolve: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
+                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} bg-surface-container-high/50 px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
                     <Trophy className="w-4 h-4 text-primary/60" />
                     <div className="flex flex-col items-end">
                         <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.best')}</span>
@@ -175,7 +178,7 @@ export const BuddySolve: React.FC = () => {
             </div>
 
             {/* Play Area */}
-            <div className="relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 backdrop-blur-xl p-5 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
+            <div className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-5 flex flex-col items-center justify-center overflow-hidden shadow-2xl accelerate`}>
                 <AnimatePresence mode="wait">
                     {!isActive && !isGameOver ? (
                         <motion.div
@@ -278,17 +281,19 @@ export const BuddySolve: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {isActive && (
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => { setIsActive(false); setIsGameOver(true); }}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-error/8 text-error border border-error/15 rounded-full font-black uppercase tracking-wider text-[9px] backdrop-blur-xl"
-                >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    {t('game.solve.abandon')}
-                </motion.button>
-            )}
-        </div>
+            {
+                isActive && (
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { setIsActive(false); setIsGameOver(true); }}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-error/8 text-error border border-error/15 rounded-full font-black uppercase tracking-wider text-[9px] backdrop-blur-xl"
+                    >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        {t('game.solve.abandon')}
+                    </motion.button>
+                )
+            }
+        </div >
     );
 };

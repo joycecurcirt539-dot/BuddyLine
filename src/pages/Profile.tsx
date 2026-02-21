@@ -6,7 +6,7 @@ import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { PostCard } from '../components/feed/PostCard';
 import type { Post } from '../components/feed/PostCard';
-import { Edit2, Calendar, Sparkles, Camera, Loader2, MessageCircle, Users } from 'lucide-react';
+import { Edit2, Calendar, Sparkles, Camera, Loader2, MessageCircle, Users, Phone, Video } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, ru } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -15,6 +15,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../hooks/useChat';
 import { UserBadge } from '../components/ui/UserBadge';
 import { usePresence } from '../hooks/usePresence';
+import { useCall } from '../context/CallContext';
 
 interface ProfileData {
     id: string;
@@ -35,6 +36,7 @@ export const Profile = () => {
     const { user } = useAuth();
     const { createDirectChat } = useChat();
     const { onlineUsers } = usePresence();
+    const { initiateCall } = useCall();
 
     // Determine if we're viewing our own profile
     const isOwnProfile = !id || id === user?.id;
@@ -322,13 +324,31 @@ export const Profile = () => {
                                             {t('profile_page.edit_profile')}
                                         </Button>
                                     ) : (
-                                        <Button
-                                            onClick={handleMessage}
-                                            className="px-10 py-3 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-105 transition-all text-sm uppercase tracking-[0.2em]"
-                                        >
-                                            <MessageCircle size={20} className="mr-2" />
-                                            {t('friends_page.actions.direct_chat')}
-                                        </Button>
+                                        <div className="flex items-center gap-3">
+                                            <Button
+                                                onClick={() => initiateCall(profile.id, 'audio')}
+                                                variant="secondary"
+                                                className="w-12 h-12 rounded-2xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all"
+                                                title={t('chat.actions.voice_call')}
+                                            >
+                                                <Phone size={20} />
+                                            </Button>
+                                            <Button
+                                                onClick={() => initiateCall(profile.id, 'video')}
+                                                variant="secondary"
+                                                className="w-12 h-12 rounded-2xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all"
+                                                title={t('chat.actions.video_call')}
+                                            >
+                                                <Video size={20} />
+                                            </Button>
+                                            <Button
+                                                onClick={handleMessage}
+                                                className="px-10 py-3 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-105 transition-all text-sm uppercase tracking-[0.2em]"
+                                            >
+                                                <MessageCircle size={20} className="mr-2" />
+                                                {t('friends_page.actions.direct_chat')}
+                                            </Button>
+                                        </div>
                                     )}
                                 </div>
                             </div>
