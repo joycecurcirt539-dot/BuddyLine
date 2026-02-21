@@ -145,24 +145,7 @@
     },
     "sidebar": {
         "buddyline": "BuddyLine",
-        "private_circle": "Только для друзей",
-        "title": "Лаборатория",
-        "subtitle": "В разработке",
-        "circles": {
-            "name": "Круги",
-            "desc": "Группируй друзей по интересам"
-        },
-        "activity": {
-            "name": "Совместный просмотр",
-            "desc": "Смотрите видео вместе"
-        },
-        "nodes": {
-            "name": "Приватные группы",
-            "desc": "Чаты только для своих"
-        },
-        "beta_tester": "Стать тестером",
-        "network_strength": "Сила сети",
-        "connection_density": "Плотность соединений"
+        "private_circle": "Только для друзей"
     },
     "settings": {
         "title": "Настройки",
@@ -334,7 +317,25 @@
         "active_friends_few": "{{count}} друга онлайн",
         "active_friends_many": "{{count}} друзей онлайн",
         "active_friends_other": "{{count}} друзей онлайн",
-        "coming_soon": "Скоро"
+        "coming_soon": "Скоро",
+        "sidebar": {
+            "title": "Лаборатория",
+            "subtitle": "В разработке",
+            "circles": {
+                "name": "Круги",
+                "desc": "Группируй друзей по интересам"
+            },
+            "activity": {
+                "name": "Совместный просмотр",
+                "desc": "Смотрите видео вместе"
+            },
+            "nodes": {
+                "name": "Приватные группы",
+                "desc": "Чаты только для своих"
+            },
+            "network_strength": "Сила сети",
+            "connection_density": "Плотность соединений"
+        }
     },
     "profile_page": {
         "loading": "Загружаю профиль...",

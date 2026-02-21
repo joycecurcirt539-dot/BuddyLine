@@ -145,24 +145,7 @@
     },
     "sidebar": {
         "buddyline": "BuddyLine",
-        "private_circle": "Private Circle",
-        "title": "Laboratory",
-        "subtitle": "Experimental Interface",
-        "circles": {
-            "name": "Circles",
-            "desc": "Group your friends by interest"
-        },
-        "activity": {
-            "name": "Live Activity",
-            "desc": "Watch videos and play together"
-        },
-        "nodes": {
-            "name": "Private Nodes",
-            "desc": "Encrypted sub-groups"
-        },
-        "beta_tester": "Become Tester",
-        "network_strength": "Network Strength",
-        "connection_density": "Connection Density"
+        "private_circle": "Private Circle"
     },
     "settings": {
         "title": "Settings",
@@ -213,7 +196,25 @@
         "microphone": "Microphone",
         "speakers": "Speakers",
         "device_hint": "Changes will be applied to your next call.",
-        "coming_soon": "Soon"
+        "coming_soon": "Soon",
+        "sidebar": {
+            "title": "Laboratory",
+            "subtitle": "Experimental Interface",
+            "circles": {
+                "name": "Circles",
+                "desc": "Group your friends by interest"
+            },
+            "activity": {
+                "name": "Live Activity",
+                "desc": "Watch videos and play together"
+            },
+            "nodes": {
+                "name": "Private Nodes",
+                "desc": "Encrypted sub-groups"
+            },
+            "network_strength": "Network Strength",
+            "connection_density": "Connection Density"
+        }
     },
     "chat": {
         "status": {
