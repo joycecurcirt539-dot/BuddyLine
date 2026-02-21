@@ -330,11 +330,11 @@
                 "desc": "Смотрите видео вместе"
             },
             "nodes": {
-                "name": "Приватные группы",
-                "desc": "Чаты только для своих"
+                "name": "Приватные чаты",
+                "desc": "Чаты в обход сервера P2P"
             },
-            "network_strength": "Сила сети",
-            "connection_density": "Плотность соединений"
+            "network_strength": "Разработка завершена",
+            "connection_density": "на 65%"
         }
     },
     "profile_page": {

@@ -96,7 +96,7 @@ export const FriendsSidebar = () => {
                     <div className="h-full bg-primary w-[65%]" />
                 </div>
                 <p className="mt-2 text-[9px] font-bold text-on-surface-variant opacity-60">
-                    65% {t('friends_page.sidebar.connection_density')}
+                    {t('friends_page.sidebar.connection_density')}
                 </p>
             </div>
         </div>

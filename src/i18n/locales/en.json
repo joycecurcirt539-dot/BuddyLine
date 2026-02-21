@@ -209,11 +209,11 @@
                 "desc": "Watch videos and play together"
             },
             "nodes": {
-                "name": "Private Nodes",
-                "desc": "Encrypted sub-groups"
+                "name": "Private Chats",
+                "desc": "Server-less P2P communication"
             },
-            "network_strength": "Network Strength",
-            "connection_density": "Connection Density"
+            "network_strength": "Development Status",
+            "connection_density": "at 65%"
         }
     },
     "chat": {
