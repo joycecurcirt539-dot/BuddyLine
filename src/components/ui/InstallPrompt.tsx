@@ -73,18 +73,18 @@ export const InstallPrompt = () => {
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="font-black text-on-surface uppercase tracking-tight leading-none mb-1">
-                                        BuddyLine App
+                                        {t('sidebar.buddyline')}
                                     </h3>
                                     <p className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-80">
-                                        {t('common.install_prompt_desc', 'Install for the best experience')}
+                                        {t('common.install_prompt_desc')}
                                     </p>
                                 </div>
                             </div>
                             <button
                                 onClick={handleDismiss}
                                 className="p-2 hover:bg-on-surface/5 rounded-full transition-colors"
-                                aria-label={t('common.close', 'Close')}
-                                title={t('common.close', 'Close')}
+                                aria-label={t('common.close')}
+                                title={t('common.close')}
                             >
                                 <X size={20} className="text-on-surface-variant" />
                             </button>
@@ -93,12 +93,12 @@ export const InstallPrompt = () => {
                         <div className="flex gap-2">
                             <Button
                                 onClick={handleInstall}
-                                title={t('common.install', 'Install Now')}
-                                aria-label={t('common.install', 'Install Now')}
+                                title={t('common.install')}
+                                aria-label={t('common.install')}
                                 className="flex-1 py-3 font-black uppercase tracking-widest text-xs rounded-2xl"
                             >
                                 <Download size={16} className="mr-2" />
-                                {t('common.install', 'Install Now')}
+                                {t('common.install')}
                             </Button>
                         </div>
                     </div>
