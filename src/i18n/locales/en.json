@@ -145,24 +145,24 @@
     },
     "sidebar": {
         "buddyline": "BuddyLine",
-        "private_circle": "Only Friends",
-        "title": "Lab: Social Tech",
-        "subtitle": "In Development",
+        "private_circle": "Private Circle",
+        "title": "Laboratory",
+        "subtitle": "Experimental Interface",
         "circles": {
-            "name": "Friends Circles",
-            "desc": "Organize your buds into custom groups"
+            "name": "Circles",
+            "desc": "Group your friends by interest"
         },
         "activity": {
-            "name": "Activity Stream",
-            "desc": "Simultaneous video viewing"
+            "name": "Live Activity",
+            "desc": "Watch videos and play together"
         },
         "nodes": {
             "name": "Private Nodes",
-            "desc": "Interaction only friends with friends"
+            "desc": "Encrypted sub-groups"
         },
-        "beta_tester": "Become a Beta Tester",
-        "network_strength": "Release Preparation",
-        "connection_density": "Development complete"
+        "beta_tester": "Become Tester",
+        "network_strength": "Network Strength",
+        "connection_density": "Connection Density"
     },
     "settings": {
         "title": "Settings",
@@ -208,8 +208,12 @@
         "system_access": "System Access",
         "devices_title": "Media Devices",
         "devices_desc": "Camera and microphone settings",
-        "devices_error": "Could not access camera or microphone. Please check permissions.",
-        "coming_soon": "Coming Soon"
+        "devices_error": "Could not access hardware. Please check your permissions.",
+        "camera": "Camera",
+        "microphone": "Microphone",
+        "speakers": "Speakers",
+        "device_hint": "Changes will be applied to your next call.",
+        "coming_soon": "Soon"
     },
     "chat": {
         "status": {
