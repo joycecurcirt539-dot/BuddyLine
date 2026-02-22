@@ -3,17 +3,25 @@ import { signalingService } from '../services/signalingService';
 import type { SignalingPayload, SignalingEvent } from '../services/signalingService';
 import { useAuth } from '../context/AuthContext';
 
-const ICE_SERVERS = {
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun3.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:19302' },
-        // NOTE: For production, you should add TURN servers here.
-        // Providers like Metered.ca, Xirsys, or Twilio offer free tiers.
-    ],
-};
+const FALLBACK_ICE_SERVERS = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
+];
+
+async function getIceServers() {
+    try {
+        const res = await fetch("/api/turn", { method: "POST" });
+        if (!res.ok) throw new Error("Failed to fetch TURN credentials");
+        const data = await res.json();
+        return data.iceServers;
+    } catch (error) {
+        console.warn("Falling back to STUN servers:", error);
+        return FALLBACK_ICE_SERVERS;
+    }
+}
 
 export const useWebRTC = (callId: string | undefined, isCaller: boolean, receiverId: string | undefined) => {
     const { user } = useAuth();
@@ -37,10 +45,15 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
         senders.current = {};
     }, []);
 
-    const createPeerConnection = useCallback(() => {
+    const createPeerConnection = useCallback(async () => {
         if (pc.current) return pc.current;
 
-        const peerConnection = new RTCPeerConnection(ICE_SERVERS);
+        const iceServers = await getIceServers();
+        const peerConnection = new RTCPeerConnection({ iceServers });
+
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log("ICE Connection State:", peerConnection.iceConnectionState);
+        };
         peerConnection.onicecandidate = (event) => {
             if (event.candidate && callId && user && receiverId) {
                 signalingService.send('ICE_CANDIDATE', {
@@ -90,7 +103,7 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
 
     const initiateOffer = useCallback(async () => {
         // Ensure PeerConnection exists for the caller
-        const peerConnection = pc.current || createPeerConnection();
+        const peerConnection = pc.current || await createPeerConnection();
 
         // Add tracks if they are available (from startLocalStream)
         if (localStream.current) {
@@ -134,7 +147,7 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
     }, []);
 
     const handleOffer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
-        if (!pc.current) createPeerConnection();
+        if (!pc.current) await createPeerConnection();
 
         // Avoid setting remote description if already in have-remote-offer (duplicate signal)
         if (pc.current!.signalingState === 'have-remote-offer') return;
