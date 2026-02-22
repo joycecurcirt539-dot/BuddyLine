@@ -117,7 +117,7 @@ export const Friends = () => {
 
     return (
         <motion.div
-            className="max-w-none flex gap-8 pb-20 px-4 sm:px-0"
+            className="max-w-none flex gap-8 pb-24 lg:pb-10 px-4 sm:px-0"
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 26 }}

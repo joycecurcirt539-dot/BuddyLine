@@ -195,7 +195,7 @@ export const Chat = () => {
     if (view === 'chat' && activeChat) {
         const other = activeChat.participants.find(p => p.id !== user?.id) || activeChat.participants[0];
         return (
-            <div className="w-full flex-1 flex gap-6 min-h-0">
+            <div className="w-full flex-1 flex gap-6 min-h-0 pb-24 lg:pb-10">
                 <motion.div
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -248,7 +248,7 @@ export const Chat = () => {
     }
 
     return (
-        <div className="flex flex-col gap-6 w-full flex-1 relative min-h-0 pb-10">
+        <div className="flex flex-col gap-6 w-full flex-1 relative min-h-0 pb-24 lg:pb-10">
             {/* Background Atmosphere */}
             <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
                 <div className="absolute top-[5%] left-[10%] w-[35%] h-[35%] bg-primary/5 rounded-full blur-[120px] animate-pulse" />
