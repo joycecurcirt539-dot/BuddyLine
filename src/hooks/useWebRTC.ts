@@ -7,6 +7,11 @@ const ICE_SERVERS = {
     iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        // NOTE: For production, you should add TURN servers here.
+        // Providers like Metered.ca, Xirsys, or Twilio offer free tiers.
     ],
 };
 
@@ -29,11 +34,13 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
             localStream.current = null;
         }
         setRemoteStream(null);
+        senders.current = {};
     }, []);
 
     const createPeerConnection = useCallback(() => {
-        const peerConnection = new RTCPeerConnection(ICE_SERVERS);
+        if (pc.current) return pc.current;
 
+        const peerConnection = new RTCPeerConnection(ICE_SERVERS);
         peerConnection.onicecandidate = (event) => {
             if (event.candidate && callId && user && receiverId) {
                 signalingService.send('ICE_CANDIDATE', {
@@ -82,19 +89,20 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
     }, [callId, user, receiverId, cleanup]);
 
     const initiateOffer = useCallback(async () => {
-        if (!pc.current) return;
+        // Ensure PeerConnection exists for the caller
+        const peerConnection = pc.current || createPeerConnection();
 
-        // Tracks are now added via startLocalStream using the senders ref
-        // or during initial setup if localStream.current exists
-        if (localStream.current && Object.keys(senders.current).length === 0) {
+        // Add tracks if they are available (from startLocalStream)
+        if (localStream.current) {
             localStream.current.getTracks().forEach(track => {
-                if (pc.current) {
-                    const sender = pc.current.addTrack(track, localStream.current!);
+                // Only add if not already added to avoid errors
+                if (!senders.current[track.kind]) {
+                    const sender = peerConnection.addTrack(track, localStream.current!);
                     senders.current[track.kind] = sender;
                 }
             });
         }
-    }, []);
+    }, [createPeerConnection]);
 
 
     const iceCandidateQueue = useRef<RTCIceCandidateInit[]>([]);
