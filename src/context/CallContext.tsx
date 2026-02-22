@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import { signalingService } from '../services/signalingService';
+import { soundService } from '../services/soundService';
 import type { SignalingPayload, SignalingEvent, CallType, CallStatus } from '../services/signalingService';
 import { supabase } from '../lib/supabase';
 
@@ -31,6 +32,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isRinging, setIsRinging] = useState(false);
 
     const handleSignaling = useCallback(async (event: SignalingEvent, payload: SignalingPayload) => {
+        console.log('Call signaling received:', event, payload);
         switch (event) {
             case 'CALL_INIT':
                 setIncomingCall({
@@ -41,29 +43,30 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     status: 'ringing'
                 });
                 setIsRinging(true);
+                soundService.play('ringing');
+                break;
+            case 'CALL_ACCEPT':
+                soundService.stopAll();
+                soundService.play('connected');
                 break;
             case 'CALL_DECLINE':
-                if (activeCall?.id === payload.call_id || incomingCall?.id === payload.call_id) {
-                    setActiveCall(null);
-                    setIncomingCall(null);
-                    setIsRinging(false);
-                }
-                break;
             case 'CALL_END':
+                soundService.stopAll();
+                soundService.play('disconnected');
                 setActiveCall(null);
                 setIncomingCall(null);
                 setIsRinging(false);
                 break;
-            // WebRTC specific events will be handled by the useWebRTC hook
         }
-    }, [activeCall, incomingCall]);
+    }, []); // Empty dependencies to keep it stable
 
     useEffect(() => {
         if (user) {
+            console.log('Subscribing to signaling for user:', user.id);
             signalingService.subscribe(user.id, handleSignaling);
         }
         return () => {
-            signalingService.unsubscribe();
+            if (user) signalingService.unsubscribe(handleSignaling);
         };
     }, [user, handleSignaling]);
 
@@ -89,6 +92,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const callData: CallData = call;
         setActiveCall(callData);
+        soundService.play('calling');
 
         // 2. Send CALL_INIT signal
         await signalingService.send('CALL_INIT', {
@@ -111,6 +115,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCall({ ...incomingCall, status: 'active' });
         setIncomingCall(null);
         setIsRinging(false);
+        soundService.stopAll();
+        soundService.play('connected');
 
         // 2. Send CALL_ACCEPT signal
         await signalingService.send('CALL_ACCEPT', {
@@ -136,6 +142,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setIncomingCall(null);
         setIsRinging(false);
+        soundService.stopAll();
+        soundService.play('disconnected');
     };
 
     const endCall = async () => {
@@ -178,6 +186,8 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCall(null);
         setIncomingCall(null);
         setIsRinging(false);
+        soundService.stopAll();
+        soundService.play('disconnected');
     };
 
     return (

@@ -23,14 +23,24 @@ export interface SignalingPayload {
     reason?: string;
 }
 
+type SignalingCallback = (event: SignalingEvent, payload: SignalingPayload) => void;
 class SignalingService {
     private channel: RealtimeChannel | null = null;
-    private onMessageCallback: ((event: SignalingEvent, payload: SignalingPayload) => void) | null = null;
+    private listeners: Set<SignalingCallback> = new Set();
+    private currentUserId: string | null = null;
 
-    async subscribe(userId: string, onMessage: (event: SignalingEvent, payload: SignalingPayload) => void) {
-        this.onMessageCallback = onMessage;
+    async subscribe(userId: string, onMessage: SignalingCallback) {
+        this.listeners.add(onMessage);
 
-        // Subscribe to a private channel for the user
+        if (this.currentUserId === userId && this.channel) {
+            return;
+        }
+
+        if (this.channel) {
+            await this.unsubscribeAll();
+        }
+
+        this.currentUserId = userId;
         this.channel = supabase.channel(`signaling:${userId}`, {
             config: {
                 broadcast: { self: false }
@@ -39,28 +49,40 @@ class SignalingService {
 
         this.channel
             .on('broadcast', { event: 'signaling' }, ({ payload }: { payload: { event: SignalingEvent; data: SignalingPayload } }) => {
-                if (this.onMessageCallback) {
-                    this.onMessageCallback(payload.event, payload.data);
-                }
+                this.listeners.forEach(callback => callback(payload.event, payload.data));
             })
             .subscribe();
     }
 
     async send(event: SignalingEvent, payload: SignalingPayload) {
-        // Send to the receiver's private channel
-        await supabase.channel(`signaling:${payload.receiver_id}`).send({
-            type: 'broadcast',
-            event: 'signaling',
-            payload: { event, data: payload }
+        const targetChannel = supabase.channel(`signaling:${payload.receiver_id}`);
+        // We need to subscribe to the channel before we can send to it reliably
+        targetChannel.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                await targetChannel.send({
+                    type: 'broadcast',
+                    event: 'signaling',
+                    payload: { event, data: payload }
+                });
+                // Clean up the temporary channel
+                supabase.removeChannel(targetChannel);
+            }
         });
     }
 
-    async unsubscribe() {
+    async unsubscribe(onMessage: SignalingCallback) {
+        this.listeners.delete(onMessage);
+        if (this.listeners.size === 0 && this.channel) {
+            await this.unsubscribeAll();
+        }
+    }
+
+    private async unsubscribeAll() {
         if (this.channel) {
             await this.channel.unsubscribe();
             this.channel = null;
         }
-        this.onMessageCallback = null;
+        this.currentUserId = null;
     }
 }
 

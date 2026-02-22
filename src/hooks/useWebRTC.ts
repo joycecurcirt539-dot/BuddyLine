@@ -139,7 +139,7 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
 
         signalingService.subscribe(user?.id || '', listener);
         return () => {
-            // Signaling service is unsubscribed in CallContext component cleanup
+            signalingService.unsubscribe(listener);
         };
     }, [callId, user, handleOffer, handleAnswer, handleIceCandidate, isCaller, initiateOffer]);
 

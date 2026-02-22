@@ -6,16 +6,14 @@ import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { PostCard } from '../components/feed/PostCard';
 import type { Post } from '../components/feed/PostCard';
-import { Edit2, Calendar, Sparkles, Camera, Loader2, MessageCircle, Users, Phone, Video } from 'lucide-react';
+import { Edit2, Calendar, Sparkles, Camera, Loader2, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { enUS, ru } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useChat } from '../hooks/useChat';
+import { useParams } from 'react-router-dom';
 import { UserBadge } from '../components/ui/UserBadge';
 import { usePresence } from '../hooks/usePresence';
-import { useCall } from '../context/CallContext';
 
 interface ProfileData {
     id: string;
@@ -32,11 +30,8 @@ interface ProfileData {
 export const Profile = () => {
     const { t, i18n } = useTranslation();
     const { id } = useParams();
-    const navigate = useNavigate();
     const { user } = useAuth();
-    const { createDirectChat } = useChat();
     const { onlineUsers } = usePresence();
-    const { initiateCall } = useCall();
 
     // Determine if we're viewing our own profile
     const isOwnProfile = !id || id === user?.id;
@@ -119,20 +114,6 @@ export const Profile = () => {
         fetchUserPosts();
     }, [id, targetUserId, fetchProfile, fetchUserPosts]); // Refetch when ID changes
 
-    const handleMessage = async () => {
-        if (!profile) return;
-        const result = await createDirectChat(profile.id);
-        if (result.success) {
-            navigate(`/chat?id=${result.chatId}`);
-        } else if (result.error) {
-            // Check for specific error messages or just show the error
-            if (result.error.toLowerCase().includes('friends')) {
-                alert(t('chat_error.friends_only'));
-            } else {
-                alert(result.error);
-            }
-        }
-    };
 
     const handleSaveProfile = async () => {
         if (!user) return;
@@ -330,31 +311,7 @@ export const Profile = () => {
                                             {t('profile_page.edit_profile')}
                                         </Button>
                                     ) : (
-                                        <div className="flex items-center gap-2">
-                                            <Button
-                                                onClick={() => initiateCall(profile.id, 'audio')}
-                                                variant="secondary"
-                                                className="w-10 h-10 rounded-xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all border border-white/20 bg-white/5 backdrop-blur-md"
-                                                title={t('chat.actions.voice_call')}
-                                            >
-                                                <Phone size={18} />
-                                            </Button>
-                                            <Button
-                                                onClick={() => initiateCall(profile.id, 'video')}
-                                                variant="secondary"
-                                                className="w-10 h-10 rounded-xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all border border-white/20 bg-white/5 backdrop-blur-md"
-                                                title={t('chat.actions.video_call')}
-                                            >
-                                                <Video size={18} />
-                                            </Button>
-                                            <Button
-                                                onClick={handleMessage}
-                                                className="px-6 py-2 rounded-xl font-black shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] bg-gradient-to-r from-primary to-primary-container hover:scale-[1.05] transition-all duration-300 text-xs uppercase tracking-[0.2em] border border-white/20"
-                                            >
-                                                <MessageCircle size={18} className="mr-2" />
-                                                {t('friends_page.actions.direct_chat')}
-                                            </Button>
-                                        </div>
+                                        null
                                     )}
                                 </div>
                             </div>
