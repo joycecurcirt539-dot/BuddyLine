@@ -40,7 +40,7 @@ export const Settings = () => {
 
     return (
         <motion.div
-            className="w-full pb-20 lg:pb-10 relative min-h-screen"
+            className="w-full pb-32 lg:pb-10 relative min-h-screen"
             initial={{ opacity: 0, x: -24, y: 16 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ type: 'spring', stiffness: 240, damping: 28 }}

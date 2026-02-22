@@ -56,7 +56,6 @@ const GameCard = React.memo(({ game, idx, reduceMotion, reduceEffects, t, onClic
         {/* Glow */}
         <div
             className={`absolute top-0 right-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-20 transition-opacity`}
-            // @ts-expect-error: Dynamic styles for performance-based effects
             style={{
                 width: reduceEffects ? '4.5rem' : '6rem',
                 height: reduceEffects ? '4.5rem' : '6rem',

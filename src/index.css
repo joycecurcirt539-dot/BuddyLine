@@ -174,26 +174,66 @@ body::before {
 
 /* Liquid Glass Effect (Premium) */
 .liquid-glass {
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.3) 100%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.05) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+}
+
+.premium-nav-glass {
+  background: transparent !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Advanced Refraction Effect - Stronger blur at rounded edges */
+.premium-nav-glass::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.2), transparent, rgba(255, 255, 255, 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.premium-nav-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, transparent 30%, rgba(255, 255, 255, 0.03) 100%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .dark .liquid-glass {
-  background: linear-gradient(135deg,
-      rgba(15, 23, 42, 0.7) 0%,
-      rgba(15, 23, 42, 0.3) 100%);
+  background: rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+}
+
+.dark .premium-nav-glass {
+  background: transparent !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 /* PERFORMANCE OVERRIDES FOR MOBILE DEVICES */
 @media (max-width: 1024px) {
 
+  /* 
   .glass,
   .bubble,
   .liquid-glass,
@@ -203,6 +243,7 @@ body::before {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
+  */
 
   .glass {
     background-color: var(--color-surface-container-low);
@@ -222,10 +263,12 @@ body::before {
     background-color: var(--color-surface-container-lowest);
   }
 
+  /*
   .liquid-glass {
     background: var(--color-surface-container-low);
     box-shadow: var(--md-elevation-1);
   }
+  */
 }
 
 /* Hardware Acceleration Class */
@@ -411,9 +454,12 @@ body::before {
 }
 
 /* PERFORMANCE OVERRIDES FOR LOW-END DEVICES */
-html.reduce-effects * {
+html.reduce-effects *:not(.liquid-glass):not(.premium-nav-glass) {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+}
+
+html.reduce-effects * {
   /* Transitions and animations are kept at their natural speeds */
   /* NO OVERRIDE of transition-duration or animation-duration here */
   transition-delay: 0s !important;
@@ -422,15 +468,13 @@ html.reduce-effects * {
 
 /* Ensure background remains readable when blur is stripped */
 html.reduce-effects .glass,
-html.reduce-effects .bubble,
-html.reduce-effects .liquid-glass {
+html.reduce-effects .bubble {
   background-color: var(--color-surface-container-high) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .dark.reduce-effects .glass,
-.dark.reduce-effects .bubble,
-.dark.reduce-effects .liquid-glass {
+.dark.reduce-effects .bubble {
   background-color: var(--color-surface-container-lowest) !important;
 }
 
@@ -522,8 +566,8 @@ html.reduce-effects body::before {
   }
 
   .bottom-nav-pill {
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    backdrop-filter: blur(24px) saturate(180%);
-    background: rgba(15, 23, 42, 0.94);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+    background: rgba(15, 23, 42, 0.3);
   }
 }

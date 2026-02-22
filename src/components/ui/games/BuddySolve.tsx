@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Timer, Trophy, RotateCcw, Brain } from 'lucide-react';
+import { Zap, Timer, Trophy, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { playSound } from '../../../utils/sounds';
 
@@ -217,8 +217,8 @@ export const BuddySolve: React.FC = () => {
                             exit={{ opacity: 0, scale: 1.1 }}
                             className="flex flex-col items-center text-center px-4 relative z-10"
                         >
-                            <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-6 shadow-2xl shadow-primary/40 relative">
-                                <Brain className="w-10 h-10 text-white" />
+                            <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-6 shadow-2xl shadow-primary/40 relative overflow-hidden">
+                                <img src="/logo.png" className="w-10 h-10 object-contain brightness-200" alt="logo" />
                                 <div className="absolute inset-0 rounded-[2rem] border border-white/30" />
                             </div>
                             <h3 className="text-3xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-6 uppercase italic tracking-tighter">BuddySolve</h3>

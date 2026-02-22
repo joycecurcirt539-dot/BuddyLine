@@ -287,7 +287,6 @@ export const BuddyMerge: React.FC = () => {
                                     scale: { duration: 0.15 },
                                     opacity: { duration: 0.1 }
                                 }}
-                                // @ts-expect-error: Inline styles needed for dynamic grid positioning
                                 style={{
                                     gridRowStart: tile.r + 1,
                                     gridColumnStart: tile.c + 1,

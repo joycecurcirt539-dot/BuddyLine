@@ -293,7 +293,6 @@ export const BuddyFlow: React.FC = () => {
                         <div
                             key={i}
                             className="rounded-xl relative flex items-center justify-center overflow-hidden transition-colors duration-500"
-                            // @ts-expect-error: Inline styles needed for dynamic background
                             style={{
                                 backgroundColor: pathColor ? `${pathColor}20` : 'rgba(255,255,255,0.02)',
                             }}
@@ -322,8 +321,9 @@ export const BuddyFlow: React.FC = () => {
                                         boxShadow: `0 0 25px ${node.color}80, inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.4)`
                                     }}
                                 >
-                                    {/* Glass Highlight */}
+                                    {/* Glass Highlight and Logo */}
                                     <div className="absolute top-1 left-1.5 w-1/3 h-1/3 bg-white/40 rounded-full blur-[1px]" />
+                                    <img src="/logo.png" className="absolute inset-0 m-auto w-[60%] h-[60%] object-contain opacity-40 brightness-200 grayscale" alt="" />
                                 </motion.div>
                             )}
                         </div>

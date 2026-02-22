@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bomb, Flag, RefreshCw, Trophy, Settings2, Move } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { playSound } from '../../../utils/sounds';
-import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
 interface Cell {
     r: number;
@@ -22,7 +21,6 @@ interface GameConfig {
 
 export const BuddyMines: React.FC = () => {
     const { t } = useTranslation();
-    const { reduceEffects } = usePerformanceMode();
     const [config, setConfig] = useState<GameConfig>({ rows: 10, cols: 10, mines: 15 });
     const [grid, setGrid] = useState<Cell[][]>([]);
     const [gameState, setGameState] = useState<'setup' | 'playing' | 'won' | 'lost'>('setup');

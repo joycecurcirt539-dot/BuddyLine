@@ -33,7 +33,7 @@ export const BottomNav = () => {
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 28, delay: 0.1 }}
-                className="relative flex items-center justify-around px-2 py-2 rounded-[2rem] border border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-md"
+                className="relative flex items-center justify-around px-2 py-2 rounded-[2rem] border border-white/20 premium-nav-glass shadow-[0_12px_40px_rgba(0,0,0,0.3)] accelerate"
             >
                 {/* Sliding shimmer background for active tab */}
                 {links.map((link) => {

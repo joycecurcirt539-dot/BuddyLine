@@ -304,9 +304,9 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                             className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-xl p-6"
                         >
                             <div className="bg-surface-container-high/90 border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center justify-center text-center w-full max-w-[220px] aspect-square relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-error/10 to-transparent" />
-                                <div className="w-12 h-12 rounded-2xl bg-error/20 flex items-center justify-center mb-4 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
-                                    <RefreshCw className="w-6 h-6 text-error animate-spin-slow" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-tertiary/5" />
+                                <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-primary/30 to-tertiary/30 flex items-center justify-center mb-4 shadow-xl shadow-primary/20 relative z-10 overflow-hidden">
+                                    <img src="/logo.png" className="w-[60%] h-[60%] object-contain brightness-200" alt="logo" />
                                 </div>
                                 <h3 className="text-xl font-black text-error mb-1 uppercase tracking-tight relative z-10">{t('game.system_error')}</h3>
                                 <div className="flex flex-col items-center gap-1 mb-6 relative z-10">
