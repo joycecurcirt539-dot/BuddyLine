@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, RefreshCw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trophy, RefreshCw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { playSound } from '../../../utils/sounds';
 
@@ -28,6 +28,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
     const [, setDirection] = useState<Direction>('RIGHT');
     const [isGameOver, setIsGameOver] = useState(false);
     const [score, setScore] = useState(0);
+    const [isAiEnabled, setIsAiEnabled] = useState(false);
     const [highScore, setHighScore] = useState(() => {
         const saved = localStorage.getItem('buddyline_highscore_snake');
         return saved ? parseInt(saved) : 0;
@@ -55,6 +56,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
         dirRef.current = 'RIGHT';
         setIsGameOver(false);
         setScore(0);
+        setIsAiEnabled(false);
     }, []);
 
     // Use requestAnimationFrame + deltaTime for smooth tick-based movement
@@ -63,6 +65,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
     const scoreRef = useRef(score);
     const isGameOverRef = useRef(isGameOver);
     const highScoreRef = useRef(highScore);
+    const isAiEnabledRef = useRef(isAiEnabled);
 
     useEffect(() => {
         snakeRef.current = snake;
@@ -70,9 +73,57 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
         scoreRef.current = score;
         isGameOverRef.current = isGameOver;
         highScoreRef.current = highScore;
-    }, [snake, food, score, isGameOver, highScore]);
+        isAiEnabledRef.current = isAiEnabled;
+    }, [snake, food, score, isGameOver, highScore, isAiEnabled]);
+
+    const getAiMove = useCallback((currentSnake: Point[], currentFood: Point): Direction | null => {
+        const head = currentSnake[0];
+        const directions: { dir: Direction, dx: number, dy: number }[] = [
+            { dir: 'UP', dx: 0, dy: -1 },
+            { dir: 'DOWN', dx: 0, dy: 1 },
+            { dir: 'LEFT', dx: -1, dy: 0 },
+            { dir: 'RIGHT', dx: 1, dy: 0 },
+        ];
+
+        // Priority directions based on simple distance
+        const sortedDirs = [...directions].sort((a, b) => {
+            const distA = Math.abs(head.x + a.dx - currentFood.x) + Math.abs(head.y + a.dy - currentFood.y);
+            const distB = Math.abs(head.x + b.dx - currentFood.x) + Math.abs(head.y + b.dy - currentFood.y);
+            return distA - distB;
+        });
+
+        // Check each direction for immediate death
+        for (const { dir, dx, dy } of sortedDirs) {
+            let nx = head.x + dx;
+            let ny = head.y + dy;
+
+            if (wallMode === 'portal') {
+                nx = (nx + GRID_SIZE) % GRID_SIZE;
+                ny = (ny + GRID_SIZE) % GRID_SIZE;
+            } else {
+                if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
+            }
+
+            // Check if nx, ny is in the snake body (excluding tail which will move)
+            const bodyParts = currentSnake.slice(0, -1);
+            if (!bodyParts.some(p => p.x === nx && p.y === ny)) {
+                return dir;
+            }
+        }
+
+        return null; // No safe move
+    }, [wallMode]);
 
     const tick = useCallback(() => {
+        // AI Logic
+        if (isAiEnabledRef.current) {
+            const nextDir = getAiMove(snakeRef.current, foodRef.current);
+            if (nextDir) {
+                dirRef.current = nextDir;
+                setDirection(nextDir);
+            }
+        }
+
         playSound('move', 0.05);
         const dir = dirRef.current;
         const prevSnake = snakeRef.current;
@@ -123,7 +174,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
         }
 
         setSnake(newSnake);
-    }, [wallMode, generateFood]);
+    }, [wallMode, generateFood, getAiMove]);
 
     useEffect(() => {
         if (isGameOver) {
@@ -151,11 +202,12 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
         return () => {
             if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
         };
-    }, [isGameOver, score, highScore, tick]);
+    }, [isGameOver, score, tick]);
 
     // Keyboard: update dirRef immediately for instant response
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (isAiEnabledRef.current) return;
             const cur = dirRef.current;
             switch (e.key) {
                 case 'ArrowUp': if (cur !== 'DOWN') { dirRef.current = 'UP'; setDirection('UP'); } break;
@@ -170,6 +222,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
 
     // Mobile controls also use dirRef for zero-latency
     const changeDir = (newDir: Direction) => {
+        if (isAiEnabled) return;
         const cur = dirRef.current;
         if (newDir === 'UP' && cur !== 'DOWN') { dirRef.current = 'UP'; setDirection('UP'); }
         if (newDir === 'DOWN' && cur !== 'UP') { dirRef.current = 'DOWN'; setDirection('DOWN'); }
@@ -202,6 +255,22 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                     </div>
                 </motion.div>
 
+                {/* AI Toggle Button */}
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsAiEnabled(!isAiEnabled)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all duration-300 shadow-lg ${isAiEnabled
+                        ? 'bg-primary/20 border-primary text-primary shadow-primary/20'
+                        : 'bg-surface-container-high/40 border-white/10 text-on-surface/60'
+                        }`}
+                >
+                    <Bot className={`w-5 h-5 ${isAiEnabled ? 'animate-pulse' : ''}`} />
+                    <span className="text-[10px] font-black uppercase tracking-widest italic">
+                        {isAiEnabled ? 'AI ON' : 'AI OFF'}
+                    </span>
+                </motion.button>
+
                 <motion.div
                     initial={{ x: 20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -219,6 +288,18 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
             <div
                 className={`touch-none relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 border border-white/10 rounded-[2rem] lg:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}
             >
+                {/* AI Pulse Overlay */}
+                <AnimatePresence>
+                    {isAiEnabled && !isGameOver && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.05 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-primary z-0 pointer-events-none animate-pulse"
+                        />
+                    )}
+                </AnimatePresence>
+
                 {/* Dynamic Background depth items */}
                 <div className="absolute inset-0 opacity-20 pointer-events-none">
                     <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
@@ -301,6 +382,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-xl p-6"
                         >
                             <div className="bg-surface-container-high/90 border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center justify-center text-center w-full max-w-[220px] aspect-square relative overflow-hidden">
@@ -334,7 +416,8 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                 <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={() => changeDir('UP')}
-                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                    disabled={isAiEnabled}
+                    className={`aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)] ${isAiEnabled ? 'opacity-30' : ''}`}
                 >
                     <ChevronUp className="w-8 h-8 opacity-80" />
                 </motion.button>
@@ -342,21 +425,24 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                 <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={() => changeDir('LEFT')}
-                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                    disabled={isAiEnabled}
+                    className={`aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)] ${isAiEnabled ? 'opacity-30' : ''}`}
                 >
                     <ChevronLeft className="w-8 h-8 opacity-80" />
                 </motion.button>
                 <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={() => changeDir('DOWN')}
-                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                    disabled={isAiEnabled}
+                    className={`aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)] ${isAiEnabled ? 'opacity-30' : ''}`}
                 >
                     <ChevronDown className="w-8 h-8 opacity-80" />
                 </motion.button>
                 <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={() => changeDir('RIGHT')}
-                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                    disabled={isAiEnabled}
+                    className={`aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)] ${isAiEnabled ? 'opacity-30' : ''}`}
                 >
                     <ChevronRight className="w-8 h-8 opacity-80" />
                 </motion.button>
