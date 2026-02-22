@@ -78,6 +78,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
 
     const getAiMove = useCallback((currentSnake: Point[], currentFood: Point): Direction | null => {
         const head = currentSnake[0];
+        const tail = currentSnake[currentSnake.length - 1];
         const bodySet = new Set(currentSnake.slice(0, -1).map(p => `${p.x},${p.y}`));
 
         const directions: { dir: Direction, dx: number, dy: number }[] = [
@@ -87,66 +88,112 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
             { dir: 'RIGHT', dx: 1, dy: 0 },
         ];
 
-        // 1. BFS to find path to food
-        const queue: { pos: Point, firstDir: Direction | null }[] = [{ pos: head, firstDir: null }];
-        const visited = new Set<string>();
-        visited.add(`${head.x},${head.y}`);
-
-        let bestDirToFood: Direction | null = null;
-
-        while (queue.length > 0) {
-            const { pos, firstDir } = queue.shift()!;
-
-            if (pos.x === currentFood.x && pos.y === currentFood.y) {
-                bestDirToFood = firstDir;
-                break;
+        const isSafe = (p: Point, obstacles: Set<string>) => {
+            if (wallMode === 'solid') {
+                if (p.x < 0 || p.x >= GRID_SIZE || p.y < 0 || p.y >= GRID_SIZE) return false;
             }
+            return !obstacles.has(`${p.x},${p.y}`);
+        };
 
-            for (const { dir, dx, dy } of directions) {
-                let nx = pos.x + dx;
-                let ny = pos.y + dy;
+        const wrap = (p: Point): Point => {
+            if (wallMode === 'portal') {
+                return { x: (p.x + GRID_SIZE) % GRID_SIZE, y: (p.y + GRID_SIZE) % GRID_SIZE };
+            }
+            return p;
+        };
 
-                if (wallMode === 'portal') {
-                    nx = (nx + GRID_SIZE) % GRID_SIZE;
-                    ny = (ny + GRID_SIZE) % GRID_SIZE;
-                } else if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
+        const findPath = (start: Point, end: Point, obstacles: Set<string>, shortest = true): Direction[] | null => {
+            const queue: { pos: Point, path: Direction[] }[] = [{ pos: start, path: [] }];
+            const visited = new Set<string>();
+            visited.add(`${start.x},${start.y}`);
+
+            let bestPath: Direction[] | null = null;
+
+            while (queue.length > 0) {
+                const { pos, path } = shortest ? queue.shift()! : queue.pop()!; // queue.pop for DFS-like (simple variation)
+                if (pos.x === end.x && pos.y === end.y) {
+                    if (shortest) return path;
+                    if (!bestPath || path.length > bestPath.length) bestPath = path;
+                    if (path.length > 100) break; // Optimization
                     continue;
                 }
 
-                const key = `${nx},${ny}`;
-                if (!visited.has(key) && !bodySet.has(key)) {
-                    visited.add(key);
-                    queue.push({ pos: { x: nx, y: ny }, firstDir: firstDir || dir });
+                // For BFS (shortest), order doesn't matter much. For longest approximation, we can shuffle or sort.
+                const sortedDirs = [...directions];
+                if (!shortest) {
+                    sortedDirs.sort((a, b) => {
+                        const nextA = wrap({ x: pos.x + a.dx, y: pos.y + a.dy });
+                        const nextB = wrap({ x: pos.x + b.dx, y: pos.y + b.dy });
+                        return (Math.abs(nextB.x - end.x) + Math.abs(nextB.y - end.y)) - (Math.abs(nextA.x - end.x) + Math.abs(nextA.y - end.y));
+                    });
                 }
+
+                for (const d of sortedDirs) {
+                    const next = wrap({ x: pos.x + d.dx, y: pos.y + d.dy });
+                    if (isSafe(next, obstacles) && !visited.has(`${next.x},${next.y}`)) {
+                        visited.add(`${next.x},${next.y}`);
+                        queue.push({ pos: next, path: [...path, d.dir] });
+                    }
+                }
+            }
+            return bestPath || (shortest ? null : null);
+        };
+
+        // BFS helper for reachability
+        const canReach = (start: Point, end: Point, obstacles: Set<string>): boolean => {
+            return findPath(start, end, obstacles, true) !== null;
+        };
+
+        // 1. Try to find path to food
+        const pathToFood = findPath(head, currentFood, bodySet, true);
+        if (pathToFood) {
+            // Simulate the move locally
+            const virtualSnake = [...currentSnake];
+            // Only move one step for simulation speed, or full path for safety? 
+            // Full path check is safer for "Shortest" logic.
+            for (const d of pathToFood) {
+                const dirObj = directions.find(o => o.dir === d)!;
+                const newH = wrap({ x: virtualSnake[0].x + dirObj.dx, y: virtualSnake[0].y + dirObj.dy });
+                virtualSnake.unshift(newH);
+                virtualSnake.pop();
+            }
+            const vHead = virtualSnake[0];
+            const vTail = virtualSnake[virtualSnake.length - 1];
+            const vBody = new Set(virtualSnake.slice(0, -1).map(p => `${p.x},${p.y}`));
+
+            // If after eating/moving we can still reach our tail, it's a safe path
+            if (canReach(vHead, vTail, vBody)) {
+                return pathToFood[0];
             }
         }
 
-        if (bestDirToFood) return bestDirToFood;
+        // 2. Fallback: Take the longest possible path to the tail
+        // This keeps the snake "wandering" and filling space safely
+        const safeDirs = directions.filter(d => isSafe(wrap({ x: head.x + d.dx, y: head.y + d.dy }), bodySet));
+        if (safeDirs.length > 0) {
+            // Sort by distance to food (prefer moving away from food if no safe path exists)
+            // or better: distance to tail (maximize board coverage)
+            safeDirs.sort((a, b) => {
+                const nextA = wrap({ x: head.x + a.dx, y: head.y + a.dy });
+                const nextB = wrap({ x: head.x + b.dx, y: head.y + b.dy });
 
-        // 2. Fallback: If no path to food, find a safe move that is furthest from food (to avoid boxing in)
-        const safeDirs = directions.filter(d => {
-            let nx = head.x + d.dx;
-            let ny = head.y + d.dy;
-            if (wallMode === 'portal') {
-                nx = (nx + GRID_SIZE) % GRID_SIZE;
-                ny = (ny + GRID_SIZE) % GRID_SIZE;
-            } else if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
-                return false;
-            }
-            return !bodySet.has(`${nx},${ny}`);
-        });
+                // We want a direction that:
+                // 1. Still allows reaching the tail
+                // 2. Is as far from the tail as possible (to fill space)
+                const canReachA = canReach(nextA, tail, bodySet);
+                const canReachB = canReach(nextB, tail, bodySet);
 
-        if (safeDirs.length === 0) return null;
+                if (canReachA && !canReachB) return -1;
+                if (!canReachA && canReachB) return 1;
 
-        // Sort safe dirs by distance to tail (often a good survival strategy)
-        const tail = currentSnake[currentSnake.length - 1];
-        safeDirs.sort((a, b) => {
-            const distA = Math.abs(head.x + a.dx - tail.x) + Math.abs(head.y + a.dy - tail.y);
-            const distB = Math.abs(head.x + b.dx - tail.x) + Math.abs(head.y + b.dy - tail.y);
-            return distB - distA; // Prefer moving towards tail/open space
-        });
+                const distA = Math.abs(nextA.x - tail.x) + Math.abs(nextA.y - tail.y);
+                const distB = Math.abs(nextB.x - tail.x) + Math.abs(nextB.y - tail.y);
+                return distB - distA;
+            });
+            return safeDirs[0].dir;
+        }
 
-        return safeDirs[0].dir;
+        return null;
     }, [wallMode]);
 
     const tick = useCallback(() => {
