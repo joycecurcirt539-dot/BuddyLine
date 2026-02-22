@@ -130,7 +130,7 @@ export const BuddySolve: React.FC = () => {
     const timerProgress = timeLeft / 30;
 
     return (
-        <div className="flex flex-col items-center gap-8 lg:gap-12 w-full max-w-md mx-auto p-4 select-none accelerate">
+        <div className="flex flex-col items-center gap-8 lg:gap-10 w-full max-w-sm lg:max-w-md mx-auto p-4 select-none accelerate">
             {/* Background depth items */}
             <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full animate-pulse" />
@@ -206,8 +206,7 @@ export const BuddySolve: React.FC = () => {
 
             {/* Play Area - Liquid Glass Container */}
             <div
-                style={{ touchAction: 'none' }}
-                className={`relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-transparent rounded-[3rem] lg:rounded-[4rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-3xl'} p-8 flex flex-col items-center justify-center overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] accelerate`}>
+                className={`touch-none relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-transparent rounded-[3rem] lg:rounded-[4rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-3xl'} p-8 flex flex-col items-center justify-center overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] accelerate`}>
 
                 <AnimatePresence mode="wait">
                     {!isActive && !isGameOver ? (
@@ -218,19 +217,16 @@ export const BuddySolve: React.FC = () => {
                             exit={{ opacity: 0, scale: 1.1 }}
                             className="flex flex-col items-center text-center px-4 relative z-10"
                         >
-                            <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-8 shadow-2xl shadow-primary/40 relative">
-                                <Brain className="w-12 h-12 text-white" />
-                                <div className="absolute inset-0 rounded-[2.5rem] border border-white/30" />
+                            <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-6 shadow-2xl shadow-primary/40 relative">
+                                <Brain className="w-10 h-10 text-white" />
+                                <div className="absolute inset-0 rounded-[2rem] border border-white/30" />
                             </div>
-                            <h3 className="text-4xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-3 uppercase italic tracking-tighter">BuddySolve</h3>
-                            <p className="text-sm font-bold text-on-surface-variant/70 mb-10 max-w-[240px] leading-relaxed">
-                                {t('game.solve.instruction')}
-                            </p>
+                            <h3 className="text-3xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-6 uppercase italic tracking-tighter">BuddySolve</h3>
                             <motion.button
                                 whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(99,102,241,0.5)' }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={startGame}
-                                className="px-14 py-5 bg-gradient-to-r from-primary to-tertiary text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl relative overflow-hidden group"
+                                className="px-10 py-4 bg-gradient-to-r from-primary to-tertiary text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl relative overflow-hidden group"
                             >
                                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                                 {t('game.start')}
@@ -241,16 +237,16 @@ export const BuddySolve: React.FC = () => {
                             key="gameover"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex flex-col items-center text-center p-10 bg-surface-container-highest/60 rounded-[3.5rem] border border-white/15 backdrop-blur-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden max-w-[320px]"
+                            className="flex flex-col items-center justify-center text-center p-6 bg-surface-container-highest/60 rounded-[2.5rem] border border-white/15 backdrop-blur-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden aspect-square max-w-[220px]"
                         >
                             <div className="absolute inset-0 bg-gradient-to-br from-error/20 via-transparent to-transparent pointer-events-none" />
-                            <div className="w-20 h-20 rounded-[2rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/10">
-                                <span className="text-4xl">⏰</span>
+                            <div className="w-12 h-12 rounded-[1rem] bg-error/20 flex items-center justify-center mb-4 shadow-xl shadow-error/10">
+                                <img src="/logo.png" className="w-[60%] h-[60%] object-contain brightness-200" alt="logo" />
                             </div>
-                            <h3 className="text-3xl font-black text-error mb-2 uppercase italic tracking-tighter">{t('game.solve.time_up')}</h3>
-                            <div className="flex flex-col mb-10">
-                                <span className="text-[10px] text-on-surface-variant/50 font-black uppercase tracking-[0.25em] mb-1">{t('game.solve.final_score')}</span>
-                                <span className="text-7xl font-black bg-gradient-to-b from-white to-on-surface/30 bg-clip-text text-transparent tracking-tighter tabular-nums leading-none">{score}</span>
+                            <h3 className="text-xl font-black text-error mb-2 uppercase italic tracking-tighter">{t('game.solve.time_up')}</h3>
+                            <div className="flex flex-col mb-6">
+                                <span className="text-[9px] text-on-surface-variant/50 font-black uppercase tracking-[0.25em] mb-1">{t('game.solve.final_score')}</span>
+                                <span className="text-4xl font-black bg-gradient-to-b from-white to-on-surface/30 bg-clip-text text-transparent tracking-tighter tabular-nums leading-none">{score}</span>
                             </div>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
@@ -269,7 +265,6 @@ export const BuddySolve: React.FC = () => {
                             className="w-full h-full flex flex-col items-center justify-between"
                         >
                             <div className={`flex-1 flex flex-col items-center justify-center transition-all duration-300 ${feedback === 'wrong' ? 'scale-90 opacity-50' : feedback === 'correct' ? 'scale-110' : ''}`}>
-                                <div className="text-[10px] font-black text-primary/40 uppercase tracking-[0.5em] mb-4">{t('game.solve.calculate')}</div>
                                 <div className={`text-6xl lg:text-7xl font-black bg-gradient-to-b from-white via-on-surface to-on-surface/40 bg-clip-text text-transparent italic tracking-tighter transition-colors duration-300 px-4 text-center ${feedback === 'wrong' ? 'text-error animate-shake drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]' : 'drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]'}`}>
                                     {equation?.text}
                                 </div>

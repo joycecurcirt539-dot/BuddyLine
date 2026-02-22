@@ -70,18 +70,15 @@ export const BuddyTap: React.FC = () => {
     const comboProgress = Math.min(combo / 50, 1);
 
     return (
-        <div
-            style={{ touchAction: 'none' }}
-            className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28 accelerate bg-transparent"
-        >
+        <div className="flex flex-col items-center gap-8 lg:gap-10 w-full max-w-md mx-auto p-4 select-none accelerate">
             {/* Background depth items */}
-            <div className="absolute inset-0 opacity-15 pointer-events-none">
+            <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full animate-pulse" />
                 <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-tertiary/20 blur-[80px] rounded-full" />
             </div>
 
-            {/* Floating Stats - Premium Glass */}
-            <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10">
+            {/* Stats Bar - Premium Glass */}
+            <div className="flex justify-between items-center w-full px-2 relative z-10">
                 <motion.div
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -116,15 +113,15 @@ export const BuddyTap: React.FC = () => {
                 </motion.div>
             </div>
 
-            {/* Main Game Area */}
-            <div className="relative flex flex-col items-center gap-10">
+            {/* Main Clicker Content */}
+            <div className="relative w-full flex flex-col items-center gap-12 lg:gap-16 py-8">
                 {/* Big Score Display */}
                 <div className="flex flex-col items-center gap-4 relative">
                     <motion.div
                         key={score}
-                        initial={{ scale: 0.9, opacity: 0 }}
+                        initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="text-9xl md:text-[12rem] font-black bg-gradient-to-b from-white via-on-surface to-on-surface/30 bg-clip-text text-transparent tracking-tighter drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] tabular-nums leading-none select-none relative z-10"
+                        className="text-8xl md:text-9xl font-black bg-gradient-to-b from-white via-on-surface to-on-surface/30 bg-clip-text text-transparent tracking-tighter drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] tabular-nums leading-none select-none relative z-10"
                     >
                         {score}
                     </motion.div>
@@ -158,7 +155,7 @@ export const BuddyTap: React.FC = () => {
                     className="relative group cursor-pointer"
                     onMouseDown={handleTap}
                     onTouchStart={handleTap}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.92 }}
                 >
                     {/* Multi-layered Glows */}
@@ -173,7 +170,7 @@ export const BuddyTap: React.FC = () => {
                         className="absolute inset-[-40px] bg-gradient-to-tr from-primary to-tertiary blur-[60px] rounded-full pointer-events-none"
                     />
 
-                    <div className="w-56 h-56 md:w-64 md:h-64 rounded-full p-[2px] bg-gradient-to-br from-white/30 via-primary to-tertiary/30 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] relative overflow-hidden group">
+                    <div className="w-48 h-48 md:w-56 md:h-56 rounded-full p-[2px] bg-gradient-to-br from-white/30 via-primary to-tertiary/30 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] relative overflow-hidden group">
                         {/* Liquid Background Effect */}
                         <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high/90 to-surface-container-low/95 backdrop-blur-3xl rounded-full" />
 
@@ -182,7 +179,7 @@ export const BuddyTap: React.FC = () => {
                         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3/4 h-1/4 bg-gradient-to-b from-white/20 to-transparent rounded-full blur-md opacity-50" />
 
                         {/* Center Icon/Logo */}
-                        <div className="absolute inset-0 flex items-center justify-center p-12">
+                        <div className="absolute inset-0 flex items-center justify-center p-14 md:p-16">
                             <motion.div
                                 animate={combo > 10 ? {
                                     filter: ['brightness(1)', 'brightness(1.5)', 'brightness(1)'],
@@ -214,12 +211,9 @@ export const BuddyTap: React.FC = () => {
                     <motion.div
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute bottom-[-70px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 hover:opacity-100 transition-opacity"
+                        className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 hover:opacity-100 transition-opacity"
                     >
                         <MousePointer2 className="w-5 h-5 text-on-surface-variant" />
-                        <span className="text-[10px] font-black tracking-[0.3em] uppercase whitespace-nowrap text-on-surface-variant">
-                            {t('game.tap_to_connect')}
-                        </span>
                     </motion.div>
                 </motion.div>
             </div>

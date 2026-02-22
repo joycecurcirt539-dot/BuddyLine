@@ -108,7 +108,7 @@ export const BuddyMatch: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-6 lg:gap-10 w-full max-w-sm mx-auto p-4 select-none accelerate">
+        <div className="flex flex-col items-center gap-8 lg:gap-10 w-full max-w-sm lg:max-w-md mx-auto p-4 select-none accelerate">
             {/* Stats Bar - Premium Glass */}
             <div className="flex justify-between items-center w-full px-2">
                 <motion.div
@@ -160,10 +160,9 @@ export const BuddyMatch: React.FC = () => {
                 </motion.div>
             </div>
 
-            {/* Grid Area — Liquid Glass style */}
+            {/* Game Grid — Premium Glass */}
             <div
-                style={{ touchAction: 'none' }}
-                className={`relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-6 flex flex-col items-center justify-center overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] accelerate`}
+                className={`touch-none relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-6 flex flex-col items-center justify-center overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] accelerate`}
             >
                 {/* Background depth items */}
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -192,8 +191,7 @@ export const BuddyMatch: React.FC = () => {
                                 >
                                     {/* Front (Closed) - Premium Glass */}
                                     <div
-                                        className="absolute inset-0 bg-gradient-to-br from-white/15 to-white/5 border border-white/10 rounded-2xl lg:rounded-3xl flex items-center justify-center shadow-xl backdrop-blur-sm"
-                                        style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                                        className="backface-hidden absolute inset-0 bg-gradient-to-br from-white/15 to-white/5 border border-white/10 rounded-2xl lg:rounded-3xl flex items-center justify-center shadow-xl backdrop-blur-sm"
                                     >
                                         <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-white/5 shadow-inner">
                                             <img src="/logo.png" className="w-6 h-6 object-contain opacity-40 grayscale brightness-200" alt="" />
@@ -202,15 +200,10 @@ export const BuddyMatch: React.FC = () => {
 
                                     {/* Back (Open) - High Contrast Glass */}
                                     <div
-                                        className={`absolute inset-0 rounded-2xl lg:rounded-3xl flex items-center justify-center border border-white/20 shadow-2xl transition-all duration-300
+                                        className={`backface-hidden absolute inset-0 rounded-2xl lg:rounded-3xl flex items-center justify-center border border-white/20 shadow-2xl transition-all duration-300 transform rotate-y-180
                                             ${tile.isMatched
                                                 ? `bg-gradient-to-br ${config.gradient} shadow-[0_0_30px_rgba(255,255,255,0.2)]`
                                                 : 'bg-surface-container-highest/90 shadow-inner'}`}
-                                        style={{
-                                            backfaceVisibility: 'hidden',
-                                            WebkitBackfaceVisibility: 'hidden',
-                                            transform: 'rotateY(180deg)'
-                                        }}
                                     >
                                         <Icon className={`w-8 h-8 lg:w-10 lg:h-10 ${tile.isMatched ? 'text-white' : 'text-primary'} drop-shadow-md transition-all`} />
                                         {tile.isMatched && (

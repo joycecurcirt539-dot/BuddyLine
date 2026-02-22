@@ -56,6 +56,7 @@ const GameCard = React.memo(({ game, idx, reduceMotion, reduceEffects, t, onClic
         {/* Glow */}
         <div
             className={`absolute top-0 right-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-20 transition-opacity`}
+            // @ts-expect-error: Dynamic styles for performance-based effects
             style={{
                 width: reduceEffects ? '4.5rem' : '6rem',
                 height: reduceEffects ? '4.5rem' : '6rem',
@@ -74,9 +75,6 @@ const GameCard = React.memo(({ game, idx, reduceMotion, reduceEffects, t, onClic
             <h3 className="text-sm lg:text-base font-black text-on-surface uppercase italic tracking-tight group-hover:text-primary transition-colors truncate">
                 {t(game.titleKey)}
             </h3>
-            <p className="text-[10px] lg:text-xs font-medium text-on-surface-variant/50 leading-snug mt-0.5 line-clamp-2">
-                {t(game.descKey)}
-            </p>
         </div>
 
         {/* Arrow */}
@@ -150,10 +148,6 @@ export const MiniGame: React.FC<GameHubProps> = React.memo(({ isOpen, onClose })
                             <h2 className="text-lg lg:text-2xl font-black text-primary italic uppercase tracking-tighter leading-none truncate">
                                 {activeGame ? t(activeGameConfig?.titleKey || '') : 'BuddyLabs'}
                             </h2>
-                            <p className="text-on-surface-variant/40 text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5 mt-0.5">
-                                <Swords className="w-3 h-3 flex-shrink-0" />
-                                <span className="truncate">{t('game.terminal_active')}</span>
-                            </p>
                         </div>
                     </div>
 
@@ -223,19 +217,16 @@ export const MiniGame: React.FC<GameHubProps> = React.memo(({ isOpen, onClose })
                                         </div>
                                     )}
 
-                                    {/* Game description card */}
-                                    <div className="p-3 lg:p-5 rounded-xl lg:rounded-2xl bg-surface-container-high/20 backdrop-blur-xl border border-outline/10">
-                                        <div className="flex items-center gap-2 lg:gap-3 mb-1 lg:mb-3">
+                                    {/* Game title card - Hidden on mobile to save space */}
+                                    <div className="hidden lg:block p-3 lg:p-5 rounded-xl lg:rounded-2xl bg-surface-container-high/20 backdrop-blur-xl border border-outline/10">
+                                        <div className="flex items-center gap-2 lg:gap-3">
                                             <div className={`w-7 h-7 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl bg-gradient-to-br ${activeGameConfig?.color} flex items-center justify-center shadow-lg`}>
                                                 {React.createElement(activeGameConfig?.icon || Gamepad2, { className: "w-3.5 h-3.5 lg:w-5 lg:h-5 text-white" })}
                                             </div>
-                                            <h4 className="text-xs lg:text-base font-black text-on-surface uppercase italic">
+                                            <h4 className="text-xs lg:text-base font-black text-on-surface uppercase italic truncate">
                                                 {t(activeGameConfig?.titleKey || '')}
                                             </h4>
                                         </div>
-                                        <p className="text-[10px] lg:text-sm font-medium text-on-surface-variant/60 leading-snug">
-                                            {t(activeGameConfig?.descKey || '')}
-                                        </p>
                                     </div>
                                 </div>
 

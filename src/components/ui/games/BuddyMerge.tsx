@@ -254,8 +254,7 @@ export const BuddyMerge: React.FC = () => {
 
             {/* Game Grid — Liquid Style */}
             <div
-                style={{ touchAction: 'none' }}
-                className="relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 p-3 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden"
+                className="touch-none relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 p-3 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden"
             >
                 {/* Background depth items */}
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -288,6 +287,7 @@ export const BuddyMerge: React.FC = () => {
                                     scale: { duration: 0.15 },
                                     opacity: { duration: 0.1 }
                                 }}
+                                // @ts-expect-error: Inline styles needed for dynamic grid positioning
                                 style={{
                                     gridRowStart: tile.r + 1,
                                     gridColumnStart: tile.c + 1,
@@ -309,17 +309,17 @@ export const BuddyMerge: React.FC = () => {
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-xl p-8 rounded-[2.5rem]"
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-xl p-6 rounded-[2.5rem]"
                         >
-                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center justify-center aspect-square text-center w-full max-w-[220px] relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-br from-error/10 to-transparent" />
-                                <div className="w-16 h-16 rounded-[1.5rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
-                                    <span className="text-3xl">🧩</span>
+                                <div className="w-12 h-12 rounded-[1rem] bg-error/20 flex items-center justify-center mb-4 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
+                                    <img src="/logo.png" className="w-[60%] h-[60%] object-contain brightness-200" alt="logo" />
                                 </div>
-                                <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight relative z-10">{t('game.merge.game_over')}</h3>
-                                <div className="flex flex-col items-center gap-1 mb-8 relative z-10">
-                                    <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.score')}</span>
-                                    <span className="text-4xl font-black text-on-surface">{score}</span>
+                                <h3 className="text-xl font-black text-error mb-2 uppercase italic tracking-tight relative z-10">{t('game.merge.game_over')}</h3>
+                                <div className="flex flex-col items-center gap-1 mb-6 relative z-10">
+                                    <span className="text-[9px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.score')}</span>
+                                    <span className="text-3xl font-black text-on-surface">{score}</span>
                                 </div>
                                 <motion.button
                                     whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.3)' }}

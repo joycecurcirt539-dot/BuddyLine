@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, RefreshCw, MessageSquare, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trophy, RefreshCw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { playSound } from '../../../utils/sounds';
 
@@ -9,8 +9,8 @@ type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 const GRID_SIZE = 14;
 const CELL_SIZE_PCT = 100 / GRID_SIZE; // percentage per cell
-const INITIAL_SPEED = 150;
-const MIN_SPEED = 80;
+const INITIAL_SPEED = 220;
+const MIN_SPEED = 140;
 
 import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
@@ -215,10 +215,9 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                 </motion.div>
             </div>
 
-            {/* Canvas — Liquid Style */}
+            {/* Game Grid — Liquid Glass style */}
             <div
-                style={{ touchAction: 'none' }}
-                className={`relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 border border-white/10 rounded-[2rem] lg:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}
+                className={`touch-none relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 border border-white/10 rounded-[2rem] lg:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}
             >
                 {/* Dynamic Background depth items */}
                 <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -230,7 +229,9 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                 <div className="absolute inset-0 pointer-events-none opacity-20">
                     {Array.from({ length: GRID_SIZE - 1 }).map((_, i) => (
                         <React.Fragment key={i}>
+                            {/* eslint-disable-next-line react/forbid-dom-props */}
                             <div className="absolute bg-on-surface/[0.15]" style={{ left: 0, right: 0, top: `${(i + 1) * CELL_SIZE_PCT}%`, height: 1 }} />
+                            {/* eslint-disable-next-line react/forbid-dom-props */}
                             <div className="absolute bg-on-surface/[0.15]" style={{ top: 0, bottom: 0, left: `${(i + 1) * CELL_SIZE_PCT}%`, width: 1 }} />
                         </React.Fragment>
                     ))}
@@ -256,8 +257,8 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                         >
                             <div
                                 className={`w-full h-full rounded-md shadow-lg transition-all duration-300 ${isHead
-                                        ? 'bg-gradient-to-br from-primary via-primary to-tertiary shadow-primary/60 scale-110 z-20'
-                                        : 'bg-primary/80 shadow-primary/10'
+                                    ? 'bg-gradient-to-br from-primary via-primary to-tertiary shadow-primary/60 scale-110 z-20'
+                                    : 'bg-primary/80 shadow-primary/10'
                                     }`}
                                 style={{
                                     opacity,
@@ -289,8 +290,8 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                         padding: '4px',
                     }}
                 >
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-tertiary to-secondary shadow-[0_0_24px_8px_rgba(167,139,250,0.5)] flex items-center justify-center">
-                        <MessageSquare className="w-[60%] h-[60%] text-white drop-shadow-md" strokeWidth={3} />
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-tertiary to-secondary shadow-[0_0_24px_8px_rgba(167,139,250,0.5)] flex items-center justify-center p-1">
+                        <img src="/logo.png" className="w-full h-full object-contain drop-shadow-md brightness-200" alt="" />
                     </div>
                 </motion.div>
 
@@ -300,17 +301,17 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-xl p-8"
+                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-xl p-6"
                         >
-                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex flex-col items-center justify-center text-center w-full max-w-[220px] aspect-square relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-br from-error/10 to-transparent" />
-                                <div className="w-16 h-16 rounded-[1.5rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
-                                    <RefreshCw className="w-8 h-8 text-error animate-spin-slow" />
+                                <div className="w-12 h-12 rounded-2xl bg-error/20 flex items-center justify-center mb-4 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
+                                    <RefreshCw className="w-6 h-6 text-error animate-spin-slow" />
                                 </div>
-                                <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight relative z-10">{t('game.system_error')}</h3>
-                                <div className="flex flex-col items-center gap-1 mb-8 relative z-10">
-                                    <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.score')}</span>
-                                    <span className="text-4xl font-black text-on-surface">{score}</span>
+                                <h3 className="text-xl font-black text-error mb-1 uppercase tracking-tight relative z-10">{t('game.system_error')}</h3>
+                                <div className="flex flex-col items-center gap-1 mb-6 relative z-10">
+                                    <span className="text-[9px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.score')}</span>
+                                    <span className="text-3xl font-black text-on-surface">{score}</span>
                                 </div>
                                 <motion.button
                                     whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.3)' }}

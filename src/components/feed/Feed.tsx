@@ -222,22 +222,18 @@ export const Feed = () => {
                 )}
             >
                 <div
-                    className="absolute top-0 left-0 rounded-full -ml-24 -mt-24 transition-all duration-1000 group-focus-within/composer:bg-primary/30 group-focus-within/composer:scale-[1.5]"
-                    style={{
-                        width: reduceEffects ? '12rem' : '20rem',
-                        height: reduceEffects ? '12rem' : '20rem',
-                        backgroundColor: 'rgba(99,102,241, 0.15)',
-                        filter: reduceEffects ? 'blur(56px)' : 'blur(120px)',
-                    }}
+                    className={clsx(
+                        "absolute top-0 left-0 rounded-full -ml-24 -mt-24 transition-all duration-1000 group-focus-within/composer:bg-primary/30 group-focus-within/composer:scale-[1.5]",
+                        "bg-primary/10",
+                        reduceEffects ? "w-48 h-48 blur-[56px]" : "w-80 h-80 blur-[120px]"
+                    )}
                 />
                 <div
-                    className="absolute bottom-0 right-0 rounded-full -mr-24 -mb-24 transition-all duration-1000 group-focus-within/composer:bg-tertiary/30 group-focus-within/composer:scale-[1.5]"
-                    style={{
-                        width: reduceEffects ? '12rem' : '20rem',
-                        height: reduceEffects ? '12rem' : '20rem',
-                        backgroundColor: 'rgba(236,72,153, 0.1)',
-                        filter: reduceEffects ? 'blur(56px)' : 'blur(120px)',
-                    }}
+                    className={clsx(
+                        "absolute bottom-0 right-0 rounded-full -mr-24 -mb-24 transition-all duration-1000 group-focus-within/composer:bg-tertiary/30 group-focus-within/composer:scale-[1.5]",
+                        "bg-pink-500/10",
+                        reduceEffects ? "w-48 h-48 blur-[56px]" : "w-80 h-80 blur-[120px]"
+                    )}
                 />
 
                 <form onSubmit={handleCreatePost} className="relative z-10">

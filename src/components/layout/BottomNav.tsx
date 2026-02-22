@@ -28,7 +28,7 @@ export const BottomNav = () => {
     if (isChatOpen) return null;
 
     return (
-        <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 lg:hidden" style={{ width: 'calc(100% - 2rem)', maxWidth: '420px' }}>
+        <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-[420px] lg:hidden">
             <motion.div
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}

@@ -110,7 +110,12 @@
             "lose_title": "DATA BREECH",
             "lose_subtitle": "Mines hit",
             "hint_reveal": "Click: Reveal",
-            "hint_flag": "Right Click: Flag"
+            "hint_flag": "Right Click: Flag",
+            "setup": "Game Setup",
+            "grid_size": "Grid Size",
+            "mines": "Mines",
+            "start": "Initiate",
+            "drag_to_explore": "Drag to explore"
         },
         "logic": {
             "title": "Buddy Logic",

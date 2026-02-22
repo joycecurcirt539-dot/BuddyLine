@@ -110,7 +110,12 @@
             "lose_title": "БАБАХ!",
             "lose_subtitle": "Попал на мину",
             "hint_reveal": "Клик — открыть",
-            "hint_flag": "ПКМ — флажок"
+            "hint_flag": "ПКМ — флажок",
+            "setup": "Настройка игры",
+            "grid_size": "Размер поля",
+            "mines": "Количество мин",
+            "start": "Начать",
+            "drag_to_explore": "Тяни, чтобы осмотреться"
         },
         "logic": {
             "title": "Buddy Logic",

@@ -109,11 +109,14 @@ const NavIcon: FC<NavIconProps> = ({ item, isActive, isHovered, onMouseEnter, on
                         className="absolute left-16 z-50 whitespace-nowrap pointer-events-none"
                     >
                         <div
-                            className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest text-white select-none"
+                            className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest text-white select-none bg-gradient-to-br from-primary/90 to-primary/60 shadow-lg"
                             style={{
-                                background: `linear-gradient(135deg, ${color}ee, ${color}99)`,
-                                boxShadow: `0 4px 20px ${color}50`,
-                            }}
+                                '--tw-gradient-from': `${color}ee`,
+                                '--tw-gradient-to': `${color}99`,
+                                '--tw-shadow-color': `${color}50`,
+                                '--tw-shadow': '0 4px 20px var(--tw-shadow-color)',
+                                boxShadow: 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)'
+                            } as React.CSSProperties}
                         >
                             {item.label}
                         </div>

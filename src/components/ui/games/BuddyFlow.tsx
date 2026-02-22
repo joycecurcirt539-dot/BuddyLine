@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, RotateCcw, Trophy, Zap, MousePointer2 } from 'lucide-react';
+import { Share2, RotateCcw, Trophy, Zap } from 'lucide-react';
 import { playSound } from '../../../utils/sounds';
 import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
@@ -268,7 +268,6 @@ export const BuddyFlow: React.FC = () => {
             {/* Grid Area — Liquid Glass Container */}
             <div
                 ref={gridRef}
-                style={{ touchAction: 'none' }}
                 onMouseDown={handleStart}
                 onMouseMove={handleMove}
                 onMouseUp={handleEnd}
@@ -276,7 +275,7 @@ export const BuddyFlow: React.FC = () => {
                 onTouchStart={handleStart}
                 onTouchMove={handleMove}
                 onTouchEnd={handleEnd}
-                className={`relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-transparent rounded-[3rem] lg:rounded-[4rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-xl'} grid grid-cols-7 grid-rows-7 gap-1 p-3 cursor-crosshair touch-none overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] accelerate`}
+                className={`touch-none relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-transparent rounded-[3rem] lg:rounded-[4rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-xl'} grid grid-cols-7 grid-rows-7 gap-1 p-3 cursor-crosshair overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] accelerate`}
             >
                 {/* Background depth items */}
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -294,6 +293,7 @@ export const BuddyFlow: React.FC = () => {
                         <div
                             key={i}
                             className="rounded-xl relative flex items-center justify-center overflow-hidden transition-colors duration-500"
+                            // @ts-expect-error: Inline styles needed for dynamic background
                             style={{
                                 backgroundColor: pathColor ? `${pathColor}20` : 'rgba(255,255,255,0.02)',
                             }}
@@ -336,26 +336,25 @@ export const BuddyFlow: React.FC = () => {
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-2xl rounded-[3rem] p-8"
+                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-2xl rounded-[3rem] p-6"
                         >
                             <motion.div
                                 initial={{ scale: 0.9, y: 20 }}
                                 animate={{ scale: 1, y: 0 }}
-                                className="bg-surface-container-high/90 border border-white/15 rounded-[3.5rem] p-10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col items-center text-center relative overflow-hidden max-w-[280px]"
+                                className="bg-surface-container-high/90 border border-white/15 rounded-[2.5rem] p-6 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center aspect-square text-center relative overflow-hidden w-full max-w-[220px]"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-tertiary/20 pointer-events-none" />
 
-                                <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-8 shadow-2xl shadow-primary/40">
-                                    <Share2 className="w-10 h-10 text-white" />
+                                <div className="w-12 h-12 rounded-[1.5rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-4 shadow-2xl shadow-primary/40">
+                                    <Share2 className="w-6 h-6 text-white" />
                                 </div>
-                                <h3 className="text-3xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-2 uppercase italic tracking-tighter">{t('game.flow.win_title')}</h3>
-                                <p className="text-sm font-bold text-on-surface-variant/70 mb-10 leading-relaxed">{t('game.flow.win_subtitle')}</p>
+                                <h3 className="text-xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-6 uppercase italic tracking-tighter">{t('game.flow.win_title')}</h3>
 
                                 <motion.button
                                     whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.4)' }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={initLevel}
-                                    className="w-full py-5 bg-gradient-to-r from-primary to-tertiary text-white rounded-[1.5rem] font-black uppercase tracking-[0.15em] text-xs shadow-xl shadow-primary/30 relative z-10"
+                                    className="w-full py-4 bg-gradient-to-r from-primary to-tertiary text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-xl shadow-primary/30 relative z-10"
                                 >
                                     {t('game.flow.next')}
                                 </motion.button>
@@ -371,15 +370,11 @@ export const BuddyFlow: React.FC = () => {
                     whileHover={{ scale: 1.05, backgroundColor: 'rgba(99,102,241,0.1)' }}
                     whileTap={{ scale: 0.95 }}
                     onClick={initLevel}
-                    className="flex items-center gap-3 px-10 py-4 bg-surface-container-high/40 hover:text-primary text-on-surface-variant/80 border border-white/10 rounded-full font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-xl backdrop-blur-3xl"
+                    className="flex items-center gap-3 px-10 py-4 bg-surface-container-high/40 hover:text-primary text-on-surface-variant/80 border border-white/10 rounded-full font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-xl backdrop-blur-3xl px-8"
                 >
                     <RotateCcw className="w-4 h-4" />
                     {t('game.flow.reset')}
                 </motion.button>
-
-                <div className="flex items-center gap-3 text-[10px] font-black text-on-surface-variant/30 uppercase tracking-[0.4em] animate-pulse">
-                    <MousePointer2 className="w-4 h-4" /> {t('game.flow.hint')}
-                </div>
             </div>
         </div>
     );
