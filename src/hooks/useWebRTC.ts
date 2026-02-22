@@ -96,38 +96,77 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
         }
     }, []);
 
-    const handleOffer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
-        if (!pc.current) createPeerConnection();
-        await pc.current!.setRemoteDescription(new RTCSessionDescription(sdp));
 
-        const answer = await pc.current!.createAnswer();
-        await pc.current!.setLocalDescription(answer);
-
-        if (callId && user && receiverId) {
-            signalingService.send('ANSWER', {
-                call_id: callId,
-                sender_id: user.id,
-                receiver_id: receiverId,
-                sdp: answer
-            });
-        }
-    }, [callId, user, receiverId, createPeerConnection]);
-
-    const handleAnswer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
-        if (pc.current) {
-            await pc.current.setRemoteDescription(new RTCSessionDescription(sdp));
-        }
-    }, []);
+    const iceCandidateQueue = useRef<RTCIceCandidateInit[]>([]);
 
     const handleIceCandidate = useCallback(async (candidate: RTCIceCandidateInit) => {
-        if (pc.current) {
-            await pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+        if (pc.current && pc.current.remoteDescription && pc.current.remoteDescription.type) {
+            try {
+                await pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (e) {
+                console.error('Error adding ICE candidate:', e);
+            }
+        } else {
+            iceCandidateQueue.current.push(candidate);
         }
     }, []);
+
+    const processIceCandidateQueue = useCallback(async () => {
+        if (!pc.current || !pc.current.remoteDescription) return;
+        while (iceCandidateQueue.current.length > 0) {
+            const candidate = iceCandidateQueue.current.shift();
+            if (candidate) {
+                try {
+                    await pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+                } catch (e) {
+                    console.error('Error adding queued ICE candidate:', e);
+                }
+            }
+        }
+    }, []);
+
+    const handleOffer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
+        if (!pc.current) createPeerConnection();
+
+        // Avoid setting remote description if already in have-remote-offer (duplicate signal)
+        if (pc.current!.signalingState === 'have-remote-offer') return;
+
+        try {
+            await pc.current!.setRemoteDescription(new RTCSessionDescription(sdp));
+            await processIceCandidateQueue();
+
+            const answer = await pc.current!.createAnswer();
+            await pc.current!.setLocalDescription(answer);
+
+            if (callId && user && receiverId) {
+                signalingService.send('ANSWER', {
+                    call_id: callId,
+                    sender_id: user.id,
+                    receiver_id: receiverId,
+                    sdp: answer
+                });
+            }
+        } catch (err) {
+            console.error('Error handling offer:', err);
+        }
+    }, [callId, user, receiverId, createPeerConnection, processIceCandidateQueue]);
+
+    const handleAnswer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
+        if (pc.current && pc.current.signalingState === 'have-local-offer') {
+            try {
+                await pc.current.setRemoteDescription(new RTCSessionDescription(sdp));
+                await processIceCandidateQueue();
+            } catch (err) {
+                console.error('Error handling answer:', err);
+            }
+        }
+    }, [processIceCandidateQueue]);
 
     useEffect(() => {
         const listener = (event: SignalingEvent, payload: SignalingPayload) => {
             if (payload.call_id !== callId) return;
+
+            console.log(`WebRTC Hook received ${event} signal`);
 
             switch (event) {
                 case 'OFFER':
