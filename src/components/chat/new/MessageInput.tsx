@@ -102,7 +102,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     };
 
     return (
-        <div className="p-4 pt-2">
+        <div className="px-2 pb-2 md:p-4 pt-2">
             <div className="max-w-4xl mx-auto relative">
 
                 {/* Interaction Banner (Reply/Edit) */}

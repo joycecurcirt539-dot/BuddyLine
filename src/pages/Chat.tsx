@@ -196,7 +196,7 @@ export const Chat = () => {
     if (view === 'chat' && activeChat) {
         const other = activeChat.participants.find(p => p.id !== user?.id) || activeChat.participants[0];
         return (
-            <div className="w-full flex-1 flex gap-6 min-h-0 pb-24 lg:pb-10">
+            <div className="w-full h-full flex gap-6 min-h-0">
                 <motion.div
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
