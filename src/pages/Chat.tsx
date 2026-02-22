@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ForwardChatModal } from '../components/chat/ForwardChatModal';
 import { useChat } from '../hooks/useChat';
 import type { Chat as ChatType, Message } from '../hooks/useChat';
@@ -256,104 +257,110 @@ export const Chat = () => {
             </div>
 
             {/* New Chat Modal */}
-            <AnimatePresence>
-                {showNewChat && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
-                    >
+            {createPortal(
+                <AnimatePresence>
+                    {showNewChat && (
                         <motion.div
-                            initial={{ scale: 0.9, y: 30, opacity: 0 }}
-                            animate={{ scale: 1, y: 0, opacity: 1 }}
-                            exit={{ scale: 0.9, y: 30, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                            style={{ willChange: "transform, opacity" }}
-                            className="liquid-glass w-full max-w-md rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-white/20 relative"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowNewChat(false)}
+                            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md cursor-pointer"
                         >
-                            <div className="p-10 border-b border-white/10 flex items-center justify-between bg-white/5 dark:bg-black/20">
-                                <div>
-                                    <h3 className="text-3xl font-black uppercase tracking-tight italic leading-none">{t('chat.start_new')}</h3>
-                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2 opacity-60">{t('chat.initiate_uplink')}</p>
+                            <motion.div
+                                initial={{ scale: 0.9, y: 30, opacity: 0 }}
+                                animate={{ scale: 1, y: 0, opacity: 1 }}
+                                exit={{ scale: 0.9, y: 30, opacity: 0 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                style={{ willChange: "transform, opacity" }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="liquid-glass w-full max-w-md rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-white/20 relative cursor-default"
+                            >
+                                <div className="p-10 border-b border-white/10 flex items-center justify-between bg-white/5 dark:bg-black/20">
+                                    <div>
+                                        <h3 className="text-3xl font-black uppercase tracking-tight italic leading-none">{t('chat.start_new')}</h3>
+                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2 opacity-60">{t('chat.initiate_uplink')}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNewChat(false)}
+                                        className="p-3 hover:bg-surface-container rounded-full transition-all group relative z-50"
+                                        title={t('common.cancel')}
+                                    >
+                                        <X size={20} className="group-hover:rotate-90 transition-transform" />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => setShowNewChat(false)}
-                                    className="p-3 hover:bg-surface-container rounded-full transition-all group"
-                                    title={t('common.cancel')}
-                                >
-                                    <X size={20} className="group-hover:rotate-90 transition-transform" />
-                                </button>
-                            </div>
-                            <div className="px-8 pb-4">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/newsearch:opacity-100 transition duration-500" />
-                                <input
-                                    type="text"
-                                    placeholder={t('common.search')}
-                                    value={newChatSearch}
-                                    onChange={(e) => setNewChatSearch(e.target.value)}
-                                    className="w-full pl-11 pr-4 py-3.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-[1.5rem] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white/10 transition-all text-sm font-black placeholder:text-on-surface-variant/30 shadow-inner relative z-10"
-                                />
-                                {searching && <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-primary" />}
-                            </div>
+                                <div className="px-8 pb-4 relative z-10 pt-6">
+                                    <div className="absolute inset-x-8 -top-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/newsearch:opacity-100 transition duration-500" />
+                                    <input
+                                        type="text"
+                                        placeholder={t('common.search')}
+                                        value={newChatSearch}
+                                        onChange={(e) => setNewChatSearch(e.target.value)}
+                                        className="w-full pl-11 pr-4 py-3.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-[1.5rem] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white/10 transition-all text-sm font-black placeholder:text-on-surface-variant/30 shadow-inner relative z-10"
+                                    />
+                                    {searching && <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-primary" />}
+                                </div>
 
-                            <div className="p-6 pt-2 max-h-[400px] overflow-y-auto space-y-3 custom-scrollbar">
-                                {newChatSearch.trim() ? (
-                                    newChatResults.length === 0 && !searching ? (
-                                        <div className="flex flex-col items-center justify-center py-10 opacity-40">
-                                            <Search size={48} className="mb-4" />
-                                            <p className="font-bold">{t('common.no_results')}</p>
-                                        </div>
+                                <div className="p-6 pt-2 max-h-[400px] overflow-y-auto space-y-3 custom-scrollbar relative z-10">
+                                    {newChatSearch.trim() ? (
+                                        newChatResults.length === 0 && !searching ? (
+                                            <div className="flex flex-col items-center justify-center py-10 opacity-40">
+                                                <Search size={48} className="mb-4" />
+                                                <p className="font-bold">{t('common.no_results')}</p>
+                                            </div>
+                                        ) : (
+                                            newChatResults.map(profile => (
+                                                <motion.div
+                                                    key={profile.id}
+                                                    whileHover={{ x: 8 }}
+                                                    onClick={() => handleStartNewChat(profile.id)}
+                                                    className="liquid-glass p-4 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30 flex items-center gap-4 cursor-pointer transition-all duration-300 group"
+                                                >
+                                                    <Avatar src={profile.avatar_url} alt={profile.username} status={onlineUsers.has(profile.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-white shadow-xl" />
+                                                    <div className="flex-1">
+                                                        <p className="font-black text-on-surface uppercase italic tracking-tight">{profile.full_name || profile.username}</p>
+                                                        <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{profile.username}</p>
+                                                    </div>
+                                                    <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
+                                                        <MessageSquare size={18} />
+                                                    </div>
+                                                </motion.div>
+                                            ))
+                                        )
                                     ) : (
-                                        newChatResults.map(profile => (
-                                            <motion.div
-                                                key={profile.id}
-                                                whileHover={{ x: 8 }}
-                                                onClick={() => handleStartNewChat(profile.id)}
-                                                className="liquid-glass p-4 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30 flex items-center gap-4 cursor-pointer transition-all duration-300 group"
-                                            >
-                                                <Avatar src={profile.avatar_url} alt={profile.username} status={onlineUsers.has(profile.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-white shadow-xl" />
-                                                <div className="flex-1">
-                                                    <p className="font-black text-on-surface uppercase italic tracking-tight">{profile.full_name || profile.username}</p>
-                                                    <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{profile.username}</p>
-                                                </div>
-                                                <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
-                                                    <MessageSquare size={18} />
-                                                </div>
-                                            </motion.div>
-                                        ))
-                                    )
-                                ) : (
-                                    friends.length === 0 ? (
-                                        <div className="flex flex-col items-center justify-center py-10 opacity-40">
-                                            <MessageSquare size={48} className="mb-4" />
-                                            <p className="font-bold">{t('friends_page.empty.title')}</p>
-                                        </div>
-                                    ) : (
-                                        friends.map(friend => (
-                                            <motion.div
-                                                key={friend.id}
-                                                whileHover={{ x: 8 }}
-                                                onClick={() => handleStartNewChat(friend.id)}
-                                                className="liquid-glass p-4 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30 flex items-center gap-4 cursor-pointer transition-all duration-300 group"
-                                            >
-                                                <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-white shadow-xl" />
-                                                <div className="flex-1">
-                                                    <p className="font-black text-on-surface uppercase italic tracking-tight">{friend.full_name || friend.username}</p>
-                                                    <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{friend.username}</p>
-                                                </div>
-                                                <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
-                                                    <MessageSquare size={18} />
-                                                </div>
-                                            </motion.div>
-                                        ))
-                                    )
-                                )}
-                            </div>
+                                        friends.length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center py-10 opacity-40">
+                                                <MessageSquare size={48} className="mb-4" />
+                                                <p className="font-bold">{t('friends_page.empty.title')}</p>
+                                            </div>
+                                        ) : (
+                                            friends.map(friend => (
+                                                <motion.div
+                                                    key={friend.id}
+                                                    whileHover={{ x: 8 }}
+                                                    onClick={() => handleStartNewChat(friend.id)}
+                                                    className="liquid-glass p-4 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30 flex items-center gap-4 cursor-pointer transition-all duration-300 group"
+                                                >
+                                                    <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-white shadow-xl" />
+                                                    <div className="flex-1">
+                                                        <p className="font-black text-on-surface uppercase italic tracking-tight">{friend.full_name || friend.username}</p>
+                                                        <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{friend.username}</p>
+                                                    </div>
+                                                    <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-all">
+                                                        <MessageSquare size={18} />
+                                                    </div>
+                                                </motion.div>
+                                            ))
+                                        )
+                                    )}
+                                </div>
+                            </motion.div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
 
             {/* Central signal hub */}
             <div className="w-full flex flex-col xl:flex-row gap-6">
