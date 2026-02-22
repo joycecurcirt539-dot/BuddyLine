@@ -28,7 +28,7 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
     const [, setDirection] = useState<Direction>('RIGHT');
     const [isGameOver, setIsGameOver] = useState(false);
     const [score, setScore] = useState(0);
-    const [isAiEnabled, setIsAiEnabled] = useState(false);
+    const [isAiEnabled, setIsAiEnabled] = useState(true);
     const [highScore, setHighScore] = useState(() => {
         const saved = localStorage.getItem('buddyline_highscore_snake');
         return saved ? parseInt(saved) : 0;
@@ -78,6 +78,8 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
 
     const getAiMove = useCallback((currentSnake: Point[], currentFood: Point): Direction | null => {
         const head = currentSnake[0];
+        const bodySet = new Set(currentSnake.slice(0, -1).map(p => `${p.x},${p.y}`));
+
         const directions: { dir: Direction, dx: number, dy: number }[] = [
             { dir: 'UP', dx: 0, dy: -1 },
             { dir: 'DOWN', dx: 0, dy: 1 },
@@ -85,33 +87,66 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
             { dir: 'RIGHT', dx: 1, dy: 0 },
         ];
 
-        // Priority directions based on simple distance
-        const sortedDirs = [...directions].sort((a, b) => {
-            const distA = Math.abs(head.x + a.dx - currentFood.x) + Math.abs(head.y + a.dy - currentFood.y);
-            const distB = Math.abs(head.x + b.dx - currentFood.x) + Math.abs(head.y + b.dy - currentFood.y);
-            return distA - distB;
-        });
+        // 1. BFS to find path to food
+        const queue: { pos: Point, firstDir: Direction | null }[] = [{ pos: head, firstDir: null }];
+        const visited = new Set<string>();
+        visited.add(`${head.x},${head.y}`);
 
-        // Check each direction for immediate death
-        for (const { dir, dx, dy } of sortedDirs) {
-            let nx = head.x + dx;
-            let ny = head.y + dy;
+        let bestDirToFood: Direction | null = null;
 
-            if (wallMode === 'portal') {
-                nx = (nx + GRID_SIZE) % GRID_SIZE;
-                ny = (ny + GRID_SIZE) % GRID_SIZE;
-            } else {
-                if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
+        while (queue.length > 0) {
+            const { pos, firstDir } = queue.shift()!;
+
+            if (pos.x === currentFood.x && pos.y === currentFood.y) {
+                bestDirToFood = firstDir;
+                break;
             }
 
-            // Check if nx, ny is in the snake body (excluding tail which will move)
-            const bodyParts = currentSnake.slice(0, -1);
-            if (!bodyParts.some(p => p.x === nx && p.y === ny)) {
-                return dir;
+            for (const { dir, dx, dy } of directions) {
+                let nx = pos.x + dx;
+                let ny = pos.y + dy;
+
+                if (wallMode === 'portal') {
+                    nx = (nx + GRID_SIZE) % GRID_SIZE;
+                    ny = (ny + GRID_SIZE) % GRID_SIZE;
+                } else if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
+                    continue;
+                }
+
+                const key = `${nx},${ny}`;
+                if (!visited.has(key) && !bodySet.has(key)) {
+                    visited.add(key);
+                    queue.push({ pos: { x: nx, y: ny }, firstDir: firstDir || dir });
+                }
             }
         }
 
-        return null; // No safe move
+        if (bestDirToFood) return bestDirToFood;
+
+        // 2. Fallback: If no path to food, find a safe move that is furthest from food (to avoid boxing in)
+        const safeDirs = directions.filter(d => {
+            let nx = head.x + d.dx;
+            let ny = head.y + d.dy;
+            if (wallMode === 'portal') {
+                nx = (nx + GRID_SIZE) % GRID_SIZE;
+                ny = (ny + GRID_SIZE) % GRID_SIZE;
+            } else if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
+                return false;
+            }
+            return !bodySet.has(`${nx},${ny}`);
+        });
+
+        if (safeDirs.length === 0) return null;
+
+        // Sort safe dirs by distance to tail (often a good survival strategy)
+        const tail = currentSnake[currentSnake.length - 1];
+        safeDirs.sort((a, b) => {
+            const distA = Math.abs(head.x + a.dx - tail.x) + Math.abs(head.y + a.dy - tail.y);
+            const distB = Math.abs(head.x + b.dx - tail.x) + Math.abs(head.y + b.dy - tail.y);
+            return distB - distA; // Prefer moving towards tail/open space
+        });
+
+        return safeDirs[0].dir;
     }, [wallMode]);
 
     const tick = useCallback(() => {
