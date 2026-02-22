@@ -278,7 +278,7 @@ export const Chat = () => {
                             >
                                 <div className="p-10 border-b border-white/10 flex items-center justify-between bg-white/5 dark:bg-black/20">
                                     <div>
-                                        <h3 className="text-3xl font-black uppercase tracking-tight italic leading-none">{t('chat.start_new')}</h3>
+                                        <h3 className="text-3xl font-black uppercase tracking-tight italic leading-none text-white">{t('chat.start_new')}</h3>
                                         <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2 opacity-60">{t('chat.initiate_uplink')}</p>
                                     </div>
                                     <button

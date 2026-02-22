@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { Avatar } from './Avatar';
 import { UserBadge } from './UserBadge';
 import { Search, UserPlus, Loader2, X } from 'lucide-react';
@@ -27,7 +28,7 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
     const { t } = useTranslation();
     const { reduceMotion, reduceEffects } = usePerformanceMode();
 
-    return (
+    return createPortal(
         <AnimatePresence initial={!reduceMotion}>
             {isOpen && (
                 <>
@@ -36,7 +37,7 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                         animate={{ opacity: 1 }}
                         exit={reduceMotion ? undefined : { opacity: 0 }}
                         onClick={onClose}
-                        className={reduceEffects ? "fixed inset-0 bg-black/40 z-[100]" : "fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"}
+                        className={reduceEffects ? "fixed inset-0 bg-black/60 z-[100]" : "fixed inset-0 bg-black/60 backdrop-blur-md z-[100] cursor-pointer"}
                     />
                     <motion.div
                         initial={reduceMotion ? false : { opacity: 0, scale: 0.9, y: 30 }}
@@ -51,7 +52,7 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                                     <Search size={22} className="text-primary" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight italic text-on-surface leading-none">
+                                    <h3 className="text-xl font-black uppercase tracking-tight italic text-white leading-none">
                                         {t('friends_page.search_results', 'Search Results')}
                                     </h3>
                                     <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1.5 opacity-60">Global Directory</p>
@@ -60,13 +61,13 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                             <button
                                 onClick={onClose}
                                 aria-label="Close"
-                                className="p-3 hover:bg-white/10 rounded-full transition-all group"
+                                className="p-3 hover:bg-white/10 rounded-full transition-all group relative z-10"
                             >
-                                <X size={20} className="group-hover:rotate-90 transition-transform" />
+                                <X size={20} className="group-hover:rotate-90 transition-transform text-white/70 group-hover:text-white" />
                             </button>
                         </div>
 
-                        <div className="max-h-[60vh] overflow-y-auto p-4 custom-scrollbar">
+                        <div className="max-h-[60vh] overflow-y-auto p-4 custom-scrollbar relative z-10">
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center py-16 gap-4">
                                     <div className="relative">
@@ -83,7 +84,7 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                                         <motion.div
                                             key={profile.id}
                                             whileHover={{ x: 6, scale: 1.02 }}
-                                            className="p-5 bg-white/40 dark:bg-white/5 rounded-[2rem] border border-white/20 flex items-center justify-between hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-300 group shadow-lg"
+                                            className="p-5 bg-white/20 dark:bg-white/5 rounded-[2rem] border border-white/20 flex items-center justify-between hover:bg-white/30 dark:hover:bg-white/10 transition-all duration-300 group shadow-lg"
                                         >
                                             <Link
                                                 to={"/profile/" + profile.id}
@@ -92,7 +93,7 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                                             >
                                                 <Avatar src={profile.avatar_url} alt={profile.username} size="lg" className="ring-4 ring-white shadow-xl" />
                                                 <div>
-                                                    <h4 className="text-base font-black text-on-surface flex items-center gap-2 uppercase italic tracking-tight">
+                                                    <h4 className="text-base font-black text-on-surface flex items-center gap-2 uppercase italic tracking-tight group-hover:text-primary transition-colors">
                                                         {profile.full_name || profile.username}
                                                         <UserBadge username={profile.username} isVerified={profile.is_verified} />
                                                     </h4>
@@ -126,6 +127,7 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                     </motion.div>
                 </>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };
