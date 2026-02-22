@@ -9,8 +9,8 @@ type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 const GRID_SIZE = 14;
 const CELL_SIZE_PCT = 100 / GRID_SIZE; // percentage per cell
-const INITIAL_SPEED = 220;
-const MIN_SPEED = 140;
+const INITIAL_SPEED = 280;
+const MIN_SPEED = 180;
 
 import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 
@@ -110,17 +110,17 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
             let bestPath: Direction[] | null = null;
 
             while (queue.length > 0) {
-                const { pos, path } = shortest ? queue.shift()! : queue.pop()!; // queue.pop for DFS-like (simple variation)
+                const { pos, path } = shortest ? queue.shift()! : queue.pop()!;
                 if (pos.x === end.x && pos.y === end.y) {
                     if (shortest) return path;
                     if (!bestPath || path.length > bestPath.length) bestPath = path;
-                    if (path.length > 100) break; // Optimization
+                    if (path.length > 200) break; // Optimization
                     continue;
                 }
 
-                // For BFS (shortest), order doesn't matter much. For longest approximation, we can shuffle or sort.
                 const sortedDirs = [...directions];
                 if (!shortest) {
+                    // Try to move away from end to find longest path
                     sortedDirs.sort((a, b) => {
                         const nextA = wrap({ x: pos.x + a.dx, y: pos.y + a.dy });
                         const nextB = wrap({ x: pos.x + b.dx, y: pos.y + b.dy });
@@ -136,59 +136,70 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                     }
                 }
             }
-            return bestPath || (shortest ? null : null);
+            return bestPath;
         };
 
-        // BFS helper for reachability
         const canReach = (start: Point, end: Point, obstacles: Set<string>): boolean => {
             return findPath(start, end, obstacles, true) !== null;
         };
 
-        // 1. Try to find path to food
+        // 1. Try to find SHORTEST path to food
         const pathToFood = findPath(head, currentFood, bodySet, true);
         if (pathToFood) {
-            // Simulate the move locally
+            // Virtual move simulation
             const virtualSnake = [...currentSnake];
-            // Only move one step for simulation speed, or full path for safety? 
-            // Full path check is safer for "Shortest" logic.
-            for (const d of pathToFood) {
-                const dirObj = directions.find(o => o.dir === d)!;
-                const newH = wrap({ x: virtualSnake[0].x + dirObj.dx, y: virtualSnake[0].y + dirObj.dy });
-                virtualSnake.unshift(newH);
-                virtualSnake.pop();
-            }
+            const firstMove = pathToFood[0];
+            const moveDir = directions.find(d => d.dir === firstMove)!;
+            const newVHead = wrap({ x: virtualSnake[0].x + moveDir.dx, y: virtualSnake[0].y + moveDir.dy });
+
+            // Advance virtual snake
+            virtualSnake.unshift(newVHead);
+            const isEating = newVHead.x === currentFood.x && newVHead.y === currentFood.y;
+            if (!isEating) virtualSnake.pop();
+
             const vHead = virtualSnake[0];
             const vTail = virtualSnake[virtualSnake.length - 1];
             const vBody = new Set(virtualSnake.slice(0, -1).map(p => `${p.x},${p.y}`));
 
-            // If after eating/moving we can still reach our tail, it's a safe path
+            // SAFETY: Can we still reach our tail after this move?
             if (canReach(vHead, vTail, vBody)) {
-                return pathToFood[0];
+                return firstMove;
             }
         }
 
-        // 2. Fallback: Take the longest possible path to the tail
-        // This keeps the snake "wandering" and filling space safely
+        // 2. Fallback: Longest path to tail (stalling/space filling)
+        const pathToTail = findPath(head, tail, bodySet, false);
+        if (pathToTail && pathToTail.length > 0) {
+            return pathToTail[0];
+        }
+
+        // 3. Final Fallback: Any safe move that preserves max available space (Flood Fill approximation)
         const safeDirs = directions.filter(d => isSafe(wrap({ x: head.x + d.dx, y: head.y + d.dy }), bodySet));
         if (safeDirs.length > 0) {
-            // Sort by distance to food (prefer moving away from food if no safe path exists)
-            // or better: distance to tail (maximize board coverage)
+            // Sort by available space after move
             safeDirs.sort((a, b) => {
                 const nextA = wrap({ x: head.x + a.dx, y: head.y + a.dy });
                 const nextB = wrap({ x: head.x + b.dx, y: head.y + b.dy });
 
-                // We want a direction that:
-                // 1. Still allows reaching the tail
-                // 2. Is as far from the tail as possible (to fill space)
-                const canReachA = canReach(nextA, tail, bodySet);
-                const canReachB = canReach(nextB, tail, bodySet);
+                const countSpace = (start: Point) => {
+                    const q: Point[] = [start];
+                    const v = new Set<string>([`${start.x},${start.y}`]);
+                    let count = 0;
+                    while (q.length > 0 && count < 50) { // Limit for performance
+                        const p = q.shift()!;
+                        count++;
+                        for (const d of directions) {
+                            const n = wrap({ x: p.x + d.dx, y: p.y + d.dy });
+                            if (isSafe(n, bodySet) && !v.has(`${n.x},${n.y}`)) {
+                                v.add(`${n.x},${n.y}`);
+                                q.push(n);
+                            }
+                        }
+                    }
+                    return count;
+                };
 
-                if (canReachA && !canReachB) return -1;
-                if (!canReachA && canReachB) return 1;
-
-                const distA = Math.abs(nextA.x - tail.x) + Math.abs(nextA.y - tail.y);
-                const distB = Math.abs(nextB.x - tail.x) + Math.abs(nextB.y - tail.y);
-                return distB - distA;
+                return countSpace(nextB) - countSpace(nextA);
             });
             return safeDirs[0].dir;
         }
