@@ -54,33 +54,35 @@ export const ForwardChatModal = ({
                     className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
                 >
                     <motion.div
-                        initial={{ scale: 0.98, y: 10 }}
-                        animate={{ scale: 1, y: 0 }}
-                        exit={{ scale: 0.98, y: 10, opacity: 0 }}
-                        className="bg-surface-container-low w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col max-h-[80vh]"
+                        initial={{ scale: 0.9, y: 30, opacity: 0 }}
+                        animate={{ scale: 1, y: 0, opacity: 1 }}
+                        exit={{ scale: 0.9, y: 30, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className="liquid-glass w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border-white/20 flex flex-col max-h-[80vh]"
                     >
-                        <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container/30 shrink-0">
+                        <div className="p-8 border-b border-white/10 flex items-center justify-between bg-white/5 shrink-0">
                             <div>
-                                <h3 className="text-xl font-black uppercase tracking-tight italic leading-none">{t('chat.forward_to', 'Forward to...')}</h3>
+                                <h3 className="text-2xl font-black uppercase tracking-tight italic leading-none">{t('chat.forward_to', 'Forward to...')}</h3>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-surface-container rounded-full transition-all"
+                                className="p-3 hover:bg-white/10 rounded-full transition-all group"
                                 title={t('common.close', 'Close')}
                             >
-                                <X size={20} />
+                                <X size={20} className="group-hover:rotate-90 transition-transform" />
                             </button>
                         </div>
 
-                        <div className="px-6 py-4 shrink-0">
+                        <div className="px-8 py-4 shrink-0">
                             <div className="relative group/search">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within/search:text-primary transition-colors" size={16} />
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/search:opacity-100 transition duration-500" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within/search:text-primary transition-colors z-10" size={16} />
                                 <input
                                     type="text"
                                     placeholder={t('common.search')}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-11 pr-4 py-3 bg-surface/50 border border-outline-variant/10 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm font-bold"
+                                    className="w-full pl-11 pr-4 py-3.5 bg-white/40 dark:bg-white/5 border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm font-black placeholder:text-on-surface-variant/20 relative z-10"
                                     autoFocus
                                 />
                             </div>
@@ -109,7 +111,7 @@ export const ForwardChatModal = ({
                                                     <button
                                                         key={chat.id}
                                                         onClick={() => onSelect(chat.id, false)}
-                                                        className="w-full p-3 hover:bg-primary/5 rounded-2xl flex items-center gap-3 transition-colors group text-left"
+                                                        className="w-full p-4 hover:bg-white/40 dark:hover:bg-white/5 rounded-[2rem] flex items-center gap-4 transition-all duration-300 group text-left border border-transparent hover:border-white/20 shadow-sm"
                                                     >
                                                         <Avatar
                                                             src={other?.avatar_url}
@@ -132,33 +134,30 @@ export const ForwardChatModal = ({
                                         </div>
                                     )}
 
-                                    {/* Friends Section */}
-                                    {filteredFriends.length > 0 && (
-                                        <div>
-                                            <h4 className="px-4 text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest mb-2">{t('common.friends', 'Friends')}</h4>
-                                            {filteredFriends.map(friend => (
-                                                <button
-                                                    key={friend.id}
-                                                    onClick={() => onSelect(friend.id, true)}
-                                                    className="w-full p-3 hover:bg-primary/5 rounded-2xl flex items-center gap-3 transition-colors group text-left"
-                                                >
-                                                    <Avatar
-                                                        src={friend.avatar_url}
-                                                        alt={friend.username}
-                                                        size="md"
-                                                        status={onlineUsers.has(friend.id) ? 'online' : 'offline'}
-                                                    />
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-bold text-on-surface truncate">{friend.full_name || friend.username}</p>
-                                                        <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-60">@{friend.username}</p>
-                                                    </div>
-                                                    <div className="p-2 text-on-surface-variant/20 group-hover:text-primary transition-colors">
-                                                        <MessageSquare size={16} />
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
+                                    <div>
+                                        <h4 className="px-4 text-xs font-black text-on-surface-variant/50 uppercase tracking-[0.2em] mb-4">{t('common.friends', 'Friends')}</h4>
+                                        {filteredFriends.map(friend => (
+                                            <button
+                                                key={friend.id}
+                                                onClick={() => onSelect(friend.id, true)}
+                                                className="w-full p-4 hover:bg-white/40 dark:hover:bg-white/5 rounded-[2rem] flex items-center gap-4 transition-all duration-300 group text-left border border-transparent hover:border-white/20 shadow-sm"
+                                            >
+                                                <Avatar
+                                                    src={friend.avatar_url}
+                                                    alt={friend.username}
+                                                    size="md"
+                                                    status={onlineUsers.has(friend.id) ? 'online' : 'offline'}
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-black text-on-surface truncate uppercase tracking-tight italic">{friend.full_name || friend.username}</p>
+                                                    <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-60">@{friend.username}</p>
+                                                </div>
+                                                <div className="p-2 text-on-surface-variant/20 group-hover:text-primary transition-colors bg-white/20 rounded-xl">
+                                                    <MessageSquare size={16} />
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
 
                                     {filteredChats.length === 0 && filteredFriends.length === 0 && (
                                         <div className="text-center py-8 text-on-surface-variant/40">

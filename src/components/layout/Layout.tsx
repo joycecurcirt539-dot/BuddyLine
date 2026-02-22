@@ -25,8 +25,8 @@ export const Layout = () => {
             <MiniGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
             <main className={clsx(
-                "flex-1 lg:pl-72 h-full overflow-hidden flex flex-col",
-                (isChatOpen || isComposerOpen) ? "pb-0" : "pb-16 lg:pb-0"
+                "flex-1 lg:pl-20 h-full overflow-hidden flex flex-col",
+                (isChatOpen || isComposerOpen) ? "pb-0" : "pb-24 lg:pb-0"
             )}>
                 <div className={clsx(
                     "w-full h-full overflow-y-auto overflow-x-hidden",
@@ -36,12 +36,14 @@ export const Layout = () => {
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={location.pathname}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
+                                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -10, scale: 0.98 }}
                                 transition={{
-                                    duration: 0.15,
-                                    ease: "linear"
+                                    type: "spring",
+                                    stiffness: 260,
+                                    damping: 30,
+                                    mass: 0.8
                                 }}
                                 className="flex-1 flex flex-col min-h-0 accelerate"
                             >

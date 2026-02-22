@@ -163,7 +163,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 </AnimatePresence>
 
                 {/* Main Input Bar */}
-                <div className="bubble flex gap-2 md:gap-4 items-center p-2.2 md:p-3 px-4 md:px-6 shadow-2xl transition-all focus-within:border-primary/40 focus-within:shadow-primary/10 group/input">
+                <div className="liquid-glass rounded-[2.5rem] flex gap-2 md:gap-4 items-center p-2.5 md:p-3.5 px-4 md:px-6 shadow-[0_0_40px_rgba(0,0,0,0.15)] focus-within:shadow-[0_0_50px_rgba(var(--primary-rgb),0.2)] transition-all border border-white/20 group/input z-20 relative">
 
                     {/* Image Upload Button */}
                     <input
@@ -178,8 +178,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         className={clsx(
-                            "p-3 rounded-2xl transition-all shrink-0 active:scale-90",
-                            selectedImage ? "text-primary bg-primary/10 shadow-lg" : "text-on-surface-variant/40 hover:text-primary hover:bg-primary/5"
+                            "p-3 rounded-[1.25rem] transition-all shrink-0 active:scale-90",
+                            selectedImage ? "text-primary bg-primary/20 shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)] border border-primary/30" : "text-on-surface-variant/40 hover:text-primary hover:bg-white/10 hover:shadow-inner"
                         )}
                         disabled={!!editingMessage}
                         aria-label={t('post.upload_image')}
@@ -229,10 +229,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         onClick={() => handleSubmit()}
                         disabled={(!message.trim() && !selectedImage) || uploading}
                         className={clsx(
-                            "rounded-[20px] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl transition-all shrink-0 z-20 overflow-hidden relative",
+                            "rounded-[1.5rem] w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl transition-all shrink-0 z-20 overflow-hidden relative border",
                             (message.trim() || selectedImage)
-                                ? "bg-primary text-on-primary shadow-primary/30"
-                                : "bg-surface-container-high/40 text-on-surface-variant/20 cursor-not-allowed shadow-none border border-outline-variant/5"
+                                ? "bg-gradient-to-br from-primary to-primary-container text-white shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] border-white/20"
+                                : "bg-white/5 text-on-surface-variant/20 cursor-not-allowed shadow-none border-white/5"
                         )}
                         aria-label={t('chat.send')}
                     >

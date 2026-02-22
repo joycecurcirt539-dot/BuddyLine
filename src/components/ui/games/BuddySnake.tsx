@@ -178,39 +178,60 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
     };
 
     return (
-        <div className="flex flex-col items-center gap-2 lg:gap-5 w-full max-w-[260px] lg:max-w-[340px] mx-auto accelerate">
-            {/* Stats */}
-            <div className="flex justify-between items-center w-full px-1">
-                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-outline/10 shadow-lg accelerate">
-                    <div className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center">
-                        <span className="text-[9px] font-black text-primary">#</span>
+        <div className="flex flex-col items-center gap-4 lg:gap-8 w-full max-w-[300px] lg:max-w-[420px] mx-auto accelerate">
+            {/* Stats - Premium Glass */}
+            <div className="flex justify-between items-center w-full px-2">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <span className="text-[10px] font-black text-primary">#</span>
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.score')}</span>
-                        <span className="text-lg font-black text-on-surface tabular-nums leading-none mt-0.5">{score}</span>
+                        <span className="text-[8px] text-primary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">{t('game.score')}</span>
+                        <motion.span
+                            key={score}
+                            initial={{ scale: 1.2 }}
+                            animate={{ scale: 1 }}
+                            className="text-2xl font-black text-on-surface tabular-nums leading-none tracking-tight"
+                        >
+                            {score}
+                        </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-center gap-2 bg-surface-container-high/50 backdrop-blur-2xl px-3 py-1.5 rounded-2xl border border-outline/10 shadow-lg accelerate">
-                    <Trophy className="w-3.5 h-3.5 text-primary/60" />
+                <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate"
+                >
+                    <Trophy className="w-5 h-5 text-tertiary" />
                     <div className="flex flex-col items-end">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.high_score')}</span>
-                        <span className="text-base font-black text-on-surface/60 tabular-nums leading-none mt-0.5">{highScore}</span>
+                        <span className="text-[8px] text-tertiary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">{t('game.high_score')}</span>
+                        <span className="text-xl font-black text-on-surface/80 tabular-nums leading-none mt-0.5">{highScore}</span>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
-            {/* Canvas — absolute-positioned segments for smooth visuals */}
+            {/* Canvas — Liquid Style */}
             <div
                 style={{ touchAction: 'none' }}
-                className={`relative w-full aspect-square bg-surface-container-low/30 border border-outline/8 rounded-2xl lg:rounded-[2rem] shadow-2xl overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}
+                className={`relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 border border-white/10 rounded-[2rem] lg:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden ${reduceEffects ? '' : 'backdrop-blur-xl'} accelerate`}
             >
-                {/* Subtle grid lines */}
-                <div className="absolute inset-0 pointer-events-none">
+                {/* Dynamic Background depth items */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
+                    <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-tertiary/20 blur-[80px] rounded-full" />
+                </div>
+
+                {/* Subtle grid lines - Enhanced */}
+                <div className="absolute inset-0 pointer-events-none opacity-20">
                     {Array.from({ length: GRID_SIZE - 1 }).map((_, i) => (
                         <React.Fragment key={i}>
-                            <div className="absolute bg-on-surface/[0.03]" style={{ left: 0, right: 0, top: `${(i + 1) * CELL_SIZE_PCT}%`, height: 1 }} />
-                            <div className="absolute bg-on-surface/[0.03]" style={{ top: 0, bottom: 0, left: `${(i + 1) * CELL_SIZE_PCT}%`, width: 1 }} />
+                            <div className="absolute bg-on-surface/[0.15]" style={{ left: 0, right: 0, top: `${(i + 1) * CELL_SIZE_PCT}%`, height: 1 }} />
+                            <div className="absolute bg-on-surface/[0.15]" style={{ top: 0, bottom: 0, left: `${(i + 1) * CELL_SIZE_PCT}%`, width: 1 }} />
                         </React.Fragment>
                     ))}
                 </div>
@@ -218,11 +239,14 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                 {/* Snake segments */}
                 {snake.map((seg, i) => {
                     const isHead = i === 0;
-                    const opacity = isHead ? 1 : Math.max(0.3, 1 - (i / snake.length) * 0.65);
+                    const opacity = isHead ? 1 : Math.max(0.2, 1 - (i / snake.length) * 0.7);
+                    const scale = isHead ? 1.1 : Math.max(0.7, 1 - (i / snake.length) * 0.3);
+
                     return (
-                        <div
-                            key={i}
-                            className={`absolute p-px ${isHead ? 'z-10' : ''}`}
+                        <motion.div
+                            key={`${seg.x}-${seg.y}-${i}`}
+                            layout
+                            className={`absolute p-[2px] ${isHead ? 'z-10' : ''}`}
                             style={{
                                 left: `${seg.x * CELL_SIZE_PCT}%`,
                                 top: `${seg.y * CELL_SIZE_PCT}%`,
@@ -231,48 +255,70 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                             }}
                         >
                             <div
-                                className={`w-full h-full rounded-sm bg-primary ${isHead ? 'shadow-lg shadow-primary/50 rounded-[3px]' : ''}`}
-                                style={{ opacity }}
-                            />
-                        </div>
+                                className={`w-full h-full rounded-md shadow-lg transition-all duration-300 ${isHead
+                                        ? 'bg-gradient-to-br from-primary via-primary to-tertiary shadow-primary/60 scale-110 z-20'
+                                        : 'bg-primary/80 shadow-primary/10'
+                                    }`}
+                                style={{
+                                    opacity,
+                                    scale,
+                                    boxShadow: isHead ? '0 0 20px 4px rgba(99,102,241,0.5)' : 'none'
+                                }}
+                            >
+                                {isHead && (
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-sm opacity-60" />
+                                )}
+                            </div>
+                        </motion.div>
                     );
                 })}
 
-                {/* Food */}
-                <div
+                {/* Food - Liquid Glow Item */}
+                <motion.div
+                    animate={{
+                        scale: [0.9, 1.1, 0.9],
+                        rotate: [0, 90, 180, 270, 360]
+                    }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                     className="absolute z-20 flex items-center justify-center pointer-events-none"
                     style={{
                         left: `${food.x * CELL_SIZE_PCT}%`,
                         top: `${food.y * CELL_SIZE_PCT}%`,
                         width: `${CELL_SIZE_PCT}%`,
                         height: `${CELL_SIZE_PCT}%`,
-                        padding: '1px',
+                        padding: '4px',
                     }}
                 >
-                    <div className="w-full h-full rounded-full bg-tertiary shadow-lg shadow-tertiary/40 flex items-center justify-center animate-pulse scale-90">
-                        <MessageSquare className="w-[55%] h-[55%] text-on-tertiary" strokeWidth={2.5} />
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-tertiary to-secondary shadow-[0_0_24px_8px_rgba(167,139,250,0.5)] flex items-center justify-center">
+                        <MessageSquare className="w-[60%] h-[60%] text-white drop-shadow-md" strokeWidth={3} />
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Game Over */}
+                {/* Game Over - Premium Overlay */}
                 <AnimatePresence>
                     {isGameOver && (
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-md p-4"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-xl p-8"
                         >
-                            <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center w-full max-w-[220px]">
-                                <img src="/logo.png" className="w-16 h-16 md:w-20 md:h-20 object-contain opacity-90" alt="" />
-                                <h3 className="text-base font-black text-error mb-0.5 uppercase italic tracking-tight">{t('game.system_error')}</h3>
-                                <p className="text-sm font-bold text-on-surface-variant mb-4">{t('game.snake.lost').toUpperCase()} {score}</p>
+                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-error/10 to-transparent" />
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
+                                    <RefreshCw className="w-8 h-8 text-error animate-spin-slow" />
+                                </div>
+                                <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight relative z-10">{t('game.system_error')}</h3>
+                                <div className="flex flex-col items-center gap-1 mb-8 relative z-10">
+                                    <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.score')}</span>
+                                    <span className="text-4xl font-black text-on-surface">{score}</span>
+                                </div>
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.3)' }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={resetGame}
-                                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-[10px] shadow-lg shadow-primary/20"
+                                    className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-primary to-tertiary text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-xl shadow-primary/25 relative z-10"
                                 >
-                                    <RefreshCw className="w-3.5 h-3.5" />
+                                    <RefreshCw className="w-4 h-4" />
                                     {t('game.reconnect')}
                                 </motion.button>
                             </div>
@@ -281,22 +327,38 @@ export const BuddySnake: React.FC<BuddySnakeProps> = ({ wallMode = 'solid' }) =>
                 </AnimatePresence>
             </div>
 
-            {/* Mobile Controls */}
-            <div className="grid grid-cols-3 gap-1 lg:hidden w-full max-w-[160px]">
+            {/* Mobile Controls - Floating Premium Buttons */}
+            <div className="grid grid-cols-3 gap-3 lg:hidden w-full max-w-[220px]">
                 <div />
-                <button onClick={() => changeDir('UP')} title="Up" className="p-2.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-primary active:text-on-primary transition-colors shadow-md">
-                    <ChevronUp className="w-5 h-5" />
-                </button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => changeDir('UP')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                >
+                    <ChevronUp className="w-8 h-8 opacity-80" />
+                </motion.button>
                 <div />
-                <button onClick={() => changeDir('LEFT')} title="Left" className="p-2.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-primary active:text-on-primary transition-colors shadow-md">
-                    <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button onClick={() => changeDir('DOWN')} title="Down" className="p-2.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-primary active:text-on-primary transition-colors shadow-md">
-                    <ChevronDown className="w-5 h-5" />
-                </button>
-                <button onClick={() => changeDir('RIGHT')} title="Right" className="p-2.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-primary active:text-on-primary transition-colors shadow-md">
-                    <ChevronRight className="w-5 h-5" />
-                </button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => changeDir('LEFT')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                >
+                    <ChevronLeft className="w-8 h-8 opacity-80" />
+                </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => changeDir('DOWN')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                >
+                    <ChevronDown className="w-8 h-8 opacity-80" />
+                </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => changeDir('RIGHT')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/10 flex items-center justify-center active:bg-primary shadow-[0_4px_24px_rgba(0,0,0,0.2)]"
+                >
+                    <ChevronRight className="w-8 h-8 opacity-80" />
+                </motion.button>
             </div>
         </div>
     );

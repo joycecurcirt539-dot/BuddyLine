@@ -39,7 +39,12 @@ export const Settings = () => {
     const filteredCategories = isGuest ? categories.filter(c => !c.guestHidden) : categories;
 
     return (
-        <div className="w-full pb-20 lg:pb-10 relative min-h-screen">
+        <motion.div
+            className="w-full pb-20 lg:pb-10 relative min-h-screen"
+            initial={{ opacity: 0, x: -24, y: 16 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 28 }}
+        >
 
             {/* Mobile Back Button */}
             {activeCategory && (
@@ -73,7 +78,7 @@ export const Settings = () => {
                                             setActiveCategory(cat.id as SettingCategory);
                                         }
                                     }}
-                                    className="bg-surface/40 backdrop-blur-xl border border-outline-variant/10 rounded-[32px] p-5 flex items-center justify-between group active:scale-95 transition-all text-left"
+                                    className="liquid-glass bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_5px_15px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-5 flex items-center justify-between group active:scale-95 transition-all text-left hover:bg-white/10 hover:shadow-lg hover:border-white/20"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className={clsx("p-3 rounded-2xl bg-surface shadow-md group-hover:scale-110 transition-transform", cat.color)}>
@@ -91,7 +96,7 @@ export const Settings = () => {
                             <div className="mt-8 border-t border-outline-variant/10 pt-8">
                                 <button
                                     onClick={() => signOut()}
-                                    className="w-full bg-red-500/10 border border-red-500/20 rounded-[32px] p-5 flex items-center gap-4 group active:scale-95 transition-all text-left"
+                                    className="w-full liquid-glass bg-red-500/10 backdrop-blur-xl border border-red-500/20 shadow-[0_5px_15px_rgba(239,68,68,0.1)] rounded-[2.5rem] p-5 flex items-center gap-4 group active:scale-95 transition-all text-left hover:bg-red-500/20 hover:shadow-[0_5px_20px_rgba(239,68,68,0.2)] hover:border-red-500/30"
                                 >
                                     <div className="p-3 rounded-2xl bg-red-500/20 text-red-500 shadow-md">
                                         <LogOut size={22} />
@@ -115,12 +120,12 @@ export const Settings = () => {
                             {activeCategory === 'appearance' && <ThemeTogglePanel />}
                             {activeCategory === 'system' && <LanguageTogglePanel />}
                             {activeCategory === 'media' && (
-                                <div className="bubble p-6">
+                                <div className="liquid-glass p-6 bg-surface-container-low/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-lg mb-8">
                                     <DeviceSettings />
                                 </div>
                             )}
                             {(activeCategory === 'notifications' || activeCategory === 'privacy') && (
-                                <div className="bubble p-10 flex flex-col items-center justify-center text-center py-20">
+                                <div className="liquid-glass p-10 flex flex-col items-center justify-center text-center py-20 bg-surface-container-low/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-lg mb-8">
                                     <Cpu size={48} className="text-on-surface-variant/20 mb-6" />
                                     <h4 className="text-on-surface font-black uppercase tracking-tight italic mb-2">{t(`settings.sections.${activeCategory}`)}</h4>
                                     <p className="text-on-surface-variant/60 font-medium text-sm">{t(`settings.sections.${activeCategory}_desc`)}</p>
@@ -138,7 +143,7 @@ export const Settings = () => {
                         <motion.section
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bubble p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12"
+                            className="liquid-glass p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12 rounded-[3.5rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.1)] bg-surface-container-low/40 backdrop-blur-xl"
                         >
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-gradient-to-tr from-primary to-tertiary rounded-full opacity-20 blur-xl animate-pulse" />
@@ -161,7 +166,7 @@ export const Settings = () => {
 
                             <Button
                                 onClick={() => window.location.href = '/profile'} // Force navigation or use navigate
-                                className="px-8 py-4 rounded-[24px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all text-sm shrink-0"
+                                className="px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] border border-white/20 bg-gradient-to-r from-primary to-primary-container hover:scale-105 active:scale-95 transition-all duration-300 text-sm shrink-0"
                             >
                                 {t('profile_page.edit_profile')} <ArrowLeft className="rotate-180 ml-2" size={18} />
                             </Button>
@@ -172,7 +177,7 @@ export const Settings = () => {
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-8">
                         <ThemeTogglePanel />
                         <LanguageTogglePanel />
-                        <div className="bubble p-8">
+                        <div className="liquid-glass p-8 bg-surface-container-low/40 backdrop-blur-xl rounded-[3.5rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.1)] h-full">
                             <DeviceSettings />
                         </div>
                     </div>
@@ -180,7 +185,7 @@ export const Settings = () => {
                     {!isGuest && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {filteredCategories.slice(2).map((item) => (
-                                <button key={item.id} className="bg-surface/30 backdrop-blur-xl border border-outline-variant/10 rounded-[32px] p-6 flex items-center gap-5 hover:bg-surface/50 transition-all text-left group">
+                                <button key={item.id} className="liquid-glass bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_5px_15px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-6 flex items-center gap-5 hover:bg-white/10 hover:shadow-lg hover:border-white/20 transition-all duration-300 text-left group">
                                     <div className={clsx("p-4 rounded-2xl bg-surface shadow-lg group-hover:rotate-12 duration-500", item.color)}>
                                         <item.icon size={24} />
                                     </div>
@@ -194,7 +199,7 @@ export const Settings = () => {
                             {/* Logout Card integrated into grid */}
                             <button
                                 onClick={() => signOut()}
-                                className="bg-red-500/5 backdrop-blur-xl border border-red-500/10 rounded-[32px] p-6 flex items-center gap-5 hover:bg-red-500/10 transition-all text-left group"
+                                className="liquid-glass bg-red-500/10 backdrop-blur-xl border border-red-500/20 shadow-[0_5px_15px_rgba(239,68,68,0.1)] rounded-[2.5rem] p-6 flex items-center gap-5 hover:bg-red-500/20 hover:shadow-[0_5px_20px_rgba(239,68,68,0.2)] hover:border-red-500/30 transition-all duration-300 text-left group"
                             >
                                 <div className="p-4 rounded-2xl bg-red-500/10 text-red-500 shadow-lg group-hover:scale-110 duration-500">
                                     <LogOut size={24} />
@@ -208,6 +213,6 @@ export const Settings = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };

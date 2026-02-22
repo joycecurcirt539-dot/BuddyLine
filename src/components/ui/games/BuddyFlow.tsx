@@ -228,29 +228,44 @@ export const BuddyFlow: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none accelerate">
-            {/* Stats */}
-            <div className="flex justify-between items-center w-full">
-                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
-                    <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
-                        <Zap className="w-3.5 h-3.5 text-primary" />
+        <div className="flex flex-col items-center gap-8 lg:gap-12 w-full max-w-md mx-auto p-4 select-none accelerate">
+            {/* Stats Bar - Premium Glass */}
+            <div className="flex justify-between items-center w-full px-2">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-5 py-3 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate"
+                >
+                    <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <Zap className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.flow.solved')}</span>
-                        <span className="text-xl font-black text-on-surface tabular-nums leading-none mt-0.5">{score}</span>
+                        <span className="text-[9px] text-primary/70 font-black uppercase tracking-[0.25em] leading-none mb-1">{t('game.flow.solved')}</span>
+                        <motion.span
+                            key={score}
+                            className="text-2xl font-black text-on-surface tabular-nums leading-none tracking-tight"
+                        >
+                            {score}
+                        </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
-                    <Trophy className="w-4 h-4 text-primary/60" />
-                    <div className="flex flex-col items-end">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.best')}</span>
-                        <span className="text-lg font-black text-on-surface/60 tabular-nums leading-none mt-0.5">{bestScore}</span>
+                <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-5 py-3 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate"
+                >
+                    <div className="w-9 h-9 rounded-xl bg-tertiary/20 flex items-center justify-center shadow-lg shadow-tertiary/20">
+                        <Trophy className="w-5 h-5 text-tertiary" />
                     </div>
-                </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[9px] text-tertiary/70 font-black uppercase tracking-[0.25em] leading-none mb-1">{t('game.best')}</span>
+                        <span className="text-xl font-black text-on-surface/60 tabular-nums leading-none mt-0.5">{bestScore}</span>
+                    </div>
+                </motion.div>
             </div>
 
-            {/* Grid Area */}
+            {/* Grid Area — Liquid Glass Container */}
             <div
                 ref={gridRef}
                 style={{ touchAction: 'none' }}
@@ -261,9 +276,14 @@ export const BuddyFlow: React.FC = () => {
                 onTouchStart={handleStart}
                 onTouchMove={handleMove}
                 onTouchEnd={handleEnd}
-                className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[1.8rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} grid grid-cols-7 grid-rows-7 gap-[2px] p-1 cursor-crosshair touch-none overflow-hidden shadow-2xl accelerate`}
+                className={`relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-transparent rounded-[3rem] lg:rounded-[4rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-xl'} grid grid-cols-7 grid-rows-7 gap-1 p-3 cursor-crosshair touch-none overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] accelerate`}
             >
-                {/* Cells rendered directly — no SVG, no animation delays */}
+                {/* Background depth items */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="absolute -top-10 -left-10 w-48 h-48 bg-primary/30 blur-[60px] rounded-full animate-pulse" />
+                    <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-tertiary/30 blur-[60px] rounded-full" />
+                </div>
+
                 {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, i) => {
                     const r = Math.floor(i / GRID_SIZE);
                     const c = i % GRID_SIZE;
@@ -273,80 +293,93 @@ export const BuddyFlow: React.FC = () => {
                     return (
                         <div
                             key={i}
-                            className="rounded-[4px] relative flex items-center justify-center"
+                            className="rounded-xl relative flex items-center justify-center overflow-hidden transition-colors duration-500"
                             style={{
-                                backgroundColor: pathColor
-                                    ? `${pathColor}30`
-                                    : 'rgba(var(--surface-container-high-rgb, 128,128,128), 0.04)',
-                                borderTop: pathColor ? undefined : '1px solid rgba(var(--outline-rgb, 128,128,128), 0.04)',
-                                borderLeft: pathColor ? undefined : '1px solid rgba(var(--outline-rgb, 128,128,128), 0.04)',
+                                backgroundColor: pathColor ? `${pathColor}20` : 'rgba(255,255,255,0.02)',
                             }}
                         >
-                            {/* Path fill block */}
+                            {/* Path Fill block with glow */}
                             {pathColor && (
-                                <div
-                                    className="absolute inset-0 rounded-[4px]"
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="absolute inset-[1px] rounded-[10px]"
                                     style={{
-                                        background: `${pathColor}25`,
-                                        boxShadow: `inset 0 0 8px ${pathColor}20`
+                                        background: `linear-gradient(135deg, ${pathColor}40, ${pathColor}10)`,
+                                        boxShadow: `inset 0 0 15px ${pathColor}30`
                                     }}
                                 />
                             )}
 
-                            {/* Node dot */}
+                            {/* Node Sphere — Liquid Glass Effect */}
                             {node && (
-                                <div
-                                    className="w-5 h-5 lg:w-6 lg:h-6 rounded-full z-10 border-2 border-white/30"
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="w-6 h-6 lg:w-8 lg:h-8 rounded-full z-10 border border-white/50 shadow-2xl relative"
                                     style={{
                                         backgroundColor: node.color,
-                                        boxShadow: `0 0 10px ${node.color}50, 0 2px 6px ${node.color}30`
+                                        boxShadow: `0 0 25px ${node.color}80, inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.4)`
                                     }}
-                                />
+                                >
+                                    {/* Glass Highlight */}
+                                    <div className="absolute top-1 left-1.5 w-1/3 h-1/3 bg-white/40 rounded-full blur-[1px]" />
+                                </motion.div>
                             )}
                         </div>
                     );
                 })}
 
-                {/* Win Overlay */}
+                {/* Win Overlay - Premium Glass */}
                 <AnimatePresence>
                     {isWon && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/35 backdrop-blur-md rounded-[1.8rem] p-4"
+                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-2xl rounded-[3rem] p-8"
                         >
-                            <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-7 shadow-2xl flex flex-col items-center text-center">
-                                <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center mb-3">
-                                    <Share2 className="w-7 h-7 text-primary" />
+                            <motion.div
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                className="bg-surface-container-high/90 border border-white/15 rounded-[3.5rem] p-10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col items-center text-center relative overflow-hidden max-w-[280px]"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-tertiary/20 pointer-events-none" />
+
+                                <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-8 shadow-2xl shadow-primary/40">
+                                    <Share2 className="w-10 h-10 text-white" />
                                 </div>
-                                <h3 className="text-xl font-black bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent mb-1 uppercase italic tracking-tight">{t('game.flow.win_title')}</h3>
-                                <p className="text-sm font-bold text-on-surface-variant mb-5">{t('game.flow.win_subtitle')}</p>
+                                <h3 className="text-3xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-2 uppercase italic tracking-tighter">{t('game.flow.win_title')}</h3>
+                                <p className="text-sm font-bold text-on-surface-variant/70 mb-10 leading-relaxed">{t('game.flow.win_subtitle')}</p>
+
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.4)' }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={initLevel}
-                                    className="w-full px-12 py-3 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-[10px] shadow-lg"
+                                    className="w-full py-5 bg-gradient-to-r from-primary to-tertiary text-white rounded-[1.5rem] font-black uppercase tracking-[0.15em] text-xs shadow-xl shadow-primary/30 relative z-10"
                                 >
                                     {t('game.flow.next')}
                                 </motion.button>
-                            </div>
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
-            <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={initLevel}
-                className="flex items-center gap-2 px-6 py-2.5 bg-surface-container-high/50 hover:bg-primary hover:text-on-primary text-on-surface-variant border border-outline/10 rounded-full font-black uppercase tracking-wider text-[9px] transition-all duration-300 shadow-lg backdrop-blur-xl"
-            >
-                <RotateCcw className="w-3.5 h-3.5" />
-                {t('game.flow.reset')}
-            </motion.button>
+            {/* Controls Bar */}
+            <div className="flex flex-col items-center gap-6 w-full">
+                <motion.button
+                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(99,102,241,0.1)' }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={initLevel}
+                    className="flex items-center gap-3 px-10 py-4 bg-surface-container-high/40 hover:text-primary text-on-surface-variant/80 border border-white/10 rounded-full font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 shadow-xl backdrop-blur-3xl"
+                >
+                    <RotateCcw className="w-4 h-4" />
+                    {t('game.flow.reset')}
+                </motion.button>
 
-            <div className="flex items-center gap-2 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.15em]">
-                <MousePointer2 className="w-3 h-3" /> {t('game.flow.hint')}
+                <div className="flex items-center gap-3 text-[10px] font-black text-on-surface-variant/30 uppercase tracking-[0.4em] animate-pulse">
+                    <MousePointer2 className="w-4 h-4" /> {t('game.flow.hint')}
+                </div>
             </div>
         </div>
     );

@@ -32,8 +32,8 @@ export const FriendsSidebar = () => {
     return (
         <div className="w-80 hidden xl:flex flex-col gap-6 sticky top-0 h-fit">
             {/* Future Features / Concepts */}
-            <div className="p-6 relative group border-b border-outline-variant/10">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-[60px] -mr-16 -mt-16 animate-pulse pointer-events-none opacity-20" />
+            <div className="liquid-glass p-6 rounded-[3rem] border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)] relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full blur-[60px] -mr-16 -mt-16 animate-pulse pointer-events-none opacity-50" />
 
                 <div className="flex items-center gap-3 mb-6 relative z-10">
                     <motion.div
@@ -62,9 +62,9 @@ export const FriendsSidebar = () => {
                             key={i}
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            whileHover={{ x: 4, backgroundColor: "rgba(var(--color-secondary-rgb), 0.05)" }}
+                            whileHover={{ x: 4, backgroundColor: "rgba(255,255,255, 0.05)" }}
                             transition={{ delay: i * 0.1 }}
-                            className="p-4 bg-surface-container-low/40 rounded-2xl border border-outline-variant/5 hover:border-secondary/20 transition-all cursor-default group/item"
+                            className="p-4 bg-white/5 backdrop-blur-md rounded-[1.5rem] border border-white/10 hover:border-secondary/30 transition-all cursor-default group/item shadow-inner"
                         >
                             <div className="flex items-center gap-3 mb-2">
                                 <motion.div whileHover={{ scale: 1.2, rotate: 5 }}>
@@ -83,19 +83,20 @@ export const FriendsSidebar = () => {
             </div>
 
             {/* Quick Stats Concept */}
-            <div className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary/10 text-primary rounded-xl">
+            <div className="liquid-glass p-6 rounded-[2.5rem] border border-white/10 shadow-lg relative overflow-hidden group/footer hover:border-white/20 transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover/footer:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                <div className="flex items-center gap-3 mb-4 relative z-10">
+                    <div className="p-2.5 bg-primary/20 text-primary rounded-[1.25rem] shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]">
                         <Users2 size={18} />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-on-surface opacity-60">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface opacity-60">
                         {t('friends_page.sidebar.network_strength')}
                     </span>
                 </div>
-                <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
-                    <div className="h-full bg-primary w-[65%]" />
+                <div className="h-2.5 w-full bg-white/5 backdrop-blur-sm rounded-full overflow-hidden border border-white/5 relative z-10 shadow-inner">
+                    <div className="h-full bg-gradient-to-r from-primary to-secondary w-[65%] rounded-full shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" />
                 </div>
-                <p className="mt-2 text-[9px] font-bold text-on-surface-variant opacity-60">
+                <p className="mt-4 text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-60 relative z-10">
                     {t('friends_page.sidebar.connection_density')}
                 </p>
             </div>

@@ -37,7 +37,8 @@ export const UserListPanel = () => {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('id, username, full_name, avatar_url, status')
-                .limit(20);
+                .order('created_at', { ascending: false })
+                .limit(6);
 
             if (error) {
                 console.error('Error fetching profiles:', error);
@@ -97,26 +98,28 @@ export const UserListPanel = () => {
     };
 
     return (
-        <div className="w-80 hidden xl:flex flex-col gap-6 sticky top-0 h-fit">
-            <div className="bubble p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-black branding-text-highlight uppercase tracking-tight">
+        <div className="w-80 hidden xl:flex flex-col gap-4 sticky top-0 h-fit">
+            <div className="liquid-glass p-5 rounded-[2.5rem] border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)] hover:border-primary/30 transition-all duration-500 overflow-hidden relative flex flex-col h-full max-h-[calc(100vh-120px)]">
+                {/* Accent glow */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-[60px] pointer-events-none" />
+                <div className="flex items-center justify-between mb-4 relative z-10 shrink-0">
+                    <h2 className="text-lg font-black branding-text-highlight uppercase tracking-tight">
                         {t('discovery_panel.title')}
                     </h2>
                 </div>
 
-                <div className="relative mb-6">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40" size={18} />
+                <div className="relative mb-4 shrink-0">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40" size={16} />
                     <input
                         type="text"
                         placeholder={t('common.search')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm font-medium"
+                        className="w-full pl-10 pr-4 py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white/10 transition-all duration-300 text-xs font-black placeholder:text-on-surface-variant/30 shadow-inner"
                     />
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden scrollbar-hide pb-2">
                     {loading ? (
                         <div className="flex flex-col gap-4">
                             {[1, 2, 3].map((i) => (
@@ -139,8 +142,8 @@ export const UserListPanel = () => {
                             return (
                                 <motion.div
                                     key={profile.id}
-                                    whileHover={{ x: 4 }}
-                                    className="flex items-center justify-between p-2 rounded-2xl hover:bg-surface-container-high transition-colors group"
+                                    whileHover={{ x: 6, scale: 1.02 }}
+                                    className="flex items-center justify-between p-2 rounded-[1.25rem] hover:bg-white/10 border border-transparent hover:border-white/10 hover:shadow-lg transition-all duration-300 group z-10 overflow-hidden"
                                 >
                                     <Link to={`/profile/${profile.id}`} className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
                                         <Avatar
@@ -196,10 +199,24 @@ export const UserListPanel = () => {
                     )}
                 </div>
 
+                {/* View All Button */}
+                {!loading && filteredProfiles.length > 0 && (
+                    <div className="mt-4 shrink-0 pt-4 border-t border-white/5 relative z-10">
+                        <Link
+                            to="/directory"
+                            className="w-full py-3 px-4 rounded-2xl liquid-glass bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-inner active:scale-95"
+                        >
+                            <span className="text-xs font-black uppercase tracking-widest text-on-surface group-hover/btn:text-primary transition-colors">
+                                Все пользователи
+                            </span>
+                        </Link>
+                    </div>
+                )}
             </div>
 
-            <div className="bubble p-6">
-                <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-[0.2em] leading-relaxed">
+            <div className="liquid-glass p-5 rounded-[2rem] border border-white/10 shadow-lg relative overflow-hidden group/footer hover:border-white/20 transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-tertiary/5 opacity-0 group-hover/footer:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                <p className="text-[9px] font-black text-on-surface-variant/40 uppercase tracking-[0.2em] leading-relaxed italic relative z-10">
                     © 2026 BuddyLine Labs. <br />
                     {t('footer.slogan')}
                 </p>

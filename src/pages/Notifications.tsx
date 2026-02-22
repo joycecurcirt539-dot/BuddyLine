@@ -140,19 +140,19 @@ export const Notifications = () => {
         switch (type) {
             case 'friend_request':
             case 'friend_accept':
-                return <UserPlus className="text-primary" size={20} />;
+                return <UserPlus className="text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" size={16} />;
             case 'message_received':
             case 'message_reply':
-                return <MessageSquare className="text-blue-500" size={20} />;
+                return <MessageSquare className="text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]" size={16} />;
             case 'message_forwarded':
-                return <Share2 className="text-purple-500" size={20} />;
+                return <Share2 className="text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]" size={16} />;
             case 'post_like':
-                return <Heart className="text-pink-500" size={20} />;
+                return <Heart className="text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]" size={16} />;
             case 'post_comment':
             case 'comment_reply':
-                return <MessageCircle className="text-green-500" size={20} />;
+                return <MessageCircle className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]" size={16} />;
             default:
-                return <Bell className="text-on-surface" size={20} />;
+                return <Bell className="text-on-surface drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" size={16} />;
         }
     };
 
@@ -168,12 +168,17 @@ export const Notifications = () => {
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto pb-20 lg:pb-0">
+        <motion.div
+            className="w-full max-w-4xl mx-auto pb-20 lg:pb-0"
+            initial={{ opacity: 0, y: -28, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        >
             <div className="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl lg:text-3xl page-title-highlight leading-tight flex items-center gap-3">
+                    <h1 className="text-2xl lg:text-3xl page-title-highlight leading-tight flex items-center gap-3 font-black uppercase italic tracking-tighter">
                         {t('notifications.title')}
-                        <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
+                        <span className="text-sm font-bold bg-primary/20 text-primary px-3 py-1 rounded-full border border-primary/30 shadow-inner">
                             {notifications.filter(n => !n.is_read).length}
                         </span>
                     </h1>
@@ -201,10 +206,10 @@ export const Notifications = () => {
                         key={tab.id}
                         onClick={() => setFilter(tab.id as 'all' | 'requests' | 'messages' | 'activity')}
                         className={clsx(
-                            "px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap",
+                            "px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
                             filter === tab.id
-                                ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
-                                : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
+                                ? "bg-gradient-to-br from-primary to-primary-container text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] border border-primary/20"
+                                : "liquid-glass bg-surface-container-high/40 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface border border-white/5"
                         )}
                     >
                         {tab.label}
@@ -229,10 +234,10 @@ export const Notifications = () => {
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 onClick={() => !notification.is_read && markAsRead(notification.id)}
                                 className={clsx(
-                                    "group relative p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md",
+                                    "group relative p-5 rounded-[2rem] border transition-all duration-300 cursor-pointer mb-2",
                                     notification.is_read
-                                        ? "bg-surface border-outline/5"
-                                        : "bg-surface-container-high/30 border-primary/20 shadow-sm"
+                                        ? "liquid-glass bg-white/5 backdrop-blur-md border-white/5 opacity-70 hover:opacity-100 hover:shadow-lg hover:-translate-y-1"
+                                        : "liquid-glass bg-primary/5 backdrop-blur-xl border-primary/30 shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)] hover:-translate-y-1 hover:shadow-[0_5px_30px_rgba(var(--primary-rgb),0.2)]"
                                 )}
                             >
                                 <div className="flex gap-4">
@@ -242,7 +247,7 @@ export const Notifications = () => {
                                             alt={notification.actor?.full_name || ''}
                                             size="md"
                                         />
-                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-surface shadow-sm flex items-center justify-center border border-outline/10">
+                                        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-surface-container-low shadow-[0_0_15px_rgba(0,0,0,0.5)] flex items-center justify-center border-2 border-surface z-10">
                                             {getIcon(notification.type)}
                                         </div>
                                     </div>
@@ -278,21 +283,21 @@ export const Notifications = () => {
 
                                         {/* Actions for Friend Request */}
                                         {notification.type === 'friend_request' && !notification.is_read && (
-                                            <div className="flex gap-2 mt-3">
+                                            <div className="flex gap-2 mt-4 relative z-10">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         markAsRead(notification.id);
                                                     }}
-                                                    className="flex-1 bg-primary text-on-primary py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all text-center flex items-center justify-center gap-2"
+                                                    className="flex-1 bg-gradient-to-br from-primary to-primary-container text-white py-2 rounded-[1.25rem] text-xs font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary-rgb),0.5)] active:scale-95 transition-all flex items-center justify-center gap-2 border border-white/20"
                                                 >
-                                                    <Check size={16} /> {t('notifications.accept')}
+                                                    <Check size={16} strokeWidth={3} /> {t('notifications.accept')}
                                                 </button>
                                                 <button
                                                     onClick={(e) => deleteNotification(notification.id, e)}
-                                                    className="flex-1 bg-surface-container-highest text-on-surface hover:bg-surface-container-highest/80 py-1.5 rounded-lg text-sm font-bold transition-all text-center flex items-center justify-center gap-2"
+                                                    className="flex-1 liquid-glass bg-white/5 text-on-surface hover:bg-white/10 py-2 rounded-[1.25rem] text-xs font-black uppercase tracking-[0.2em] transition-all shadow-inner flex items-center justify-center gap-2 border border-white/5 hover:border-white/10 active:scale-95"
                                                 >
-                                                    <X size={16} /> {t('notifications.decline')}
+                                                    <X size={16} strokeWidth={3} /> {t('notifications.decline')}
                                                 </button>
                                             </div>
                                         )}
@@ -316,6 +321,6 @@ export const Notifications = () => {
                     )}
                 </AnimatePresence>
             </div>
-        </div>
+        </motion.div>
     );
 };

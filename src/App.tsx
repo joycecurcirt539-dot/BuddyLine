@@ -16,38 +16,44 @@ const Chat = lazy(() => import('./pages/Chat').then(module => ({ default: module
 const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: module.Profile })));
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 const Notifications = lazy(() => import('./pages/Notifications').then(module => ({ default: module.Notifications })));
+const Directory = lazy(() => import('./pages/Directory').then(module => ({ default: module.Directory })));
 const NotFound = lazy(() => import('./pages/NotFound').then(module => ({ default: module.NotFound })));
+
+import { DeviceProvider } from './context/DeviceContext';
 
 function App() {
   return (
     <Router>
-      <ThemeProvider>
-        <AuthProvider>
-          <PresenceProvider>
-            <CallProvider>
-              <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
+      <DeviceProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <PresenceProvider>
+              <CallProvider>
+                <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
 
-                  <Route element={<ProtectedRoute />}>
-                    <Route element={<Layout />}>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/friends" element={<Friends />} />
-                      <Route path="/chat" element={<Chat />} />
-                      <Route path="/notifications" element={<Notifications />} />
-                      <Route path="/profile/:id?" element={<Profile />} />
-                      <Route path="/settings" element={<Settings />} />
+                    <Route element={<ProtectedRoute />}>
+                      <Route element={<Layout />}>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/friends" element={<Friends />} />
+                        <Route path="/chat" element={<Chat />} />
+                        <Route path="/notifications" element={<Notifications />} />
+                        <Route path="/directory" element={<Directory />} />
+                        <Route path="/profile/:id?" element={<Profile />} />
+                        <Route path="/settings" element={<Settings />} />
+                      </Route>
                     </Route>
-                  </Route>
 
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-              <InstallPrompt />
-            </CallProvider>
-          </PresenceProvider>
-        </AuthProvider>
-      </ThemeProvider>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+                <InstallPrompt />
+              </CallProvider>
+            </PresenceProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </DeviceProvider>
     </Router>
   );
 }

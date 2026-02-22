@@ -70,7 +70,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
     return (
         <div className="p-4 md:p-6 sticky top-0 z-40">
-            <div className="bubble flex items-center justify-between p-3 md:p-4 px-4 md:px-8 border border-outline-variant/10 shadow-2xl relative">
+            <div className="liquid-glass rounded-[2rem] flex items-center justify-between p-3 md:p-4 px-4 md:px-8 border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.2)] relative">
                 <div className="flex items-center gap-4 md:gap-6">
                     {/* Back Button (Mobile) */}
                     <button
@@ -131,18 +131,18 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 {/* Actions Hub */}
                 <div className="flex items-center gap-2 md:gap-4">
                     {chat.type !== 'group' && (
-                        <div className="flex items-center gap-0.5 md:gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
+                        <div className="flex items-center gap-0.5 md:gap-1 bg-white/10 backdrop-blur-md p-1.5 rounded-[1.5rem] border border-white/10 shadow-inner">
                             <button
                                 onClick={handleVoiceCall}
                                 aria-label={t('chat.actions.voice_call')}
-                                className="p-2 md:p-3 text-on-surface-variant hover:text-primary rounded-xl hover:bg-primary/10 transition-all active:scale-90"
+                                className="p-2 md:p-2.5 text-on-surface-variant hover:text-primary rounded-[1.25rem] hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] transition-all duration-300 active:scale-90"
                             >
                                 <Phone size={18} className="md:w-5 md:h-5" />
                             </button>
                             <button
                                 onClick={handleVideoCall}
                                 aria-label={t('chat.actions.video_call')}
-                                className="p-2 md:p-3 text-on-surface-variant hover:text-primary rounded-xl hover:bg-primary/10 transition-all active:scale-90"
+                                className="p-2 md:p-2.5 text-on-surface-variant hover:text-primary rounded-[1.25rem] hover:bg-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] transition-all duration-300 active:scale-90"
                             >
                                 <Video size={18} className="md:w-5 md:h-5" />
                             </button>
@@ -156,7 +156,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-label={t('chat.actions.more')}
                             className={clsx(
-                                "p-3 text-on-surface-variant hover:text-on-surface rounded-2xl hover:bg-white/10 transition-all active:scale-95",
+                                "p-3 text-on-surface-variant hover:text-on-surface rounded-[1.25rem] hover:bg-white/10 transition-all active:scale-95",
                                 isMenuOpen && "bg-white/10 text-on-surface rotate-90"
                             )}
                         >
@@ -169,7 +169,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                                     initial={{ opacity: 0, scale: 0.9, y: 10, x: 20 }}
                                     animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                                     exit={{ opacity: 0, scale: 0.9, y: 10, x: 20 }}
-                                    className="absolute right-0 mt-3 w-64 bubble p-2 shadow-2xl border border-white/10 z-50 flex flex-col gap-1 overflow-hidden"
+                                    className="absolute right-0 mt-3 w-64 liquid-glass rounded-[2rem] p-2 shadow-2xl border border-white/20 z-50 flex flex-col gap-1 overflow-hidden"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
 

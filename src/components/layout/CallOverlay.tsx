@@ -10,6 +10,7 @@ import { useWebRTC } from '../../hooks/useWebRTC';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { Button } from '../ui/Button';
 
 export const CallOverlay: React.FC = () => {
     const { activeCall, endCall } = useCall();
@@ -127,20 +128,25 @@ export const CallOverlay: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center p-4 overflow-hidden"
         >
             {mediaError && (
-                <div className="absolute inset-0 z-[10000] bg-black/90 flex items-center justify-center p-6 text-center">
-                    <div className="max-w-xs">
-                        <Camera className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                        <p className="text-white text-lg font-bold mb-4">{mediaError}</p>
-                        <button
+                <div className="absolute inset-0 z-[10000] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 text-center">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="max-w-xs liquid-glass p-8 border-red-500/20"
+                    >
+                        <Camera className="w-16 h-16 text-red-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
+                        <p className="text-white text-xl font-black uppercase italic tracking-tight mb-6">{mediaError}</p>
+                        <Button
+                            variant="primary"
                             onClick={endCall}
-                            className="w-full bg-primary text-white py-3 rounded-2xl font-bold"
+                            className="w-full"
                         >
                             {t('common.close')}
-                        </button>
-                    </div>
+                        </Button>
+                    </motion.div>
                 </div>
             )}
             <div className="absolute inset-0 bg-surface flex items-center justify-center overflow-hidden">
@@ -160,15 +166,24 @@ export const CallOverlay: React.FC = () => {
                     </div>
                 )}
 
-                <div className="absolute top-6 left-6 flex flex-col gap-2">
-                    <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-white text-sm flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${connectionState === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                <div className="absolute top-8 left-8 flex flex-col gap-3">
+                    <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        className="bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-2xl border border-white/10 text-white text-sm font-black uppercase tracking-widest flex items-center gap-3 shadow-2xl"
+                    >
+                        <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor] ${connectionState === 'connected' ? 'bg-green-500 text-green-500/50' : 'bg-yellow-500 text-yellow-500/50'} animate-pulse`} />
                         {connectionState === 'connected' ? formatDuration(duration) : t(`calls.status.${connectionState}`)}
-                    </div>
-                    <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white/80 text-xs flex items-center gap-2">
-                        <Maximize className="w-3 h-3" />
+                    </motion.div>
+                    <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-primary/20 backdrop-blur-xl px-4 py-2 rounded-2xl border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 shadow-xl italic"
+                    >
+                        <Maximize className="w-3.5 h-3.5" />
                         {t('calls.p2p_secure')}
-                    </div>
+                    </motion.div>
                 </div>
             </div>
 
@@ -191,54 +206,66 @@ export const CallOverlay: React.FC = () => {
                 )}
             </motion.div>
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black/40 backdrop-blur-xl px-8 py-5 rounded-[2.5rem] border border-white/10 shadow-2xl">
-                <button
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-5 bg-black/60 backdrop-blur-[40px] px-10 py-6 rounded-[3rem] border border-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] z-20">
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={toggleMic}
                     title={micEnabled ? t('chat.actions.mute') : t('chat.actions.unmute')}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${micEnabled ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-red-500 text-white'}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${micEnabled ? 'bg-white/5 text-white hover:bg-white/10 border border-white/10' : 'bg-red-500 text-white shadow-lg shadow-red-500/20'}`}
                 >
-                    {micEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
-                    <span className="sr-only">{micEnabled ? t('chat.actions.mute') : t('chat.actions.unmute')}</span>
-                </button>
+                    {micEnabled ? <Mic className="w-7 h-7" /> : <MicOff className="w-7 h-7" />}
+                </motion.button>
 
-                <button
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={toggleVideo}
                     title={videoEnabled ? t('chat.actions.video_call') : t('chat.actions.video_call')}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${videoEnabled ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-red-500 text-white'}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${videoEnabled ? 'bg-white/5 text-white hover:bg-white/10 border border-white/10' : 'bg-red-500 text-white shadow-lg shadow-red-500/20'}`}
                 >
-                    {videoEnabled ? <VideoIcon className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
-                    <span className="sr-only">{videoEnabled ? t('chat.actions.video_call') : t('chat.actions.video_call')}</span>
-                </button>
+                    {videoEnabled ? <VideoIcon className="w-7 h-7" /> : <VideoOff className="w-7 h-7" />}
+                </motion.button>
 
-                <button
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={toggleScreenShare}
                     title={t('calls.toggle_screen_share')}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isScreenSharing ? 'bg-primary text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isScreenSharing ? 'bg-primary text-on-primary shadow-lg shadow-primary/30' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}
                 >
-                    <Monitor className="w-6 h-6" />
-                    <span className="sr-only">{t('calls.toggle_screen_share')}</span>
-                </button>
+                    <Monitor className="w-7 h-7" />
+                </motion.button>
 
-                <button
+                <motion.button
+                    whileHover={{ scale: 1.15, rotate: -90 }}
+                    whileTap={{ scale: 0.85 }}
                     onClick={endCall}
                     title={t('common.close')}
-                    className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-lg shadow-red-500/20"
+                    className="w-16 h-16 rounded-[1.75rem] bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-2xl shadow-red-500/40 border border-red-400/20"
                 >
-                    <PhoneOff className="w-7 h-7" />
-                    <span className="sr-only">{t('common.close')}</span>
-                </button>
+                    <PhoneOff className="w-8 h-8" />
+                </motion.button>
 
-                <div className="w-px h-8 bg-white/10 mx-2" />
+                <div className="w-px h-10 bg-white/10 mx-3" />
 
-                <button title={t('calls.camera_settings')} className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all">
-                    <Camera className="w-6 h-6" />
-                    <span className="sr-only">{t('calls.camera_settings')}</span>
-                </button>
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    title={t('calls.camera_settings')}
+                    className="w-14 h-14 rounded-2xl bg-white/5 text-white flex items-center justify-center hover:bg-white/10 border border-white/10 transition-all"
+                >
+                    <Camera className="w-7 h-7" />
+                </motion.button>
 
-                <button title={t('common.settings')} className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all">
-                    <Settings className="w-6 h-6" />
-                    <span className="sr-only">{t('common.settings')}</span>
-                </button>
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    title={t('common.settings')}
+                    className="w-14 h-14 rounded-2xl bg-white/5 text-white flex items-center justify-center hover:bg-white/10 border border-white/10 transition-all"
+                >
+                    <Settings className="w-7 h-7" />
+                </motion.button>
             </div>
 
             {connectionState === 'failed' && (

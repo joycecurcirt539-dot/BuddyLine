@@ -134,74 +134,105 @@ export const BuddyLogic: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto p-4 select-none accelerate">
-            {/* Stats */}
-            <div className="flex justify-between items-center w-full">
-                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
-                    <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
-                        <Zap className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.score')}</span>
+        <div className="flex flex-col items-center gap-8 lg:gap-12 w-full max-w-md mx-auto p-4 select-none accelerate">
+            {/* Background depth items */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-tertiary/20 blur-[80px] rounded-full" />
+            </div>
+
+            {/* Stats Bar - Premium Glass */}
+            <div className="flex justify-between items-center w-full px-2 relative z-10">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex flex-col gap-1.5"
+                >
+                    <span className="text-[10px] font-black text-primary/70 uppercase tracking-[0.25em] ml-1">{t('game.score')}</span>
+                    <div className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-5 py-3 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate">
+                        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                            <Zap className="w-4 h-4 text-primary" />
+                        </div>
                         <motion.span
                             key={score}
-                            initial={{ scale: 1.3 }}
+                            initial={{ scale: 1.2 }}
                             animate={{ scale: 1 }}
-                            className="text-xl font-black text-on-surface tabular-nums leading-none mt-0.5"
+                            className="text-2xl font-black text-on-surface tabular-nums tracking-tight"
                         >
                             {score}
                         </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Lives */}
-                <div className={`flex items-center gap-2 ${reduceEffects ? '' : 'backdrop-blur-2xl'} bg-surface-container-high/50 px-3 py-2.5 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
+                {/* Lives - Glowing Pearls */}
+                <motion.div
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="bg-surface-container-high/40 backdrop-blur-3xl px-6 py-4 rounded-[2.5rem] border border-white/10 shadow-xl flex items-center gap-4"
+                >
                     {[...Array(3)].map((_, i) => (
                         <motion.div
                             key={i}
                             animate={{
-                                scale: i < lives ? 1 : 0.6,
-                                opacity: i < lives ? 1 : 0.2,
+                                scale: i < lives ? [1, 1.2, 1] : 0.6,
+                                opacity: i < lives ? 1 : 0.15,
+                                filter: i < lives ? 'brightness(1.5)' : 'brightness(1)',
                             }}
-                            transition={{ type: 'spring', stiffness: 300 }}
-                            className={`w-3 h-3 rounded-full transition-colors ${i < lives ? 'bg-gradient-to-br from-primary to-tertiary shadow-md shadow-primary/30' : 'bg-on-surface-variant/15'}`}
-                        />
+                            transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                duration: 2,
+                                repeat: i < lives ? Infinity : 0,
+                                repeatType: "reverse"
+                            }}
+                            className={`w-4 h-4 rounded-full relative transition-colors ${i < lives ? 'bg-gradient-to-br from-white via-primary to-primary shadow-[0_0_20px_rgba(99,102,241,0.6)]' : 'bg-on-surface/20'}`}
+                        >
+                            {i < lives && (
+                                <div className="absolute inset-0 rounded-full bg-white/40 blur-[1px] scale-50 -translate-y-[2px]" />
+                            )}
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
 
-                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} bg-surface-container-high/50 px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
-                    <Trophy className="w-4 h-4 text-primary/60" />
-                    <div className="flex flex-col items-end">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.best')}</span>
-                        <span className="text-lg font-black text-on-surface/60 tabular-nums leading-none mt-0.5">{bestScore}</span>
+                <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex flex-col items-end gap-1.5"
+                >
+                    <span className="text-[10px] font-black text-tertiary/70 uppercase tracking-[0.25em] mr-1">{t('game.best')}</span>
+                    <div className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-5 py-3 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate">
+                        <Trophy className="w-5 h-5 text-tertiary" />
+                        <span className="text-xl font-black text-on-surface/60 tabular-nums tracking-tight">{bestScore}</span>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
-            {/* Main Area */}
-            <div style={{ touchAction: 'none' }} className={`relative aspect-square w-full bg-surface-container-low/30 rounded-[2rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} p-4 flex flex-col items-center justify-center overflow-hidden shadow-2xl accelerate`}>
+            {/* Main Area - Liquid Glass Container */}
+            <div style={{ touchAction: 'none' }} className={`relative aspect-square w-full bg-gradient-to-br from-surface-container-low/40 to-transparent rounded-[3rem] lg:rounded-[4rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-3xl'} p-8 flex flex-col items-center justify-center overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] accelerate`}>
                 <AnimatePresence mode="wait">
                     {gameState === 'start' ? (
                         <motion.div
                             key="start"
-                            initial={{ opacity: 0, scale: 0.8 }}
+                            initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 1.2 }}
-                            className="flex flex-col items-center text-center"
+                            exit={{ opacity: 0, scale: 1.1 }}
+                            className="flex flex-col items-center text-center px-4 relative z-10"
                         >
-                            <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary/20 to-tertiary/20 flex items-center justify-center mb-5 shadow-xl">
-                                <HelpCircle className="w-10 h-10 text-primary" />
+                            <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-primary to-tertiary flex items-center justify-center mb-8 shadow-2xl shadow-primary/40 relative">
+                                <HelpCircle className="w-12 h-12 text-white" />
+                                <div className="absolute inset-0 rounded-[2.5rem] border border-white/30" />
                             </div>
-                            <h3 className="text-2xl font-black bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent mb-2 uppercase italic tracking-tight">BuddyLogic</h3>
-                            <p className="text-xs font-bold text-on-surface-variant/50 mb-7 max-w-[200px] leading-relaxed">
+                            <h3 className="text-4xl font-black bg-gradient-to-r from-primary via-white to-tertiary bg-clip-text text-transparent mb-3 uppercase italic tracking-tighter">BuddyLogic</h3>
+                            <p className="text-sm font-bold text-on-surface-variant/70 mb-10 max-w-[240px] leading-relaxed">
                                 {t('game.logic.instruction')}
                             </p>
                             <motion.button
-                                whileHover={{ scale: 1.05 }}
+                                whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(99,102,241,0.5)' }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={startGame}
-                                className="px-10 py-3.5 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-2xl font-black uppercase tracking-wider text-xs shadow-xl shadow-primary/25"
+                                className="px-14 py-5 bg-gradient-to-r from-primary to-tertiary text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl relative overflow-hidden group"
                             >
+                                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                                 {t('game.start')}
                             </motion.button>
                         </motion.div>
@@ -210,21 +241,22 @@ export const BuddyLogic: React.FC = () => {
                             key="gameover"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex flex-col items-center text-center p-6"
+                            className="flex flex-col items-center text-center p-10 bg-surface-container-highest/60 rounded-[3.5rem] border border-white/15 backdrop-blur-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden max-w-[320px]"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-error/15 flex items-center justify-center mb-3">
-                                <Brain className="w-7 h-7 text-error" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-error/20 via-transparent to-transparent pointer-events-none" />
+                            <div className="w-20 h-20 rounded-[2rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/10">
+                                <Brain className="w-10 h-10 text-error" />
                             </div>
-                            <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight">{t('game.logic.fail')}</h3>
-                            <div className="flex flex-col mb-5">
-                                <span className="text-[8px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] mb-1">{t('game.solve.final_score')}</span>
-                                <span className="text-4xl font-black bg-gradient-to-b from-on-surface to-on-surface/50 bg-clip-text text-transparent">{score}</span>
+                            <h3 className="text-3xl font-black text-error mb-2 uppercase italic tracking-tighter">{t('game.logic.fail')}</h3>
+                            <div className="flex flex-col mb-10">
+                                <span className="text-[10px] text-on-surface-variant/50 font-black uppercase tracking-[0.25em] mb-1">{t('game.solve.final_score')}</span>
+                                <span className="text-7xl font-black bg-gradient-to-b from-white to-on-surface/30 bg-clip-text text-transparent tracking-tighter tabular-nums leading-none">{score}</span>
                             </div>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={startGame}
-                                className="w-full py-3.5 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-[10px] shadow-lg"
+                                className="w-full py-5 bg-gradient-to-r from-primary to-tertiary text-white rounded-[1.5rem] font-black uppercase tracking-[0.15em] text-xs shadow-xl shadow-primary/30"
                             >
                                 {t('game.logic.recalibrate')}
                             </motion.button>
@@ -234,67 +266,81 @@ export const BuddyLogic: React.FC = () => {
                             key="playing"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="w-full h-full flex flex-col justify-center gap-10 py-2"
+                            className="w-full h-full flex flex-col justify-between py-2"
                         >
-                            <div className="flex flex-col items-center gap-5">
-                                <span className="text-[9px] font-black text-primary/40 uppercase tracking-[0.3em] font-mono">
-                                    {t('game.logic.sequence_type', { type: sequence?.type })}
-                                </span>
+                            <div className="flex flex-col items-center gap-8">
+                                <div className="bg-primary/10 border border-primary/20 px-6 py-2 rounded-full shadow-lg shadow-primary/5">
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em] font-mono leading-none">
+                                        {t('game.logic.sequence_type', { type: sequence?.type })}
+                                    </span>
+                                </div>
 
-                                <div className="flex items-center justify-center gap-1.5 lg:gap-2.5 w-full">
+                                <div className="flex items-center justify-center gap-3 lg:gap-5 w-full">
                                     {sequence?.items.map((item, i) => (
-                                        <div key={i} className="flex items-center gap-1 lg:gap-2">
+                                        <div key={i} className="flex items-center gap-2 lg:gap-4 group">
                                             <motion.div
-                                                initial={{ scale: 0, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
+                                                initial={{ scale: 0, y: 20 }}
+                                                animate={{ scale: 1, y: 0 }}
                                                 transition={{ delay: i * 0.1 }}
-                                                className="w-10 h-10 lg:w-13 lg:h-13 bg-surface-container-high/50 backdrop-blur-xl border border-outline/10 rounded-xl flex items-center justify-center text-sm lg:text-base font-black text-on-surface shadow-lg"
+                                                className="w-12 h-12 lg:w-16 lg:h-16 bg-surface-container-high/40 backdrop-blur-3xl border border-white/10 rounded-2xl flex items-center justify-center text-xl lg:text-3xl font-black text-on-surface shadow-[0_10px_30px_rgba(0,0,0,0.3)] relative overflow-hidden"
                                             >
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
                                                 {item}
                                             </motion.div>
-                                            {i < 3 && <span className="text-on-surface-variant/15 font-black text-xs">→</span>}
+                                            {i < 3 && (
+                                                <motion.div
+                                                    animate={{ x: [0, 5, 0], opacity: [0.3, 1, 0.3] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                                                    className="w-4 lg:w-6 h-[2px] bg-gradient-to-r from-primary/50 to-transparent rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                                                />
+                                            )}
                                         </div>
                                     ))}
-                                    <span className="text-on-surface-variant/15 font-black text-xs">→</span>
+                                    <div className="w-4 lg:w-6 h-[2px] bg-gradient-to-r from-primary/50 to-transparent rounded-full opacity-30" />
                                     <motion.div
-                                        animate={{ borderColor: ['rgba(var(--primary-rgb),0.2)', 'rgba(var(--primary-rgb),0.5)', 'rgba(var(--primary-rgb),0.2)'] }}
+                                        animate={{
+                                            borderColor: ['rgba(255,255,255,0.1)', 'rgba(99,102,241,0.5)', 'rgba(255,255,255,0.1)'],
+                                            boxShadow: ['0 0 0px rgba(99,102,241,0)', '0 0 30px rgba(99,102,241,0.3)', '0 0 0px rgba(99,102,241,0)']
+                                        }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        className="w-10 h-10 lg:w-13 lg:h-13 bg-primary/8 border-2 border-dashed border-primary/30 rounded-xl flex items-center justify-center text-sm lg:text-base font-black text-primary shadow-xl shadow-primary/10"
+                                        className="w-12 h-12 lg:w-16 lg:h-16 bg-primary/10 border-2 border-dashed border-primary/30 rounded-2xl flex items-center justify-center text-xl lg:text-3xl font-black text-primary relative overflow-hidden"
                                     >
+                                        <div className="absolute inset-0 bg-primary/5 animate-pulse" />
                                         ?
                                     </motion.div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2.5 w-full pb-2">
+                            <div className="grid grid-cols-2 gap-4 w-full relative z-10 pb-4">
                                 {sequence?.options.map((opt, i) => {
                                     const isCorrect = opt === sequence.answer;
                                     const isSelected = opt === selectedAnswer;
 
-                                    let buttonStyle = 'bg-surface-container-high/50 border-outline/10 text-on-surface hover:bg-surface-container-highest/80 backdrop-blur-xl shadow-lg';
+                                    let buttonStyle = 'bg-surface-container-high/40 border-white/10 text-on-surface hover:bg-surface-container-highest/60 hover:y-[-4px] backdrop-blur-3xl shadow-xl shadow-black/20';
                                     if (feedback) {
                                         if (isCorrect) {
-                                            buttonStyle = 'bg-green-500/20 border-green-500/40 text-green-400 shadow-[0_0_25px_rgba(34,197,94,0.15)]';
+                                            buttonStyle = 'bg-green-500/20 border-green-500/40 text-green-400 shadow-[0_0_40px_rgba(34,197,94,0.2)] scale-105 z-10';
                                         } else if (isSelected && !isCorrect) {
-                                            buttonStyle = 'bg-error/20 border-error/40 text-error shadow-[0_0_25px_rgba(239,68,68,0.15)]';
+                                            buttonStyle = 'bg-error/20 border-error/40 text-error shadow-[0_0_40px_rgba(239,68,68,0.2)] animate-shake';
                                         } else {
-                                            buttonStyle = 'bg-surface-container-high/20 border-outline/5 text-on-surface/15 opacity-30';
+                                            buttonStyle = 'bg-surface-container-high/10 border-white/5 text-on-surface/20 opacity-30 scale-95';
                                         }
                                     }
 
                                     return (
                                         <motion.button
                                             key={`${sequence.type}-${i}`}
-                                            whileHover={!feedback ? { scale: 1.03, y: -2 } : {}}
-                                            whileTap={!feedback ? { scale: 0.97 } : {}}
+                                            whileHover={!feedback ? { scale: 1.05, y: -4, backgroundColor: 'rgba(255,255,255,0.1)' } : {}}
+                                            whileTap={!feedback ? { scale: 0.95 } : {}}
                                             onClick={() => handleAnswer(opt)}
                                             disabled={!!feedback}
                                             className={`
-                                                h-14 lg:h-16 rounded-xl flex items-center justify-center text-lg lg:text-xl font-black transition-all duration-300 border
+                                                h-20 lg:h-24 rounded-[2rem] flex items-center justify-center text-2xl lg:text-3xl font-black transition-all duration-300 border relative overflow-hidden
                                                 ${buttonStyle}
                                             `}
                                         >
-                                            {opt}
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
+                                            <span className="relative z-10">{opt}</span>
                                         </motion.button>
                                     );
                                 })}
@@ -305,8 +351,7 @@ export const BuddyLogic: React.FC = () => {
             </div>
 
             {gameState === 'playing' && (
-                <div className="text-[9px] font-medium text-on-surface-variant/30 italic flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-primary/40" />
+                <div className="bg-surface-container-high/30 backdrop-blur-3xl px-8 py-3 rounded-full border border-white/5 text-[10px] font-black text-primary/40 uppercase tracking-[0.4em] italic shadow-lg">
                     {t('game.logic.hint')}
                 </div>
             )}

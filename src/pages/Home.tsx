@@ -37,7 +37,12 @@ export const Home = () => {
     }, []);
 
     return (
-        <div className="w-full flex gap-8">
+        <motion.div
+            className="w-full flex gap-8"
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 28, mass: 0.9 }}
+        >
             <div className="flex-1">
                 <div className="flex flex-col lg:flex-row items-center gap-4 mb-6 lg:mb-0">
                     {/* Mobile Brand Bubble & Notification Toggle in a row */}
@@ -45,24 +50,25 @@ export const Home = () => {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: 1.05 }}
+                            whileHover={{ scale: 1.1, rotate: 5 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={onLogoClick}
-                            className="relative z-10 w-12 h-12 rounded-2xl bg-surface-container-high/60 backdrop-blur-xl border border-outline/10 p-2.5 flex items-center justify-center shadow-2xl cursor-pointer"
+                            className="relative z-10 w-14 h-14 rounded-[1.5rem] liquid-glass p-3 flex items-center justify-center shadow-2xl cursor-pointer border-white/20 active:scale-90 transition-all duration-300"
                         >
                             <motion.div
                                 animate={{
-                                    y: [0, -2, 0],
-                                    rotate: [0, 5, -5, 0]
+                                    y: [0, -4, 0],
+                                    rotate: [0, 10, -10, 0],
+                                    scale: [1, 1.1, 1]
                                 }}
                                 transition={{
-                                    duration: 5,
+                                    duration: 6,
                                     repeat: Infinity,
                                     ease: "easeInOut"
                                 }}
-                                className="w-full h-full rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/10"
+                                className="w-full h-full rounded-xl bg-gradient-to-br from-primary/30 to-tertiary/30 flex items-center justify-center shadow-lg shadow-primary/10 border border-white/10"
                             >
-                                <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
+                                <img src="/logo.png" alt="Logo" className="w-7 h-7 object-contain" />
                             </motion.div>
                         </motion.div>
 
@@ -71,26 +77,30 @@ export const Home = () => {
                         <motion.button
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: 1.05 }}
+                            whileHover={{ scale: 1.1, rotate: -5 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => navigate('/notifications')}
-                            className="relative w-12 h-12 rounded-2xl bg-surface-container-high/60 backdrop-blur-xl border border-outline/10 p-2.5 flex items-center justify-center shadow-2xl cursor-pointer text-on-surface"
+                            className="relative w-14 h-14 rounded-[1.5rem] liquid-glass p-3 flex items-center justify-center shadow-2xl cursor-pointer text-on-surface border-white/20 active:scale-90 transition-all duration-300"
                         >
-                            <Bell className="w-6 h-6" />
+                            <Bell className="w-7 h-7" />
                             {unreadCount > 0 && (
-                                <span className="absolute top-2 right-2 w-5 h-5 bg-primary text-on-primary text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-surface shadow-sm">
+                                <motion.span
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-lg shadow-red-500/40"
+                                >
                                     {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
+                                </motion.span>
                             )}
                         </motion.button>
                     </div>
                 </div>
-                <div className="max-w-3xl mx-auto w-full">
+                <div className="max-w-4xl mx-auto w-full">
                     <Feed />
                 </div>
             </div>
 
             <UserListPanel />
-        </div>
+        </motion.div>
     );
 };

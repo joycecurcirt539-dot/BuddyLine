@@ -421,22 +421,24 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
     return (
         <motion.div
             ref={cardRef}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{
-                delay: Math.min(index * 0.05, 0.3),
-                duration: 0.3,
-                ease: "easeOut"
+                delay: Math.min(index * 0.08, 0.4),
+                type: "spring",
+                stiffness: 100,
+                damping: 20
             }}
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -8, scale: 1.01 }}
             style={{ maxWidth: 800 }}
             className={clsx(
-                "bubble p-6 mb-6 hover:shadow-2xl hover:shadow-primary/10 hover:bg-surface-container-low/60 group/card relative w-full mx-auto",
+                "liquid-glass p-6 md:p-8 mb-10 rounded-[3rem] group/card relative w-full mx-auto transition-all duration-500 border-white/20 dark:border-white/10 hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] hover:border-primary/30",
                 showEmojiPicker && "z-[100]"
             )}
         >
             {/* Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover/card:bg-primary/10 transition-colors duration-700" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-[80px] -mr-24 -mt-24 group-hover/card:bg-primary/20 transition-colors duration-700" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-tertiary/10 rounded-full blur-[80px] -ml-24 -mb-24 group-hover/card:bg-tertiary/20 transition-colors duration-700" />
 
             {/* Header */}
             <div className="flex items-center justify-between mb-5 relative z-10">
@@ -445,10 +447,10 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                         <Avatar
                             src={post.author.avatar_url}
                             alt={post.author.username}
-                            size="md"
-                            className="ring-4 ring-primary/5 shadow-2xl transition-transform duration-500 group-hover/avatar:scale-110"
+                            size="lg"
+                            className="ring-4 ring-white/20 dark:ring-white/10 shadow-2xl transition-all duration-700 group-hover/avatar:scale-110 group-hover/avatar:rotate-6"
                         />
-                        <div className="absolute inset-0 rounded-full bg-primary/10 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 rounded-full bg-primary/20 opacity-0 group-hover/avatar:opacity-100 blur-md transition-opacity duration-300" />
                     </Link>
                     <div className="flex flex-col">
                         <Link to={`/profile/${post.user_id}`} className="group/name">
@@ -496,6 +498,8 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                             onChange={(e) => setEditPostContent(e.target.value)}
                             className="w-full px-4 py-3 bg-surface-container rounded-2xl border border-primary/20 focus:ring-2 focus:ring-primary/30 outline-none text-base font-medium text-on-surface resize-none min-h-[80px]"
                             autoFocus
+                            title={t('common.edit')}
+                            placeholder={t('post.placeholder', 'What is on your mind?')}
                         />
                         <div className="flex gap-2 mt-2 justify-end">
                             <button
@@ -513,74 +517,76 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                         </div>
                     </div>
                 ) : (
-                    <p className="text-on-surface/90 mb-5 whitespace-pre-wrap text-base lg:text-lg leading-relaxed font-medium tracking-tight">
+                    <p className="text-on-surface/90 mb-6 whitespace-pre-wrap text-[17px] lg:text-[20px] leading-relaxed font-black tracking-tight drop-shadow-sm">
                         {postContent}
                         {postEditedAt && (
-                            <span className="text-[10px] text-on-surface-variant/30 font-bold ml-2 uppercase">({t('common.edited')})</span>
+                            <span className="text-[10px] text-primary/50 font-black ml-2 uppercase tracking-widest italic">({t('common.edited')})</span>
                         )}
                     </p>
                 )}
 
                 {post.image_url && (
                     <motion.div
-                        whileHover={{ scale: 1.01 }}
-                        className="overflow-hidden mb-5 rounded-2xl border border-outline-variant/10 shadow-2xl relative group/image"
+                        whileHover={{ scale: 1.02 }}
+                        className="overflow-hidden mb-6 rounded-[2rem] border border-white/20 dark:border-white/5 shadow-2xl relative group/image bg-black/10 backdrop-blur-sm"
                     >
                         <img
                             src={post.image_url}
                             alt="Post content"
-                            className="w-full h-auto object-contain rounded-2xl transition-transform duration-700 group-hover/image:scale-105"
+                            className="w-full h-auto object-contain rounded-[2rem] transition-transform duration-1000 cubic-bezier(0.16, 1, 0.3, 1) group-hover/image:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover/image:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover/image:opacity-100 transition-all duration-700" />
                     </motion.div>
                 )}
             </div>
 
-            {/* Action Bar */}
-            <div className="flex items-center justify-between pt-4 border-t border-outline-variant/10 relative z-10">
-                <div className="flex gap-3">
+            <div className="flex items-center justify-between pt-4 border-t border-white/10 relative z-10">
+                <div className="flex gap-4">
                     {/* Like Button */}
                     <motion.button
                         whileTap={{ scale: 0.9 }}
+                        whileHover={{ scale: 1.05 }}
                         onClick={handleToggleLike}
                         disabled={likeLoading}
                         className={clsx(
-                            "flex items-center gap-2 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl transition-all duration-300 group/like active:scale-95 border shadow-sm",
+                            "flex items-center gap-2 px-5 py-3 rounded-[1.25rem] transition-all duration-500 group/like active:scale-95 shadow-xl backdrop-blur-xl border border-white/10 hover:border-red-500/30",
                             liked
-                                ? "bg-red-500/10 text-red-500 border-red-500/20"
-                                : "bg-surface-container-low text-on-surface-variant hover:text-red-500 hover:bg-red-500/5 border-outline-variant/5"
+                                ? "bg-red-500/20 text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                                : "bg-white/5 text-on-surface-variant hover:text-red-500 hover:bg-red-500/10"
                         )}
                     >
                         <Heart
-                            size={20}
+                            size={22}
                             className={clsx(
-                                "transition-all duration-300",
-                                liked ? "fill-red-500 text-red-500" : "group-hover/like:fill-red-500/20"
+                                "transition-all duration-500",
+                                liked ? "fill-red-500 text-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" : "group-hover/like:text-red-500 group-hover/like:scale-110 group-hover/like:drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]"
                             )}
                         />
-                        <span className="text-sm font-black tracking-tight">{likesCount}</span>
+                        <span className="text-sm font-black tracking-widest">{likesCount}</span>
                     </motion.button>
 
                     {/* Comment Toggle */}
-                    <button
+                    <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        whileHover={{ scale: 1.05 }}
                         onClick={handleToggleComments}
                         className={clsx(
-                            "flex items-center gap-2 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl transition-all duration-300 group/discuss active:scale-95 border shadow-sm",
+                            "flex items-center gap-2 px-5 py-3 rounded-[1.25rem] transition-all duration-500 group/discuss active:scale-95 shadow-xl backdrop-blur-xl border border-white/10 hover:border-primary/30",
                             showComments
-                                ? "bg-primary/10 text-primary border-primary/20"
-                                : "bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-primary/5 border-outline-variant/5"
+                                ? "bg-primary/20 text-primary shadow-[0_0_20px_rgba(99,102,241,0.3)] border-primary/40"
+                                : "bg-white/5 text-on-surface-variant hover:text-primary hover:bg-primary/10"
                         )}
                     >
-                        <MessageCircle size={20} className={clsx(showComments && "fill-primary/20")} />
-                        <span className="text-sm font-black tracking-tight">{commentsCount}</span>
-                        {showComments ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    </button>
+                        <MessageCircle size={22} className={clsx(showComments && "fill-primary/20 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]")} />
+                        <span className="text-sm font-black tracking-widest">{commentsCount}</span>
+                        {showComments ? <ChevronUp size={14} className="animate-bounce" /> : <ChevronDown size={14} />}
+                    </motion.button>
                 </div>
                 <div className="flex items-center gap-3">
                     {/* Views */}
-                    <div className="flex items-center gap-1.5 text-on-surface-variant/50" title={t('post.views')}>
+                    <div className="flex items-center gap-1.5 text-on-surface-variant/40 bg-surface/50 px-3 py-1.5 rounded-full border border-white/5" title={t('post.views')}>
                         <Eye size={16} />
-                        <span className="text-xs font-bold">{viewsCount}</span>
+                        <span className="text-xs font-black">{viewsCount}</span>
                     </div>
                 </div>
             </div>
@@ -620,7 +626,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder={t('post.comment_placeholder')}
-                                        className="flex-1 w-full min-w-0 px-3 sm:px-4 py-2.5 bg-surface-container rounded-2xl border border-outline-variant/10 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm font-medium text-on-surface placeholder:text-on-surface-variant/40"
+                                        className="flex-1 w-full min-w-0 px-4 sm:px-5 py-3 bg-white/5 backdrop-blur-md rounded-[1.5rem] border border-white/10 focus:bg-white/10 focus:ring-2 focus:ring-primary/30 focus:border-primary/50 outline-none transition-all duration-300 text-sm font-black text-on-surface placeholder:text-on-surface-variant/40 shadow-inner"
                                     />
 
                                     <button
@@ -648,7 +654,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                         type="submit"
                                         disabled={!newComment.trim() || commentLoading}
                                         title={t('post.comment_placeholder')}
-                                        className="p-2.5 bg-primary text-on-primary rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:scale-100 shadow-md flex-shrink-0"
+                                        className="p-3 bg-primary/20 text-primary border border-primary/30 rounded-[1.25rem] hover:bg-primary hover:text-white hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-30 disabled:scale-100 shadow-[0_0_15px_rgba(99,102,241,0.2)] flex-shrink-0"
                                     >
                                         <Send size={16} />
                                     </button>
@@ -720,7 +726,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                         </div>
 
                                                         <div
-                                                            className="bg-surface-container-high/50 px-4 py-2.5 rounded-2xl rounded-tl-none w-fit max-w-full text-sm font-medium text-on-surface leading-relaxed shadow-sm break-words whitespace-pre-wrap select-none touch-manipulation"
+                                                            className="bg-white/5 backdrop-blur-md border border-white/10 px-5 py-3 rounded-[1.5rem] rounded-tl-sm w-fit max-w-full text-[15px] font-bold text-on-surface leading-relaxed shadow-lg break-words whitespace-pre-wrap select-none touch-manipulation hover:bg-white/10 transition-colors"
                                                             onTouchStart={(e) => handleTouchStart(e, comment.id)}
                                                             onTouchEnd={handleTouchEnd}
                                                             onTouchMove={handleTouchMove}
@@ -735,6 +741,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                         onKeyDown={(e) => { if (e.key === 'Enter') handleEditComment(comment.id); if (e.key === 'Escape') setEditingCommentId(null); }}
                                                                         className="flex-1 bg-transparent outline-none text-sm font-medium min-w-[120px]"
                                                                         autoFocus
+                                                                        title={t('common.edit')}
                                                                     />
                                                                     <button onClick={() => handleEditComment(comment.id)} className="text-primary hover:text-primary/80" title={t('common.save')}>
                                                                         <Check size={14} />
@@ -812,7 +819,7 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                         </div>
                                                                     </div>
                                                                     <div
-                                                                        className="bg-surface-container/60 px-3 py-2 rounded-xl rounded-tl-none w-fit max-w-full text-[13px] font-medium text-on-surface leading-relaxed break-words whitespace-pre-wrap select-none touch-manipulation"
+                                                                        className="bg-white/5 backdrop-blur-sm border border-white/5 px-4 py-2.5 rounded-[1.25rem] rounded-tl-sm w-fit max-w-full text-[13px] font-bold text-on-surface leading-relaxed shadow-md break-words whitespace-pre-wrap select-none touch-manipulation hover:bg-white/10 transition-colors"
                                                                         onTouchStart={(e) => handleTouchStart(e, reply.id)}
                                                                         onTouchEnd={handleTouchEnd}
                                                                         onTouchMove={handleTouchMove}
@@ -828,6 +835,8 @@ export const PostCard = ({ post, onDelete, onPostUpdate, index = 0 }: { post: Po
                                                                                     onKeyDown={(e) => { if (e.key === 'Enter') handleEditComment(reply.id); if (e.key === 'Escape') setEditingCommentId(null); }}
                                                                                     className="bg-transparent outline-none text-[13px] font-medium min-w-[80px]"
                                                                                     autoFocus
+                                                                                    title={t('common.edit')}
+                                                                                    placeholder={t('common.edit')}
                                                                                 />
                                                                                 <button onClick={() => handleEditComment(reply.id)} className="text-primary" title={t('common.save')}><Check size={12} /></button>
                                                                                 <button onClick={() => setEditingCommentId(null)} className="text-on-surface-variant/40" title={t('common.cancel')}><X size={12} /></button>

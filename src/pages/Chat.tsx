@@ -200,7 +200,7 @@ export const Chat = () => {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     style={{ willChange: "transform, opacity" }}
-                    className="flex-1 bubble overflow-hidden flex flex-col shadow-2xl transition-all min-h-0 border border-outline-variant/10"
+                    className="flex-1 liquid-glass overflow-hidden flex flex-col shadow-2xl transition-all min-h-0 border-white/20"
                 >
                     <ChatWindow
                         chat={activeChat}
@@ -224,7 +224,7 @@ export const Chat = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
                     style={{ willChange: "transform, opacity" }}
-                    className="hidden xl:block w-96 shrink-0 bubble overflow-y-auto h-full shadow-2xl transition-all border border-outline-variant/10"
+                    className="hidden xl:block w-96 shrink-0 liquid-glass overflow-y-auto h-full shadow-2xl transition-all border-white/20"
                 >
                     <CompanionInfo
                         participant={other}
@@ -265,15 +265,17 @@ export const Chat = () => {
                         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
                     >
                         <motion.div
-                            initial={{ scale: 0.98, y: 10 }}
-                            animate={{ scale: 1, y: 0 }}
+                            initial={{ scale: 0.9, y: 30, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.9, y: 30, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
                             style={{ willChange: "transform, opacity" }}
-                            className="bg-surface-container-low w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl border border-outline-variant/10"
+                            className="liquid-glass w-full max-w-md rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-white/20 relative"
                         >
-                            <div className="p-8 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container/30">
+                            <div className="p-10 border-b border-white/10 flex items-center justify-between bg-white/5 dark:bg-black/20">
                                 <div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tight italic leading-none">{t('chat.start_new')}</h3>
-                                    <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1 opacity-60">{t('chat.initiate_uplink')}</p>
+                                    <h3 className="text-3xl font-black uppercase tracking-tight italic leading-none">{t('chat.start_new')}</h3>
+                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2 opacity-60">{t('chat.initiate_uplink')}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowNewChat(false)}
@@ -284,17 +286,15 @@ export const Chat = () => {
                                 </button>
                             </div>
                             <div className="px-8 pb-4">
-                                <div className="relative group/newsearch">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within/newsearch:text-primary transition-colors" size={16} />
-                                    <input
-                                        type="text"
-                                        placeholder={t('common.search')}
-                                        value={newChatSearch}
-                                        onChange={(e) => setNewChatSearch(e.target.value)}
-                                        className="w-full pl-11 pr-4 py-3 bg-surface/50 border border-outline-variant/10 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm font-bold"
-                                    />
-                                    {searching && <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-primary" />}
-                                </div>
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/newsearch:opacity-100 transition duration-500" />
+                                <input
+                                    type="text"
+                                    placeholder={t('common.search')}
+                                    value={newChatSearch}
+                                    onChange={(e) => setNewChatSearch(e.target.value)}
+                                    className="w-full pl-11 pr-4 py-3.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-[1.5rem] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white/10 transition-all text-sm font-black placeholder:text-on-surface-variant/30 shadow-inner relative z-10"
+                                />
+                                {searching && <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-primary" />}
                             </div>
 
                             <div className="p-6 pt-2 max-h-[400px] overflow-y-auto space-y-3 custom-scrollbar">
@@ -310,9 +310,9 @@ export const Chat = () => {
                                                 key={profile.id}
                                                 whileHover={{ x: 8 }}
                                                 onClick={() => handleStartNewChat(profile.id)}
-                                                className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
+                                                className="liquid-glass p-4 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30 flex items-center gap-4 cursor-pointer transition-all duration-300 group"
                                             >
-                                                <Avatar src={profile.avatar_url} alt={profile.username} status={onlineUsers.has(profile.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-surface shadow-xl" />
+                                                <Avatar src={profile.avatar_url} alt={profile.username} status={onlineUsers.has(profile.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-white shadow-xl" />
                                                 <div className="flex-1">
                                                     <p className="font-black text-on-surface uppercase italic tracking-tight">{profile.full_name || profile.username}</p>
                                                     <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{profile.username}</p>
@@ -335,9 +335,9 @@ export const Chat = () => {
                                                 key={friend.id}
                                                 whileHover={{ x: 8 }}
                                                 onClick={() => handleStartNewChat(friend.id)}
-                                                className="p-4 bg-surface/50 hover:bg-primary/10 rounded-3xl flex items-center gap-4 cursor-pointer transition-all border border-outline-variant/10 hover:border-primary/20 group"
+                                                className="liquid-glass p-4 rounded-[2rem] border border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30 flex items-center gap-4 cursor-pointer transition-all duration-300 group"
                                             >
-                                                <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-surface shadow-xl" />
+                                                <Avatar src={friend.avatar_url} alt={friend.username} status={onlineUsers.has(friend.id) ? 'online' : 'offline'} size="md" className="ring-4 ring-white shadow-xl" />
                                                 <div className="flex-1">
                                                     <p className="font-black text-on-surface uppercase italic tracking-tight">{friend.full_name || friend.username}</p>
                                                     <p className="text-[10px] text-primary font-black uppercase tracking-widest opacity-70">@{friend.username}</p>
@@ -362,15 +362,15 @@ export const Chat = () => {
                     <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
                         <div className="flex-1 flex flex-col md:flex-row items-center gap-6 w-full">
                             <div className="flex-1 w-full relative group/search">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-2xl blur opacity-0 group-focus-within/search:opacity-100 transition duration-500" />
-                                <div className="relative flex items-center bg-surface-container rounded-2xl border border-outline-variant/20 group-focus-within/search:border-primary group-focus-within/search:bg-surface-container-lowest transition-all">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-tertiary/20 rounded-[2rem] blur opacity-0 group-focus-within/search:opacity-100 transition duration-500" />
+                                <div className="relative flex items-center bg-white/5 backdrop-blur-md rounded-[2rem] border border-white/10 group-focus-within/search:border-primary/50 group-focus-within/search:bg-white/10 transition-all shadow-inner">
                                     <Search className="ml-4 text-on-surface-variant/40 group-focus-within/search:text-primary transition-colors" size={18} />
                                     <input
                                         type="text"
                                         placeholder={t('common.search')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full pl-3 pr-4 py-3 bg-transparent outline-none text-on-surface font-bold text-sm placeholder:text-on-surface-variant/30"
+                                        className="w-full pl-3 pr-4 py-3.5 bg-transparent outline-none text-on-surface font-black text-sm placeholder:text-on-surface-variant/20 tracking-tight"
                                     />
                                 </div>
                             </div>
@@ -379,7 +379,7 @@ export const Chat = () => {
                                 <button
                                     onClick={() => setShowNewChat(true)}
                                     title={t('chat.start_new')}
-                                    className="p-3 bg-primary text-on-primary rounded-2xl shadow-lg shadow-primary/20 hover:scale-110 active:scale-95 transition-all group/new"
+                                    className="p-3.5 bg-gradient-to-br from-primary to-primary-container text-white rounded-[1.5rem] shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] hover:scale-110 active:scale-95 transition-all duration-300 border border-white/20 group/new"
                                 >
                                     <Plus size={24} className="group-hover:rotate-180 transition-transform duration-500" />
                                 </button>
@@ -439,7 +439,7 @@ export const Chat = () => {
                                                     />
                                                 </div>
                                                 {/* Card Content */}
-                                                <div className="bubble p-5 pl-20 hover:bg-surface-container-highest/80 relative overflow-hidden h-full flex flex-col justify-center">
+                                                <div className="liquid-glass p-5 pl-20 hover:bg-white/10 relative overflow-hidden h-full flex flex-col justify-center rounded-[2.5rem] border border-white/10 hover:border-primary/30 shadow-lg hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)] transition-all duration-500 group-hover/card:scale-[1.02]">
                                                     <div className="flex justify-between items-start mb-1">
                                                         <h3 className="font-black text-on-surface uppercase italic tracking-tight truncate group-hover/card:text-primary transition-colors">
                                                             {chat.name || other.full_name || other.username}
@@ -493,7 +493,7 @@ export const Chat = () => {
                         <ExperimentsPanel />
                     </div>
                 </motion.div>
-            </div>
+            </div >
         </div >
     );
 };

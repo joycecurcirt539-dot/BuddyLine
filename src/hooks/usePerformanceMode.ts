@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDeviceDetection } from './useDeviceDetection';
+import { useDevice } from '../context/DeviceContext';
 
 interface PerformanceMode {
     reduceMotion: boolean;
@@ -7,7 +7,7 @@ interface PerformanceMode {
 }
 
 export const usePerformanceMode = (): PerformanceMode => {
-    const device = useDeviceDetection();
+    const device = useDevice();
     const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
     useEffect(() => {

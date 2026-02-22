@@ -167,102 +167,147 @@ export const BuddyMines: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-3 w-full max-w-md mx-auto p-4 select-none accelerate">
-            {/* Stats */}
-            <div className="flex justify-between items-center w-full">
-                <div className={`flex items-center gap-2.5 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
-                    <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
-                        <Bomb className="w-3.5 h-3.5 text-primary" />
+        <div className="flex flex-col items-center gap-4 lg:gap-8 w-full max-w-md mx-auto p-4 select-none accelerate">
+            {/* Stats Bar - Premium Glass */}
+            <div className="flex justify-between items-center w-full px-2">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <Bomb className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">Mines</span>
-                        <span className="text-xl font-black text-on-surface tabular-nums leading-none mt-0.5">{MINE_COUNT - flagCount}</span>
+                        <span className="text-[8px] text-primary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">Mines</span>
+                        <motion.span
+                            key={flagCount}
+                            className="text-2xl font-black text-on-surface tabular-nums leading-none tracking-tight"
+                        >
+                            {MINE_COUNT - flagCount}
+                        </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
-                    <div className="flex flex-col items-center">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">Time</span>
-                        <span className="text-xl font-black text-on-surface tabular-nums leading-none mt-0.5">{timer}s</span>
-                    </div>
-                </div>
+                <div className="flex items-center gap-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex flex-col items-center bg-surface-container-high/40 backdrop-blur-3xl px-6 py-2 rounded-2xl border border-white/10 shadow-lg"
+                    >
+                        <span className="text-[8px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none mb-1">Time</span>
+                        <span className="text-xl font-black text-on-surface tabular-nums leading-none">{timer}s</span>
+                    </motion.div>
 
-                <button
-                    onClick={initGrid}
-                    className="w-10 h-10 flex items-center justify-center bg-surface-container-high/50 backdrop-blur-2xl rounded-xl border border-outline/10 hover:bg-primary hover:text-on-primary transition-all shadow-lg"
-                    title="Restart"
-                >
-                    <RefreshCw className="w-4 h-4" />
-                </button>
+                    <motion.button
+                        whileHover={{ scale: 1.1, rotate: 180 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={initGrid}
+                        className="w-12 h-12 flex items-center justify-center bg-primary/20 backdrop-blur-3xl text-primary rounded-2xl border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/20"
+                        title="Restart"
+                    >
+                        <RefreshCw className="w-5 h-5" />
+                    </motion.button>
+                </div>
             </div>
 
-            {/* Grid Area — compact cells */}
+            {/* Grid Area — Liquid Glass style */}
             <div
                 style={{ touchAction: 'none' }}
-                className={`relative p-2 bg-surface-container-low/30 rounded-[1.5rem] border border-outline/8 ${reduceEffects ? '' : 'backdrop-blur-xl'} shadow-2xl accelerate`}
+                className={`relative p-4 bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 rounded-[2.5rem] border border-white/10 ${reduceEffects ? '' : 'backdrop-blur-xl'} shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden accelerate`}
             >
-                <div className="grid grid-cols-8 gap-[3px]">
+                {/* Background depth effects */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="absolute -top-10 -left-10 w-48 h-48 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
+                    <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-tertiary/20 blur-[60px] rounded-full" />
+                </div>
+
+                <div className="grid grid-cols-8 gap-2 relative z-10">
                     {grid.map((row, r) => row.map((cell, c) => (
-                        <button
+                        <motion.button
                             key={`${r}-${c}`}
+                            initial={false}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => revealCell(r, c)}
                             onContextMenu={(e) => toggleFlag(e, r, c)}
                             className={`
-                                w-7 h-7 lg:w-8 lg:h-8 rounded-md flex items-center justify-center font-black transition-colors duration-100
+                                w-8 h-8 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center font-black transition-all duration-300
                                 ${cell.isRevealed
                                     ? cell.isMine
-                                        ? 'bg-gradient-to-br from-error to-rose-700 text-white shadow-md shadow-error/30'
-                                        : 'bg-surface-container-highest/12 border border-outline/5'
-                                    : 'bg-gradient-to-br from-indigo-500/20 to-blue-500/12 hover:from-indigo-500/30 hover:to-blue-500/20 border border-indigo-400/12 active:scale-90 shadow-sm'
+                                        ? 'bg-gradient-to-br from-error to-rose-700 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] border-transparent'
+                                        : 'bg-white/[0.03] border border-white/[0.05] shadow-inner'
+                                    : 'bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 hover:border-white/20 shadow-lg'
                                 }
                             `}
                         >
-                            {cell.isRevealed ? (
-                                cell.isMine ? <Bomb className="w-3.5 h-3.5 drop-shadow-md" /> : (
-                                    cell.neighborMines > 0 ? (
-                                        <span className={`${getNumberColor(cell.neighborMines)} font-black text-[11px] lg:text-xs`}>
-                                            {cell.neighborMines}
-                                        </span>
-                                    ) : ''
-                                )
-                            ) : (
-                                cell.isFlagged ? <Flag className="w-3 h-3 text-rose-400 drop-shadow-md" /> : null
-                            )}
-                        </button>
+                            <AnimatePresence mode='wait'>
+                                {cell.isRevealed ? (
+                                    cell.isMine ? (
+                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} key="bomb">
+                                            <Bomb className="w-5 h-5 drop-shadow-md" />
+                                        </motion.div>
+                                    ) : (
+                                        cell.neighborMines > 0 ? (
+                                            <motion.span
+                                                initial={{ opacity: 0, y: 5 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                key="num"
+                                                className={`${getNumberColor(cell.neighborMines)} font-black text-sm lg:text-base drop-shadow-sm`}
+                                            >
+                                                {cell.neighborMines}
+                                            </motion.span>
+                                        ) : null
+                                    )
+                                ) : (
+                                    cell.isFlagged ? (
+                                        <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} key="flag">
+                                            <Flag className="w-4 h-4 text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.5)]" />
+                                        </motion.div>
+                                    ) : null
+                                )}
+                            </AnimatePresence>
+                        </motion.button>
                     )))}
                 </div>
 
-                {/* Overlays */}
+                {/* Overlays - Premium Victory/Defeat */}
                 <AnimatePresence>
                     {gameState !== 'playing' && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/35 backdrop-blur-md rounded-[1.5rem] p-4"
+                            className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-xl rounded-[2.5rem] p-8"
                         >
-                            <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-7 shadow-2xl flex flex-col items-center text-center w-full max-w-[240px]">
+                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                                <div className={`absolute inset-0 bg-gradient-to-br ${gameState === 'won' ? 'from-primary/10' : 'from-error/10'} to-transparent`} />
+
                                 {gameState === 'won' ? (
                                     <>
-                                        <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center mb-3">
-                                            <Trophy className="w-7 h-7 text-primary" />
+                                        <div className="w-16 h-16 rounded-[1.5rem] bg-primary/20 flex items-center justify-center mb-6 shadow-xl shadow-primary/20 relative z-10">
+                                            <Trophy className="w-8 h-8 text-primary" />
                                         </div>
-                                        <h3 className="text-xl font-black bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent mb-1 uppercase italic tracking-tight">{t('game.mines.win_title')}</h3>
-                                        <p className="text-sm font-bold text-on-surface-variant mb-5">{t('game.mines.win_subtitle', { timer })}</p>
+                                        <h3 className="text-2xl font-black bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent mb-1 uppercase italic tracking-tight relative z-10">{t('game.mines.win_title')}</h3>
+                                        <div className="flex flex-col items-center gap-1 mb-8 relative z-10">
+                                            <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-[0.2em]">Accuracy</span>
+                                            <span className="text-4xl font-black text-on-surface">{timer}s</span>
+                                        </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="w-14 h-14 rounded-2xl bg-error/15 flex items-center justify-center mb-3">
-                                            <Bomb className="w-7 h-7 text-error" />
+                                        <div className="w-16 h-16 rounded-[1.5rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/20 relative z-10">
+                                            <Bomb className="w-8 h-8 text-error" />
                                         </div>
-                                        <h3 className="text-xl font-black text-error mb-1 uppercase italic tracking-tight">{t('game.mines.lose_title')}</h3>
-                                        <p className="text-sm font-bold text-on-surface-variant mb-5">{t('game.mines.lose_subtitle')}</p>
+                                        <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight relative z-10">{t('game.mines.lose_title')}</h3>
+                                        <p className="text-sm font-bold text-on-surface-variant/60 mb-8 relative z-10">{t('game.mines.lose_subtitle')}</p>
                                     </>
                                 )}
+
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.3)' }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={initGrid}
-                                    className="w-full py-3 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-[10px] shadow-lg"
+                                    className="w-full py-4 bg-gradient-to-r from-primary to-tertiary text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-xl shadow-primary/25 relative z-10"
                                 >
                                     {t('game.try_again')}
                                 </motion.button>
@@ -272,13 +317,13 @@ export const BuddyMines: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Instructions */}
-            <div className="flex items-center justify-center gap-5 text-[9px] font-black text-on-surface-variant/35 uppercase tracking-[0.15em]">
-                <div className="flex items-center gap-1.5">
-                    <MousePointer2 className="w-3 h-3" /> {t('game.mines.hint_reveal')}
+            {/* Instructions - Premium subtle */}
+            <div className="flex items-center justify-center gap-8 text-[10px] font-black text-on-surface-variant/30 uppercase tracking-[0.25em]">
+                <div className="flex items-center gap-2 transition-colors hover:text-on-surface-variant/60 cursor-default">
+                    <MousePointer2 className="w-4 h-4" /> {t('game.mines.hint_reveal')}
                 </div>
-                <div className="flex items-center gap-1.5">
-                    <Flag className="w-3 h-3" /> {t('game.mines.hint_flag')}
+                <div className="flex items-center gap-2 transition-colors hover:text-on-surface-variant/60 cursor-default">
+                    <Flag className="w-4 h-4" /> {t('game.mines.hint_flag')}
                 </div>
             </div>
         </div>

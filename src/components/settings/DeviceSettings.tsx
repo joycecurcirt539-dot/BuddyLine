@@ -83,7 +83,7 @@ export const DeviceSettings: React.FC = () => {
                         value={selectedDevices.video}
                         title={t('settings.camera', 'Camera')}
                         onChange={(e) => handleDeviceChange('video', e.target.value)}
-                        className="w-full bg-surface-container-high border border-outline-variant/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                        className="w-full bg-black/20 backdrop-blur-md border border-white/10 rounded-[1.5rem] px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all font-bold shadow-inner"
                     >
                         {devices.video.map(device => (
                             <option key={device.deviceId} value={device.deviceId}>
@@ -103,7 +103,7 @@ export const DeviceSettings: React.FC = () => {
                         value={selectedDevices.audioIn}
                         title={t('settings.microphone', 'Microphone')}
                         onChange={(e) => handleDeviceChange('audioIn', e.target.value)}
-                        className="w-full bg-surface-container-high border border-outline-variant/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                        className="w-full bg-black/20 backdrop-blur-md border border-white/10 rounded-[1.5rem] px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all font-bold shadow-inner"
                     >
                         {devices.audioIn.map(device => (
                             <option key={device.deviceId} value={device.deviceId}>
@@ -123,7 +123,7 @@ export const DeviceSettings: React.FC = () => {
                         value={selectedDevices.audioOut}
                         title={t('settings.speakers', 'Speakers')}
                         onChange={(e) => handleDeviceChange('audioOut', e.target.value)}
-                        className="w-full bg-surface-container-high border border-outline-variant/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                        className="w-full bg-black/20 backdrop-blur-md border border-white/10 rounded-[1.5rem] px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all font-bold shadow-inner"
                     >
                         {devices.audioOut.map(device => (
                             <option key={device.deviceId} value={device.deviceId}>
@@ -134,7 +134,7 @@ export const DeviceSettings: React.FC = () => {
                 </div>
             </div>
 
-            <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+            <div className="p-5 liquid-glass bg-primary/10 backdrop-blur-md rounded-[1.5rem] border border-primary/20 shadow-inner">
                 <p className="text-[10px] md:text-xs font-medium text-primary leading-relaxed opacity-80">
                     {t('settings.device_hint', 'Changes will be applied to your next call.')}
                 </p>

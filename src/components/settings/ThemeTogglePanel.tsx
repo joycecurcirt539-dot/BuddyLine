@@ -26,7 +26,7 @@ export const ThemeTogglePanel = () => {
     ];
 
     return (
-        <div className="bubble p-8 relative overflow-hidden group">
+        <div className="liquid-glass p-8 relative overflow-hidden group bg-surface-container-low/40 backdrop-blur-xl rounded-[3.5rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.1)] h-full">
             {/* Background Atmosphere */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 animate-pulse" />
 
@@ -53,10 +53,10 @@ export const ThemeTogglePanel = () => {
                             key={tItem.id}
                             onClick={() => theme !== tItem.id && toggleTheme()}
                             className={clsx(
-                                "relative flex flex-col items-center gap-4 p-6 rounded-[32px] border-2 transition-all duration-500 group/btn",
+                                "relative flex flex-col items-center gap-4 p-6 rounded-[2.5rem] border transition-all duration-500 group/btn",
                                 isActive
-                                    ? "border-primary bg-primary/10 ring-8 ring-primary/5 shadow-2xl shadow-primary/20"
-                                    : "border-outline-variant/10 hover:border-primary/30 hover:bg-surface-container-low hover:scale-[1.02]"
+                                    ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)] ring-4 ring-primary/20"
+                                    : "liquid-glass bg-white/5 border-white/10 hover:border-primary/50 hover:bg-white/10 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)] hover:scale-[1.02]"
                             )}
                         >
                             <div className={clsx(

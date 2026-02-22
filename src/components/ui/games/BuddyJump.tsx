@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, ArrowUp, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { clsx } from 'clsx';
 import { usePerformanceMode } from '../../../hooks/usePerformanceMode';
 import { playSound } from '../../../utils/sounds';
 
@@ -11,209 +10,122 @@ interface Platform {
     x: number;
     y: number;
     width: number;
-    type?: 'normal' | 'moving';
 }
 
 const GAME_WIDTH = 300;
 const GAME_HEIGHT = 400;
 const GRAVITY = 0.4;
 const JUMP_FORCE = -12;
-const PLATFORM_SPACING = 120;
-const PLATFORM_COUNT = 6;
-const PLATFORM_WIDTH = 80;
-const PLAYER_SIZE = 36;
+const PLATFORM_GAP = 120;
 
 export const BuddyJump: React.FC = () => {
     const { t } = useTranslation();
+    const { reduceEffects } = usePerformanceMode();
     const [gameState, setGameState] = useState<'start' | 'playing' | 'gameover'>('start');
-
-    // HUD state (lower frequency updates)
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(() => {
         const saved = localStorage.getItem('buddyline_highscore_jump');
         return saved ? parseInt(saved) : 0;
     });
 
+    const [player, setPlayer] = useState({ x: 200, y: 250, vy: 0 });
     const [platforms, setPlatforms] = useState<Platform[]>([]);
+    const [cameraY, setCameraY] = useState(0);
 
     const gameLoopRef = useRef<number | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const playerElRef = useRef<HTMLDivElement>(null);
-    const sceneRef = useRef<HTMLDivElement>(null);
-
-    // High-frequency game state refs
-    const playerRef = useRef({ x: 200, y: 250, vy: JUMP_FORCE });
-    const platformsRef = useRef<Platform[]>([]);
-    const cameraYRef = useRef(0);
-    const scoreRef = useRef(0);
-    const gameStateRef = useRef<'start' | 'playing' | 'gameover'>(gameState);
-
-    // Sync ref with state
-    useEffect(() => {
-        gameStateRef.current = gameState;
-    }, [gameState]);
-
-    // Direct DOM manipulation for butter-smooth movement
-    const updateDOM = useCallback(() => {
-        if (!playerElRef.current || !sceneRef.current) return;
-
-        // Update player position
-        const p = playerRef.current;
-        playerElRef.current.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
-
-        // Update camera (scene scroll)
-        const camY = cameraYRef.current;
-        sceneRef.current.style.transform = `translate3d(0, ${-camY}px, 0)`;
-
-        // Update HUD elements that don't need full React re-renders every frame
-        // (Though we still use state for the score display below)
-    }, []);
 
     const initGame = useCallback(() => {
         const initialPlatforms: Platform[] = [];
-        for (let i = 0; i < PLATFORM_COUNT; i++) {
+        for (let i = 0; i < 6; i++) {
             initialPlatforms.push({
                 id: i,
-                x: Math.random() * (GAME_WIDTH - PLATFORM_WIDTH),
-                y: GAME_HEIGHT - (i * PLATFORM_SPACING) - 100,
-                width: PLATFORM_WIDTH,
-                type: Math.random() > 0.8 ? 'moving' : 'normal'
+                x: i === 0 ? 100 : Math.random() * (GAME_WIDTH - 80),
+                y: GAME_HEIGHT - i * PLATFORM_GAP,
+                width: 80
             });
         }
-
-        platformsRef.current = initialPlatforms;
-        playerRef.current = { x: 200, y: 250, vy: JUMP_FORCE };
-        scoreRef.current = 0;
-        cameraYRef.current = 0;
-
         setPlatforms(initialPlatforms);
+        setPlayer({ x: 200, y: 250, vy: JUMP_FORCE });
         setScore(0);
-        updateDOM();
-        setHighScore(prev => {
-            const saved = localStorage.getItem('buddyline_highscore_jump');
-            return saved ? parseInt(saved) : prev;
-        });
+        setCameraY(0);
         setGameState('playing');
-    }, [updateDOM]);
+    }, []);
 
-    useLayoutEffect(() => {
-        if (gameState === 'playing') {
-            initGame();
-        }
-    }, [gameState, initGame]);
-
-    const handleInput = useCallback((e: MouseEvent | TouchEvent) => {
-        if (gameStateRef.current !== 'playing') return;
+    const handleInput = useCallback((e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+        if (gameState !== 'playing') return;
 
         let clientX: number;
         if ('touches' in e) {
-            if (e.cancelable) e.preventDefault(); // BLOCK BROWSER GESTURES
             clientX = e.touches[0].clientX;
         } else {
             clientX = (e as MouseEvent).clientX;
         }
 
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) {
-            const x = clientX - rect.left;
-            playerRef.current.x = Math.max(0, Math.min(GAME_WIDTH - PLAYER_SIZE, x - PLAYER_SIZE / 2));
-            updateDOM();
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const x = ((clientX - rect.left) / rect.width) * GAME_WIDTH;
+            setPlayer(prev => ({ ...prev, x }));
         }
-    }, [updateDOM]);
-
-    // Native event listeners to ensure passive: false and proper blocking
-    useEffect(() => {
-        const el = containerRef.current;
-        if (!el) return;
-
-        const handleTouch = ((e: TouchEvent) => handleInput(e)) as EventListener;
-        const handleMouse = ((e: MouseEvent) => handleInput(e)) as EventListener;
-
-        const opts: AddEventListenerOptions = { passive: false };
-        el.addEventListener('touchstart', handleTouch, opts);
-        el.addEventListener('touchmove', handleTouch, opts);
-        el.addEventListener('mousemove', handleMouse);
-
-        return () => {
-            el.removeEventListener('touchstart', handleTouch, opts);
-            el.removeEventListener('touchmove', handleTouch, opts);
-            el.removeEventListener('mousemove', handleMouse);
-        };
-    }, [handleInput]);
+    }, [gameState]);
 
     useEffect(() => {
         if (gameState !== 'playing') return;
 
         const loop = () => {
-            if (gameStateRef.current !== 'playing') return;
+            setPlayer(p => {
+                let newY = p.y + p.vy;
+                let newVy = p.vy + GRAVITY;
 
-            const p = playerRef.current;
-            let newY = p.y + p.vy;
-            let newVy = p.vy + GRAVITY;
+                if (newVy > 0) {
+                    const platform = platforms.find(plat =>
+                        p.y <= plat.y &&
+                        newY >= plat.y &&
+                        p.x >= plat.x - 20 &&
+                        p.x <= plat.x + plat.width + 20
+                    );
 
-            // Collision detection
-            if (newVy > 0) {
-                const platform = platformsRef.current.find(plat =>
-                    p.y <= plat.y &&
-                    newY >= plat.y &&
-                    p.x >= plat.x - 20 &&
-                    p.x <= plat.x + plat.width + 20
-                );
-
-                if (platform) {
-                    playSound('jump', 0.4);
-                    newVy = JUMP_FORCE;
-                    newY = platform.y;
+                    if (platform) {
+                        playSound('jump', 0.4);
+                        newVy = JUMP_FORCE;
+                        newY = platform.y;
+                    }
                 }
-            }
 
-            // Camera follow
-            if (newY < cameraYRef.current + 150) {
-                cameraYRef.current = newY - 150;
-            }
-
-            // Score logic
-            const heightVal = Math.floor(Math.abs(newY - 250) / 10);
-            if (heightVal > scoreRef.current) {
-                scoreRef.current = heightVal;
-                // Throttled score update for UI
-                if (heightVal % 2 === 0) setScore(heightVal);
-            }
-
-            // Game over
-            if (newY > cameraYRef.current + GAME_HEIGHT + 100) {
-                playSound('fall', 0.6);
-                setGameState('gameover');
-                setScore(heightVal);
-                if (heightVal > highScore) {
-                    setHighScore(heightVal);
-                    localStorage.setItem('buddyline_highscore_jump', heightVal.toString());
+                if (newY < cameraY + 150) {
+                    setCameraY(newY - 150);
                 }
-                return;
-            }
 
-            playerRef.current = { ...p, y: newY, vy: newVy };
-            updateDOM();
+                const heightVal = Math.floor(Math.abs(newY - 250) / 10);
+                if (heightVal > score) setScore(heightVal);
 
-            // Continuous platform generation
-            const currentPlatforms = platformsRef.current;
-            const filtered = currentPlatforms.filter(plat => plat.y < cameraYRef.current + GAME_HEIGHT + 200);
-            const highest = filtered.reduce((min, plat) => Math.min(min, plat.y), cameraYRef.current + GAME_HEIGHT);
+                if (newY > cameraY + GAME_HEIGHT + 100) {
+                    playSound('fall', 0.6);
+                    setGameState('gameover');
+                    if (heightVal > highScore) {
+                        setHighScore(heightVal);
+                        localStorage.setItem('buddyline_highscore_jump', heightVal.toString());
+                    }
+                    return p;
+                }
 
-            if (highest > cameraYRef.current - 100) {
-                filtered.push({
-                    id: Date.now() + Math.random(),
-                    x: Math.random() * (GAME_WIDTH - PLATFORM_WIDTH),
-                    y: highest - PLATFORM_SPACING,
-                    width: PLATFORM_WIDTH,
-                    type: Math.random() > 0.8 ? 'moving' : 'normal'
-                });
-                platformsRef.current = filtered;
-                setPlatforms([...filtered]);
-            } else if (filtered.length !== currentPlatforms.length) {
-                platformsRef.current = filtered;
-                setPlatforms([...filtered]);
-            }
+                return { ...p, y: newY, vy: newVy };
+            });
+
+            setPlatforms(prev => {
+                const filtered = prev.filter(p => p.y < cameraY + GAME_HEIGHT + 200);
+                const highest = filtered.reduce((min, p) => p.y < min ? p.y : min, cameraY + GAME_HEIGHT);
+
+                if (highest > cameraY - 100) {
+                    filtered.push({
+                        id: Date.now() + Math.random(),
+                        x: Math.random() * (GAME_WIDTH - 80),
+                        y: highest - PLATFORM_GAP,
+                        width: 60 + Math.random() * 40
+                    });
+                }
+                return filtered;
+            });
 
             gameLoopRef.current = requestAnimationFrame(loop);
         };
@@ -222,109 +134,101 @@ export const BuddyJump: React.FC = () => {
         return () => {
             if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
         };
-    }, [gameState, highScore, updateDOM]);
+    }, [gameState, platforms, cameraY, score, highScore]);
 
     return (
-        <div className="flex flex-col items-center gap-3 lg:gap-5 w-full max-w-md mx-auto h-full">
+        <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-md mx-auto">
             {/* HUD */}
-            <div className="flex justify-between items-center w-full px-3 flex-shrink-0">
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
-                    <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
-                        <ArrowUp className="w-3.5 h-3.5 text-primary" />
+            <div className="flex justify-between items-center w-full px-4">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <ArrowUp className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.jump.height')}</span>
-                        <span className="text-xl font-black text-on-surface tabular-nums leading-none mt-0.5">{score}m</span>
+                        <span className="text-[8px] text-primary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">{t('game.jump.height')}</span>
+                        <motion.span
+                            key={score}
+                            initial={{ y: -5, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            className="text-2xl font-black text-on-surface tabular-nums leading-none tracking-tight"
+                        >
+                            {score}<span className="text-sm opacity-50 ml-0.5">m</span>
+                        </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
-                    <Trophy className="w-4 h-4 text-primary/60" />
-                    <div className="flex flex-col items-end">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.jump.max')}</span>
-                        <span className="text-lg font-black text-on-surface/60 tabular-nums leading-none mt-0.5">{highScore}m</span>
+                <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-tertiary/20 flex items-center justify-center shadow-lg shadow-tertiary/20">
+                        <Trophy className="w-4 h-4 text-tertiary" />
                     </div>
-                </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[8px] text-tertiary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">{t('game.jump.max')}</span>
+                        <span className="text-xl font-black text-on-surface/80 tabular-nums leading-none mt-0.5">{highScore}m</span>
+                    </div>
+                </motion.div>
             </div>
 
             {/* Game Canvas */}
             <div
                 ref={containerRef}
+                onMouseMove={handleInput}
+                onTouchMove={handleInput}
                 style={{ touchAction: 'none' }}
-                className="relative overflow-hidden bg-gradient-to-b from-surface-container-low/60 to-surface-container-low border border-outline/10 rounded-2xl lg:rounded-[2rem] shadow-2xl cursor-crosshair group aspect-[3/4] w-full max-w-[280px] h-full"
+                className={`relative overflow-hidden bg-gradient-to-b from-surface-container-low/40 to-surface-container-low/80 border border-white/10 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] cursor-crosshair group aspect-[3/4] w-full max-w-[320px] ${reduceEffects ? '' : 'backdrop-blur-xl'} h-auto accelerate overflow-hidden`}
             >
-                {/* Scene Wrapper */}
-                <div ref={sceneRef} className="absolute inset-0 will-change-transform">
-                    {/* Background Detail */}
-                    <div className="absolute inset-0 opacity-15 overflow-hidden">
-                        <div className="absolute top-20 left-10 w-24 h-24 bg-primary blur-[50px] rounded-full" />
-                        <div className="absolute top-[400px] right-10 w-36 h-36 bg-tertiary blur-[70px] rounded-full" />
-                    </div>
-
-                    {/* Infinite Grid Lines */}
-                    <div className="absolute inset-0 opacity-[0.03]">
-                        {Array.from({ length: 20 }).map((_, i) => (
-                            <div key={i} className="absolute left-0 right-0 h-px bg-on-surface" style={{ top: i * 50 }} />
-                        ))}
-                    </div>
-
-                    {/* Platforms */}
-                    {platforms.map(p => (
-                        <div
-                            key={p.id}
-                            className={clsx(
-                                "absolute rounded-full h-3 shadow-lg transition-transform",
-                                p.type === 'moving'
-                                    ? "bg-gradient-to-r from-purple-400 to-pink-400"
-                                    : "bg-gradient-to-r from-blue-400 to-indigo-400"
-                            )}
-                            style={{
-                                width: PLATFORM_WIDTH,
-                                left: p.x,
-                                top: p.y,
-                            }}
-                        />
-                    ))}
-
-                    {/* Player */}
-                    <div
-                        ref={playerElRef}
-                        className="absolute flex items-center justify-center will-change-transform"
-                        style={{
-                            width: PLAYER_SIZE,
-                            height: PLAYER_SIZE,
-                            transform: `translate3d(200px, 250px, 0)`,
-                            marginLeft: -PLAYER_SIZE / 2,
-                            marginTop: -PLAYER_SIZE
-                        }}
-                    >
-                        <div className="player-inner w-full h-full bg-gradient-to-br from-primary to-tertiary rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center">
-                            <img src="/logo.png" className="w-[80%] h-[80%] object-contain" alt="" />
-                        </div>
-                    </div>
+                {/* Background Objects - Enhanced */}
+                <div
+                    className="absolute inset-0 transition-transform duration-1000"
+                    style={{ transform: `translateY(${-cameraY * 0.15}px)` }}
+                >
+                    <div className="absolute top-[10%] left-[5%] w-48 h-48 bg-primary/10 blur-[80px] rounded-full animate-pulse" />
+                    <div className="absolute top-[40%] right-[10%] w-64 h-64 bg-tertiary/10 blur-[100px] rounded-full" />
+                    <div className="absolute top-[70%] left-[15%] w-40 h-40 bg-secondary/10 blur-[60px] rounded-full" />
                 </div>
 
-                {/* Overlays */}
+                {/* Animated Scanline effect */}
+                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-0 bg-[length:100%_4px,3px_100%]" />
+
+                {/* Depth grid lines - Liquid style */}
+                <div className="absolute inset-0 opacity-[0.05]" style={{ transform: `translateY(${-cameraY * 0.4}px)` }}>
+                    {Array.from({ length: 40 }).map((_, i) => (
+                        <div key={i} className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-on-surface to-transparent" style={{ top: `${i * 40}px` }} />
+                    ))}
+                </div>
+
                 <AnimatePresence>
                     {gameState === 'start' && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/25 backdrop-blur-md p-4"
+                            exit={{ opacity: 0, scale: 1.1 }}
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-xl p-6"
                         >
-                            <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center w-full max-w-[240px]">
-                                <ArrowUp className="w-14 h-14 text-primary mb-3" />
-                                <h3 className="text-xl font-black text-on-surface mb-1 uppercase leading-tight italic">{t('game.jump.ready')}</h3>
-                                <p className="text-[10px] font-bold text-on-surface-variant/60 mb-5 leading-relaxed">
+                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-tertiary/5" />
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-primary/30 to-tertiary/30 flex items-center justify-center mb-6 shadow-xl shadow-primary/20 relative z-10">
+                                    <ArrowUp className="w-8 h-8 text-white" />
+                                </div>
+                                <h3 className="text-2xl font-black text-on-surface mb-2 uppercase italic leading-tight tracking-tight relative z-10">{t('game.jump.ready')}</h3>
+                                <p className="text-[11px] font-bold text-on-surface-variant/70 mb-8 leading-relaxed px-2 relative z-10">
                                     {t('game.jump.instruction')}
                                 </p>
-                                <button
+                                <motion.button
+                                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.4)' }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={initGame}
-                                    className="w-full py-3 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-xs"
+                                    className="w-full py-4 bg-gradient-to-r from-primary to-tertiary text-white rounded-2xl font-black uppercase tracking-[0.15em] text-xs shadow-xl shadow-primary/25 relative z-10"
                                 >
                                     {t('game.start')}
-                                </button>
+                                </motion.button>
                             </div>
                         </motion.div>
                     )}
@@ -333,22 +237,93 @@ export const BuddyJump: React.FC = () => {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/25 backdrop-blur-md p-4"
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-xl p-6"
                         >
-                            <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center w-full max-w-[240px]">
-                                <h3 className="text-xl font-black text-error mb-0.5 uppercase tracking-tight italic">{t('game.jump.fail')}</h3>
-                                <div className="text-3xl font-black text-on-surface mb-4">{score}m</div>
-                                <button
+                            <div className="bg-surface-container-high/90 border border-error/20 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-error/5 to-transparent" />
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/20 relative z-10">
+                                    <span className="text-3xl">🪂</span>
+                                </div>
+                                <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight relative z-10">{t('game.jump.fail')}</h3>
+                                <div className="flex flex-col items-center gap-1 mb-8 relative z-10">
+                                    <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.jump.height')}</span>
+                                    <span className="text-5xl font-black text-on-surface">{score}m</span>
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(239,68,68,0.3)' }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={initGame}
-                                    className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-[10px]"
+                                    className="flex items-center justify-center gap-3 w-full py-4 bg-error text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-xl shadow-error/25 relative z-10"
                                 >
                                     <RefreshCw className="w-4 h-4" />
                                     {t('game.try_again')}
-                                </button>
+                                </motion.button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* Platforms - High contrast glass style */}
+                <div className="absolute inset-0" style={{ transform: `translateY(${-cameraY}px)` }}>
+                    {platforms.map(plat => (
+                        <div
+                            key={plat.id}
+                            className="absolute h-[16px] rounded-full transition-all duration-300"
+                            style={{
+                                left: `${(plat.x / GAME_WIDTH) * 100}%`,
+                                top: `${plat.y}px`,
+                                width: `${(plat.width / GAME_WIDTH) * 100}%`
+                            }}
+                        >
+                            <div className="w-full h-full bg-gradient-to-r from-primary/50 via-primary to-primary/50 rounded-full shadow-[0_4px_16px_rgba(99,102,241,0.4)] border border-white/20" />
+                            {/* Inner glow effect */}
+                            <div className="absolute inset-0 rounded-full bg-white/20 blur-[2px] scale-x-[0.9] scale-y-[0.3] translate-y-[-2px]" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Player - Dynamic Orb */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: `${(player.x / GAME_WIDTH) * 100}%`,
+                        top: `${player.y - cameraY}px`,
+                        width: '14%',
+                        aspectRatio: '1/1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transform: 'translate(-50%, -100%)',
+                        willChange: 'left, top',
+                        zIndex: 10
+                    }}
+                >
+                    {/* Player trail / propulsion */}
+                    <AnimatePresence>
+                        {player.vy < 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute top-[80%] left-1/2 -translate-x-1/2 w-8 h-16 bg-gradient-to-b from-primary/50 to-transparent rounded-full blur-md z-0"
+                            />
+                        )}
+                    </AnimatePresence>
+
+                    <motion.div
+                        animate={{
+                            scale: player.vy < 0 ? [1, 1.2, 1] : 1,
+                            rotate: player.vy * 3,
+                            y: player.vy < 0 ? [-2, 0] : [0, 2]
+                        }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                        className="w-full h-full bg-gradient-to-br from-primary via-tertiary to-primary rounded-2xl shadow-[0_0_32px_rgba(99,102,241,0.6)] flex items-center justify-center border border-white/30 relative z-10"
+                    >
+                        {/* Shimmer on player */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-transparent via-white/30 to-transparent pointer-events-none" />
+                        <img src="/logo.png" className="w-[70%] h-[70%] object-contain relative z-10" alt="" />
+                    </motion.div>
+                </div>
             </div>
         </div>
     );

@@ -214,20 +214,29 @@ export const Feed = () => {
         <div className="w-full pb-8 lg:pt-0 px-4 flex-1">
             {/* Post Creation: Launch Station */}
             <motion.div
-                initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={clsx(
-                    "bubble p-5 md:p-8 mb-6 md:mb-12 group/composer relative",
+                    "liquid-glass p-6 md:p-10 mb-10 group/composer relative rounded-[3rem] border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)] hover:border-primary/30 hover:shadow-[0_0_60px_rgba(99,102,241,0.15)] transition-all duration-700",
                     showEmojiPicker && "z-[70]"
                 )}
             >
                 <div
-                    className="absolute top-0 left-0 rounded-full -ml-32 -mt-32 transition-colors duration-700 group-focus-within/composer:bg-primary/10"
+                    className="absolute top-0 left-0 rounded-full -ml-24 -mt-24 transition-all duration-1000 group-focus-within/composer:bg-primary/30 group-focus-within/composer:scale-[1.5]"
                     style={{
-                        width: reduceEffects ? '12rem' : '16rem',
-                        height: reduceEffects ? '12rem' : '16rem',
-                        backgroundColor: 'rgba(var(--primary-rgb, 0,122,255), 0.05)',
-                        filter: reduceEffects ? 'blur(56px)' : 'blur(100px)',
+                        width: reduceEffects ? '12rem' : '20rem',
+                        height: reduceEffects ? '12rem' : '20rem',
+                        backgroundColor: 'rgba(99,102,241, 0.15)',
+                        filter: reduceEffects ? 'blur(56px)' : 'blur(120px)',
+                    }}
+                />
+                <div
+                    className="absolute bottom-0 right-0 rounded-full -mr-24 -mb-24 transition-all duration-1000 group-focus-within/composer:bg-tertiary/30 group-focus-within/composer:scale-[1.5]"
+                    style={{
+                        width: reduceEffects ? '12rem' : '20rem',
+                        height: reduceEffects ? '12rem' : '20rem',
+                        backgroundColor: 'rgba(236,72,153, 0.1)',
+                        filter: reduceEffects ? 'blur(56px)' : 'blur(120px)',
                     }}
                 />
 
@@ -237,10 +246,11 @@ export const Feed = () => {
                         <div className="flex-1">
                             <textarea
                                 ref={textareaRef}
-                                className="w-full resize-none border-none focus:ring-0 focus:outline-none text-on-surface placeholder-on-surface-variant/40 text-xl md:text-2xl font-black tracking-tighter mb-2 md:mb-4 bg-transparent min-h-[100px] md:min-h-[120px] scrollbar-hide"
+                                className="w-full resize-none border-none focus:ring-0 focus:outline-none text-on-surface placeholder:text-on-surface-variant/30 text-2xl md:text-[34px] font-black tracking-tight mb-4 md:mb-6 bg-transparent min-h-[120px] md:min-h-[140px] scrollbar-hide selection:bg-primary/20 drop-shadow-sm leading-tight"
                                 placeholder={t('home.placeholder')}
                                 value={newPostContent}
                                 onChange={(e) => setNewPostContent(e.target.value)}
+                                title={t('home.placeholder')}
                             />
 
                             {/* Image Preview */}
@@ -284,14 +294,14 @@ export const Feed = () => {
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
                                         className={clsx(
-                                            "p-2.5 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 border border-outline-variant/5 group/btn flex-1 sm:flex-initial flex items-center justify-center",
+                                            "p-3.5 md:p-4 rounded-[1.25rem] transition-all duration-500 border group/btn flex-1 sm:flex-initial flex items-center justify-center shadow-lg active:scale-95 backdrop-blur-md",
                                             selectedImage
-                                                ? "text-primary bg-primary/10 border-primary/20"
-                                                : "text-on-surface-variant hover:text-primary bg-surface-container-low hover:bg-primary/5"
+                                                ? "text-primary bg-primary/20 border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
+                                                : "text-on-surface-variant hover:text-primary bg-white/5 border-white/10 hover:border-primary/30 hover:bg-white/10"
                                         )}
                                         title={t('post.add_image')}
                                     >
-                                        <ImageIcon size={20} className="md:w-[22px] md:h-[22px] group-hover/btn:scale-110 transition-transform" />
+                                        <ImageIcon size={22} className="md:w-[24px] md:h-[24px] group-hover/btn:scale-110 group-hover/btn:rotate-6 transition-transform" />
                                     </button>
 
                                     {/* Emoji Button */}
@@ -299,14 +309,14 @@ export const Feed = () => {
                                         type="button"
                                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                                         className={clsx(
-                                            "p-2.5 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 border border-outline-variant/5 group/btn flex-1 sm:flex-initial flex items-center justify-center",
+                                            "p-3.5 md:p-4 rounded-[1.25rem] transition-all duration-500 border group/btn flex-1 sm:flex-initial flex items-center justify-center shadow-lg active:scale-95 backdrop-blur-md",
                                             showEmojiPicker
-                                                ? "text-primary bg-primary/10 border-primary/20"
-                                                : "text-on-surface-variant hover:text-primary bg-surface-container-low hover:bg-primary/5"
+                                                ? "text-primary bg-primary/20 border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
+                                                : "text-on-surface-variant hover:text-primary bg-white/5 border-white/10 hover:border-primary/30 hover:bg-white/10"
                                         )}
                                         title={t('post.add_emoji', 'Add emoji')}
                                     >
-                                        <Smile size={20} className="md:w-[22px] md:h-[22px] group-hover/btn:scale-110 transition-transform" />
+                                        <Smile size={22} className="md:w-[24px] md:h-[24px] group-hover/btn:scale-110 group-hover/btn:-rotate-6 transition-transform" />
                                     </button>
 
                                     <AnimatePresence>
@@ -324,7 +334,7 @@ export const Feed = () => {
                                     type="submit"
                                     disabled={!newPostContent.trim() && !selectedImage}
                                     loading={loading}
-                                    className="px-6 md:px-10 py-3.5 md:py-4 rounded-2xl md:rounded-[24px] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-base md:text-lg font-black uppercase tracking-widest italic group/send"
+                                    className="px-6 md:px-10 py-3.5 md:py-4 rounded-[1.25rem] md:rounded-[1.75rem] shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] bg-gradient-to-r from-primary to-primary-container border border-white/20 hover:scale-105 active:scale-95 transition-all text-base md:text-lg font-black uppercase tracking-widest italic group/send"
                                 >
                                     <span className="mr-2 md:mr-3">{t('home.launch')}</span>
                                     <Send size={18} className="md:w-[22px] md:h-[22px] group-hover/send:translate-x-1 group-hover/send:-translate-y-1 transition-transform" />

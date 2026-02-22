@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Smile, Squirrel, Utensils, Trophy, Lamp, LayoutGrid, X } from 'lucide-react';
+import { Smile, Squirrel, Utensils, Trophy, Lamp, LayoutGrid } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { usePerformanceMode } from '../../hooks/usePerformanceMode';
@@ -73,43 +73,37 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
     return (
         <motion.div
             ref={containerRef}
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.9, y: 10 }}
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9, y: 10 }}
+            exit={reduceMotion ? undefined : { opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
             className={clsx(
-                "w-72 sm:w-80 h-[380px] glass rounded-[32px] shadow-2xl overflow-hidden flex flex-col z-[101]",
+                "w-72 sm:w-85 h-[420px] liquid-glass rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col z-[101] border-white/20",
                 className
             )}
         >
-            {/* Header / Tabs */}
-            <div className="p-4 bg-surface/40 border-b border-outline-variant/10">
+            <div className="p-5 bg-white/5 border-b border-white/10 backdrop-blur-3xl">
                 <div className="flex justify-between items-center px-1">
-                    <div className="flex gap-1 overflow-x-auto scrollbar-hide pb-1">
+                    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                         {EMOJI_DATA.map((cat) => (
-                            <button
+                            <motion.button
                                 key={cat.id}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
                                 type="button"
                                 title={t(`emoji.category.${cat.id}`, cat.id)}
                                 onClick={() => setActiveCategory(cat.id)}
                                 className={clsx(
-                                    "p-2 rounded-xl transition-all flex-shrink-0",
+                                    "p-3 rounded-2xl transition-all flex-shrink-0 animate-in fade-in zoom-in duration-500",
                                     activeCategory === cat.id
-                                        ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
-                                        : "text-on-surface-variant/60 hover:bg-surface-container"
+                                        ? "bg-primary text-on-primary shadow-xl shadow-primary/30"
+                                        : "text-on-surface-variant/40 hover:bg-white/10 hover:text-on-surface"
                                 )}
                             >
                                 {cat.icon}
-                            </button>
+                            </motion.button>
                         ))}
                     </div>
-                    <button
-                        onClick={onClose}
-                        type="button"
-                        title={t('common.close', 'Close')}
-                        className="p-2 ml-2 text-on-surface-variant/40 hover:text-on-surface transition-colors flex-shrink-0"
-                    >
-                        <X size={18} />
-                    </button>
                 </div>
             </div>
 
@@ -131,10 +125,13 @@ export const EmojiPicker = ({ onSelect, onClose, className }: EmojiPickerProps) 
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3 bg-surface/20 border-t border-outline-variant/5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">
-                    {t(`emoji.category.${activeCategory}`, activeCategory)}
-                </p>
+            <div className="px-6 py-4 bg-white/5 border-t border-white/5">
+                <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/80 italic">
+                        {t(`emoji.category.${activeCategory}`, activeCategory)}
+                    </p>
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                </div>
             </div>
         </motion.div>
     );

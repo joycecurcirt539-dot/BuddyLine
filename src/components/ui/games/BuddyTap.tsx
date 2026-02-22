@@ -72,150 +72,189 @@ export const BuddyTap: React.FC = () => {
     return (
         <div
             style={{ touchAction: 'none' }}
-            className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28 accelerate"
+            className="relative w-full h-full flex flex-col items-center justify-center pb-20 lg:pb-28 accelerate bg-transparent"
         >
-            {/* Floating Stats */}
-            <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
-                <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-on-surface-variant/50 uppercase tracking-[0.2em]">{t('game.score')}</span>
-                    <div className={`flex items-center gap-2 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
-                        <Zap className="w-4 h-4 text-primary" />
+            {/* Background depth items */}
+            <div className="absolute inset-0 opacity-15 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-tertiary/20 blur-[80px] rounded-full" />
+            </div>
+
+            {/* Floating Stats - Premium Glass */}
+            <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex flex-col gap-1.5"
+                >
+                    <span className="text-[10px] font-black text-primary/70 uppercase tracking-[0.25em] ml-1">{t('game.score')}</span>
+                    <div className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-5 py-3 rounded-[2rem] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate">
+                        <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                            <Zap className="w-4 h-4 text-primary" />
+                        </div>
                         <motion.span
                             key={score}
-                            initial={{ y: -8, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            className="text-xl font-black text-on-surface tabular-nums"
+                            initial={{ scale: 1.2, color: '#6366f1' }}
+                            animate={{ scale: 1, color: 'inherit' }}
+                            className="text-2xl font-black text-on-surface tabular-nums tracking-tight"
                         >
                             {score}
                         </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="flex flex-col items-end gap-1">
-                    <span className="text-[8px] font-black text-on-surface-variant/50 uppercase tracking-[0.2em]">{t('game.best')}</span>
-                    <div className={`flex items-center gap-2 ${reduceEffects ? '' : 'backdrop-blur-2xl'} px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg accelerate`}>
-                        <Trophy className="w-3.5 h-3.5 text-primary/60" />
-                        <span className="text-lg font-black text-on-surface/60 tabular-nums">{highScore}</span>
+                <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex flex-col items-end gap-1.5"
+                >
+                    <span className="text-[10px] font-black text-tertiary/70 uppercase tracking-[0.25em] mr-1">{t('game.best')}</span>
+                    <div className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-5 py-3 rounded-[2rem] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] accelerate">
+                        <Trophy className="w-4 h-4 text-tertiary" />
+                        <span className="text-xl font-black text-on-surface/60 tabular-nums tracking-tight">{highScore}</span>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Main Game Area */}
-            <div className="relative flex flex-col items-center gap-6">
-                {/* Big Score */}
-                <div className="flex flex-col items-center gap-2">
+            <div className="relative flex flex-col items-center gap-10">
+                {/* Big Score Display */}
+                <div className="flex flex-col items-center gap-4 relative">
                     <motion.div
                         key={score}
-                        initial={{ scale: 0.85, opacity: 0 }}
+                        initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                        className="text-8xl md:text-9xl font-black bg-gradient-to-b from-primary via-primary to-primary/40 bg-clip-text text-transparent tracking-tighter drop-shadow-[0_0_40px_rgba(var(--primary-rgb),0.25)] tabular-nums leading-none select-none"
+                        className="text-9xl md:text-[12rem] font-black bg-gradient-to-b from-white via-on-surface to-on-surface/30 bg-clip-text text-transparent tracking-tighter drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)] tabular-nums leading-none select-none relative z-10"
                     >
                         {score}
                     </motion.div>
 
-                    {/* Combo Meter */}
+                    {/* Combo Label */}
                     <AnimatePresence>
-                        {combo > 5 ? (
+                        {combo > 5 && (
                             <motion.div
-                                initial={{ scale: 0, opacity: 0, y: -10 }}
+                                initial={{ scale: 0, opacity: 0, y: 20 }}
                                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                                exit={{ scale: 0, opacity: 0, y: -10 }}
-                                className="flex flex-col items-center gap-1.5"
+                                exit={{ scale: 0, opacity: 0, y: 20 }}
+                                className="flex flex-col items-center gap-3 relative z-20"
                             >
-                                <div className="bg-gradient-to-r from-primary to-tertiary text-on-primary px-5 py-1.5 rounded-full text-sm font-black italic flex items-center gap-2 shadow-xl shadow-primary/30">
-                                    <Zap className="w-4 h-4 fill-current" />
+                                <div className="bg-gradient-to-r from-primary to-tertiary text-white px-8 py-2 rounded-full text-sm font-black italic flex items-center gap-3 shadow-[0_0_40px_rgba(99,102,241,0.5)] border border-white/20">
+                                    <Zap className="w-5 h-5 fill-current animate-pulse" />
                                     {combo}x {t('game.combo')}
                                 </div>
-                                {/* Combo progress bar */}
-                                <div className="w-32 h-1 bg-outline/10 rounded-full overflow-hidden">
+                                <div className="w-40 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10">
                                     <motion.div
                                         animate={{ width: `${comboProgress * 100}%` }}
-                                        className="h-full bg-gradient-to-r from-primary to-tertiary rounded-full"
+                                        className="h-full bg-gradient-to-r from-primary via-white to-tertiary"
                                     />
                                 </div>
                             </motion.div>
-                        ) : (
-                            <div className="h-10" />
                         )}
                     </AnimatePresence>
                 </div>
 
-                {/* Tap Button */}
+                {/* The "Liquid" Tap Button */}
                 <motion.div
                     className="relative group cursor-pointer"
                     onMouseDown={handleTap}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.88 }}
+                    onTouchStart={handleTap}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.92 }}
                 >
-                    {/* Outer Pulse Ring */}
+                    {/* Multi-layered Glows */}
+                    <div className="absolute inset-[-100px] bg-primary/10 blur-[120px] rounded-full pointer-events-none opacity-40 group-hover:opacity-100 transition-opacity duration-700" />
+
                     <motion.div
                         animate={reduceMotion ? undefined : {
-                            opacity: [0.05, 0.15, 0.05],
-                            scale: [1, 1.35, 1],
+                            scale: [1, 1.25, 1],
+                            opacity: [0.1, 0.2, 0.1],
                         }}
-                        transition={reduceMotion ? undefined : { duration: 4, repeat: Infinity }}
-                        className="absolute inset-[-70px] bg-primary/20 blur-[90px] rounded-full pointer-events-none"
-                    />
-                    {/* Inner Glow */}
-                    <motion.div
-                        animate={reduceMotion ? undefined : {
-                            opacity: [0.15, 0.35, 0.15],
-                            scale: [1, 1.12, 1],
-                        }}
-                        transition={reduceMotion ? undefined : { duration: 2.5, repeat: Infinity }}
-                        className="absolute inset-[-25px] bg-primary/25 blur-[45px] rounded-full pointer-events-none"
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute inset-[-40px] bg-gradient-to-tr from-primary to-tertiary blur-[60px] rounded-full pointer-events-none"
                     />
 
-                    <div className="w-44 h-44 md:w-56 md:h-56 rounded-full bg-gradient-to-br from-primary via-primary to-tertiary p-[3px] shadow-2xl shadow-primary/40 relative">
-                        <div className="w-full h-full rounded-full bg-surface/80 backdrop-blur-2xl border border-white/10 flex items-center justify-center relative overflow-hidden">
-                            {/* Inner ring glow */}
-                            <div className="absolute inset-2 rounded-full border border-primary/20" />
-                            <img
-                                src="/logo.png"
-                                alt="BuddyLine"
-                                className="w-20 h-20 md:w-28 md:h-28 object-contain opacity-90 relative z-10"
-                            />
+                    <div className="w-56 h-56 md:w-64 md:h-64 rounded-full p-[2px] bg-gradient-to-br from-white/30 via-primary to-tertiary/30 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] relative overflow-hidden group">
+                        {/* Liquid Background Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high/90 to-surface-container-low/95 backdrop-blur-3xl rounded-full" />
+
+                        {/* Glass Reflections */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-transparent pointer-events-none" />
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3/4 h-1/4 bg-gradient-to-b from-white/20 to-transparent rounded-full blur-md opacity-50" />
+
+                        {/* Center Icon/Logo */}
+                        <div className="absolute inset-0 flex items-center justify-center p-12">
+                            <motion.div
+                                animate={combo > 10 ? {
+                                    filter: ['brightness(1)', 'brightness(1.5)', 'brightness(1)'],
+                                    scale: [1, 1.05, 1]
+                                } : {}}
+                                transition={{ duration: 0.5, repeat: Infinity }}
+                                className="relative"
+                            >
+                                <img
+                                    src="/logo.png"
+                                    alt="BuddyLine"
+                                    className={`w-full h-full object-contain transition-all duration-300 ${combo > 20 ? 'drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]' : 'opacity-80'}`}
+                                />
+                                {combo > 15 && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: [0, 1, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        className="absolute inset-0 bg-primary/30 blur-2xl rounded-full -z-10"
+                                    />
+                                )}
+                            </motion.div>
                         </div>
+
+                        {/* Animated Inner Ring */}
+                        <div className="absolute inset-4 rounded-full border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
                     </div>
 
                     <motion.div
-                        animate={{ y: [0, -8, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute bottom-[-55px] left-1/2 -translate-x-1/2 flex items-center gap-2 text-on-surface-variant font-bold text-xs tracking-widest opacity-40 text-center whitespace-nowrap uppercase"
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute bottom-[-70px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 hover:opacity-100 transition-opacity"
                     >
-                        <MousePointer2 className="w-3.5 h-3.5 shrink-0" />
-                        {t('game.tap_to_connect')}
+                        <MousePointer2 className="w-5 h-5 text-on-surface-variant" />
+                        <span className="text-[10px] font-black tracking-[0.3em] uppercase whitespace-nowrap text-on-surface-variant">
+                            {t('game.tap_to_connect')}
+                        </span>
                     </motion.div>
                 </motion.div>
             </div>
 
-            {/* Particles */}
-            {particles.map(particle => (
-                <motion.div
-                    key={particle.id}
-                    initial={{
-                        x: particle.x - 10,
-                        y: particle.y - 10,
-                        opacity: 1,
-                        scale: 0.5,
-                        rotate: 0
-                    }}
-                    animate={{
-                        y: particle.y + particle.vy,
-                        x: particle.x - 10 + particle.vx,
-                        opacity: 0,
-                        scale: 1.5,
-                        rotate: particle.vr
-                    }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="fixed pointer-events-none z-[110]"
-                >
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary/40 to-tertiary/30 backdrop-blur-sm border border-primary/30 flex items-center justify-center p-1.5">
-                        <img src="/logo.png" className="w-full h-full object-contain" alt="+" />
-                    </div>
-                </motion.div>
-            ))}
+            {/* Particles - Refined Glass Shards/Splashes */}
+            <AnimatePresence>
+                {particles.map(particle => (
+                    <motion.div
+                        key={particle.id}
+                        initial={{
+                            x: particle.x,
+                            y: particle.y,
+                            opacity: 1,
+                            scale: 0.3,
+                            rotate: 0,
+                            filter: 'blur(0px)'
+                        }}
+                        animate={{
+                            y: particle.y + particle.vy,
+                            x: particle.x + particle.vx,
+                            opacity: 0,
+                            scale: 2,
+                            rotate: particle.vr,
+                            filter: 'blur(4px)'
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+                        className="fixed pointer-events-none z-[110]"
+                    >
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-white/40 via-primary/20 to-transparent backdrop-blur-md border border-white/20 flex items-center justify-center p-2 shadow-xl shadow-primary/20">
+                            <Zap className="w-full h-full text-white fill-current" />
+                        </div>
+                    </motion.div>
+                ))}
+            </AnimatePresence>
         </div>
     );
 };

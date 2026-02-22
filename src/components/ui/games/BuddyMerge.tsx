@@ -213,49 +213,65 @@ export const BuddyMerge: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-2 lg:gap-5 w-full max-w-sm mx-auto p-4 select-none">
-            {/* Stats */}
-            <div className="flex justify-between items-center w-full">
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
-                    <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
-                        <Zap className="w-3.5 h-3.5 text-primary" />
+        <div className="flex flex-col items-center gap-4 lg:gap-8 w-full max-w-sm mx-auto p-4 select-none accelerate">
+            {/* Stats - Premium Glass */}
+            <div className="flex justify-between items-center w-full px-2">
+                <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <Zap className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.score')}</span>
+                        <span className="text-[8px] text-primary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">{t('game.score')}</span>
                         <motion.span
                             key={score}
                             initial={{ scale: 1.2 }}
                             animate={{ scale: 1 }}
-                            className="text-xl font-black text-on-surface tabular-nums leading-none mt-0.5"
+                            className="text-2xl font-black text-on-surface tabular-nums leading-none tracking-tight"
                         >
                             {score}
                         </motion.span>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-center gap-2.5 bg-surface-container-high/50 backdrop-blur-2xl px-3.5 py-2 rounded-2xl border border-outline/10 shadow-lg">
-                    <Trophy className="w-4 h-4 text-primary/60" />
-                    <div className="flex flex-col items-end">
-                        <span className="text-[7px] text-on-surface-variant/50 font-black uppercase tracking-[0.2em] leading-none">{t('game.best')}</span>
-                        <span className="text-lg font-black text-on-surface/60 tabular-nums leading-none mt-0.5">{bestScore}</span>
+                <motion.div
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-3 bg-surface-container-high/40 backdrop-blur-3xl px-4 py-2.5 rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                >
+                    <div className="w-8 h-8 rounded-xl bg-tertiary/20 flex items-center justify-center shadow-lg shadow-tertiary/20">
+                        <Trophy className="w-4 h-4 text-tertiary" />
                     </div>
-                </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[8px] text-tertiary/70 font-black uppercase tracking-[0.2em] leading-none mb-1">{t('game.best')}</span>
+                        <span className="text-xl font-black text-on-surface/80 tabular-nums leading-none mt-0.5">{bestScore}</span>
+                    </div>
+                </motion.div>
             </div>
 
-            {/* Game Grid */}
+            {/* Game Grid — Liquid Style */}
             <div
                 style={{ touchAction: 'none' }}
-                className="relative w-full aspect-square bg-surface-container-high/50 p-2 rounded-2xl lg:rounded-[2.5rem] border border-outline/10 shadow-2xl overflow-hidden"
+                className="relative w-full aspect-square bg-gradient-to-br from-surface-container-low/40 to-surface-container-high/10 p-3 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden"
             >
-                {/* Empty Cells Layer */}
-                <div className="absolute inset-2 grid grid-cols-4 grid-rows-4 gap-2">
+                {/* Background depth items */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="absolute -top-10 -left-10 w-48 h-48 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
+                    <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-tertiary/20 blur-[60px] rounded-full" />
+                </div>
+
+                {/* Grid Slots */}
+                <div className="absolute inset-3 grid grid-cols-4 grid-rows-4 gap-3">
                     {Array.from({ length: 16 }).map((_, i) => (
-                        <div key={i} className="bg-surface-container-high/8 rounded-xl" />
+                        <div key={i} className="bg-white/[0.03] border border-white/[0.02] rounded-2xl lg:rounded-3xl" />
                     ))}
                 </div>
 
                 {/* Tiles Layer */}
-                <div className="absolute inset-2 grid grid-cols-4 grid-rows-4 gap-2 pointer-events-none">
+                <div className="absolute inset-3 grid grid-cols-4 grid-rows-4 gap-3 pointer-events-none">
                     <AnimatePresence initial={false}>
                         {tiles.map((tile) => (
                             <motion.div
@@ -263,7 +279,7 @@ export const BuddyMerge: React.FC = () => {
                                 layout={!reduceMotion}
                                 initial={tile.isNew && !reduceMotion ? { scale: 0, opacity: 0 } : false}
                                 animate={{
-                                    scale: tile.isMerged && !reduceMotion ? [1, 1.25, 1] : 1,
+                                    scale: tile.isMerged && !reduceMotion ? [1, 1.15, 1] : 1,
                                     opacity: tile.isDeleting ? 0 : 1,
                                     zIndex: tile.isDeleting ? 0 : 1
                                 }}
@@ -276,33 +292,40 @@ export const BuddyMerge: React.FC = () => {
                                     gridRowStart: tile.r + 1,
                                     gridColumnStart: tile.c + 1,
                                 }}
-                                className={`flex items-center justify-center font-black text-xl lg:text-2xl rounded-xl accelerate ${getTileStyle(tile.val)}`}
+                                className={`flex items-center justify-center font-black text-2xl lg:text-3xl rounded-2xl lg:rounded-3xl shadow-xl border border-white/10 transition-shadow duration-300 accelerate ${getTileStyle(tile.val)}`}
                             >
-                                {tile.val}
+                                <span className="drop-shadow-md">{tile.val}</span>
+                                {tile.val >= 128 && (
+                                    <div className="absolute inset-0 rounded-2xl lg:rounded-3xl bg-white/10 animate-pulse pointer-events-none" />
+                                )}
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 </div>
 
-                {/* Game Over Overlay */}
+                {/* Game Over Overlay - Premium */}
                 <AnimatePresence>
                     {isGameOver && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-md p-4 rounded-[1.8rem]"
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-xl p-8 rounded-[2.5rem]"
                         >
-                            <div className="bg-surface-container-high/95 border border-outline/15 rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center w-full max-w-[240px]">
-                                <div className="w-14 h-14 rounded-2xl bg-error/15 flex items-center justify-center mb-3">
-                                    <span className="text-2xl">🧩</span>
+                            <div className="bg-surface-container-high/90 border border-white/10 rounded-[3rem] p-8 shadow-2xl flex flex-col items-center text-center w-full max-w-[260px] relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-error/10 to-transparent" />
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-error/20 flex items-center justify-center mb-6 shadow-xl shadow-error/20 relative z-10 transition-transform duration-500 scale-110">
+                                    <span className="text-3xl">🧩</span>
                                 </div>
-                                <h3 className="text-xl font-black text-error mb-0.5 uppercase italic tracking-tight">{t('game.merge.game_over')}</h3>
-                                <p className="text-base font-bold text-on-surface-variant mb-4">{t('game.merge.final_score', { score })}</p>
+                                <h3 className="text-2xl font-black text-error mb-1 uppercase italic tracking-tight relative z-10">{t('game.merge.game_over')}</h3>
+                                <div className="flex flex-col items-center gap-1 mb-8 relative z-10">
+                                    <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-[0.2em]">{t('game.score')}</span>
+                                    <span className="text-4xl font-black text-on-surface">{score}</span>
+                                </div>
                                 <motion.button
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.3)' }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={initGame}
-                                    className="w-full py-3 bg-gradient-to-r from-primary to-tertiary text-on-primary rounded-xl font-black uppercase tracking-wider text-[10px] shadow-lg"
+                                    className="w-full py-4 bg-gradient-to-r from-primary to-tertiary text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs shadow-xl shadow-primary/25 relative z-10"
                                 >
                                     {t('game.try_again')}
                                 </motion.button>
@@ -312,29 +335,45 @@ export const BuddyMerge: React.FC = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Mobile Controls */}
-            <div className={`grid grid-cols-3 gap-1.5 w-full max-w-[200px] mt-2 transition-opacity ${isMoving ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+            {/* Mobile Controls — Premium Glass Floating */}
+            <div className={`grid grid-cols-3 gap-3 w-full max-w-[240px] mt-4 transition-opacity ${isMoving ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <div />
-                <button onClick={() => move('up')} title={t('game.merge.move_up')} className="p-3.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-gradient-to-r active:from-primary active:to-tertiary active:text-on-primary transition-all shadow-md">
-                    <ArrowUp className="w-5 h-5" />
-                </button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => move('up')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-3xl rounded-2xl border border-white/10 flex items-center justify-center active:bg-primary shadow-lg"
+                >
+                    <ArrowUp className="w-7 h-7 opacity-80" />
+                </motion.button>
                 <div />
-                <button onClick={() => move('left')} title={t('game.merge.move_left')} className="p-3.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-gradient-to-r active:from-primary active:to-tertiary active:text-on-primary transition-all shadow-md">
-                    <ArrowLeft className="w-5 h-5" />
-                </button>
-                <button onClick={() => move('down')} title={t('game.merge.move_down')} className="p-3.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-gradient-to-r active:from-primary active:to-tertiary active:text-on-primary transition-all shadow-md">
-                    <ArrowDown className="w-5 h-5" />
-                </button>
-                <button onClick={() => move('right')} title={t('game.merge.move_right')} className="p-3.5 bg-surface-container-high/50 backdrop-blur-xl rounded-xl border border-outline/10 flex items-center justify-center active:bg-gradient-to-r active:from-primary active:to-tertiary active:text-on-primary transition-all shadow-md">
-                    <ArrowRight className="w-5 h-5" />
-                </button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => move('left')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-3xl rounded-2xl border border-white/10 flex items-center justify-center active:bg-primary shadow-lg"
+                >
+                    <ArrowLeft className="w-7 h-7 opacity-80" />
+                </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => move('down')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-3xl rounded-2xl border border-white/10 flex items-center justify-center active:bg-primary shadow-lg"
+                >
+                    <ArrowDown className="w-7 h-7 opacity-80" />
+                </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => move('right')}
+                    className="aspect-square bg-surface-container-high/40 backdrop-blur-3xl rounded-2xl border border-white/10 flex items-center justify-center active:bg-primary shadow-lg"
+                >
+                    <ArrowRight className="w-7 h-7 opacity-80" />
+                </motion.button>
             </div>
 
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={initGame}
-                className="flex items-center gap-2 px-6 py-2.5 bg-surface-container-high/50 hover:bg-primary hover:text-on-primary text-on-surface-variant border border-outline/10 rounded-full font-black uppercase tracking-wider text-[9px] transition-all duration-300 shadow-lg backdrop-blur-xl"
+                className="flex items-center gap-2 px-8 py-3 bg-surface-container-high/40 hover:bg-primary hover:text-white text-on-surface-variant/80 border border-white/10 rounded-full font-black uppercase tracking-widest text-[10px] transition-all duration-300 shadow-xl backdrop-blur-2xl mt-4"
             >
                 <RotateCcw className="w-4 h-4" />
                 {t('game.match.reset')}

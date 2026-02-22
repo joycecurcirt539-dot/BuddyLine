@@ -39,54 +39,64 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                         className={reduceEffects ? "fixed inset-0 bg-black/40 z-[100]" : "fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"}
                     />
                     <motion.div
-                        initial={reduceMotion ? false : { opacity: 0, scale: 0.95, y: 20 }}
+                        initial={reduceMotion ? false : { opacity: 0, scale: 0.9, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={reduceMotion ? undefined : { opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-lg bg-surface border border-outline-variant/20 rounded-[32px] shadow-2xl z-[101] overflow-hidden glass"
+                        exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9, y: 30 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className="fixed top-24 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg liquid-glass rounded-[2.5rem] shadow-2xl z-[101] overflow-hidden border-white/20"
                     >
-                        <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Search size={20} className="text-primary" />
-                                <h3 className="text-sm font-black uppercase tracking-widest text-on-surface">
-                                    {t('friends_page.search_results', 'Search Results')}
-                                </h3>
+                        <div className="p-8 border-b border-white/10 flex items-center justify-between bg-white/5 dark:bg-black/20">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-primary/20 rounded-2xl">
+                                    <Search size={22} className="text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black uppercase tracking-tight italic text-on-surface leading-none">
+                                        {t('friends_page.search_results', 'Search Results')}
+                                    </h3>
+                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1.5 opacity-60">Global Directory</p>
+                                </div>
                             </div>
                             <button
                                 onClick={onClose}
                                 aria-label="Close"
-                                className="p-2 hover:bg-surface-container rounded-full transition-colors"
+                                className="p-3 hover:bg-white/10 rounded-full transition-all group"
                             >
-                                <X size={20} />
+                                <X size={20} className="group-hover:rotate-90 transition-transform" />
                             </button>
                         </div>
 
                         <div className="max-h-[60vh] overflow-y-auto p-4 custom-scrollbar">
                             {loading ? (
-                                <div className="flex flex-col items-center justify-center py-12 gap-3">
-                                    <Loader2 className="animate-spin text-primary" size={32} />
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                                        <Loader2 className="animate-spin text-primary relative z-10" size={40} />
+                                    </div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 animate-pulse">
                                         {t('common.searching', 'Searching...')}
                                     </p>
                                 </div>
                             ) : results.length > 0 ? (
                                 <div className="space-y-2">
                                     {results.map((profile) => (
-                                        <div
+                                        <motion.div
                                             key={profile.id}
-                                            className="p-4 bg-surface-container-low/40 rounded-2xl border border-outline-variant/10 flex items-center justify-between hover:bg-surface-container-low transition-colors group"
+                                            whileHover={{ x: 6, scale: 1.02 }}
+                                            className="p-5 bg-white/40 dark:bg-white/5 rounded-[2rem] border border-white/20 flex items-center justify-between hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-300 group shadow-lg"
                                         >
                                             <Link
-                                                to={`/profile/${profile.id}`}
+                                                to={"/profile/" + profile.id}
                                                 onClick={onClose}
-                                                className="flex items-center gap-4 flex-1"
+                                                className="flex items-center gap-5 flex-1"
                                             >
-                                                <Avatar src={profile.avatar_url} alt={profile.username} size="md" />
+                                                <Avatar src={profile.avatar_url} alt={profile.username} size="lg" className="ring-4 ring-white shadow-xl" />
                                                 <div>
-                                                    <h4 className="text-sm font-black text-on-surface flex items-center gap-2">
+                                                    <h4 className="text-base font-black text-on-surface flex items-center gap-2 uppercase italic tracking-tight">
                                                         {profile.full_name || profile.username}
                                                         <UserBadge username={profile.username} isVerified={profile.is_verified} />
                                                     </h4>
-                                                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-80">
+                                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] opacity-70 mt-1">
                                                         @{profile.username}
                                                     </p>
                                                 </div>
@@ -94,15 +104,15 @@ export const SearchOverlay = ({ isOpen, onClose, results, loading, onSendRequest
                                             <button
                                                 onClick={() => onSendRequest(profile.username)}
                                                 disabled={actionLoading === profile.username}
-                                                className="p-3 bg-primary/10 text-primary hover:bg-primary hover:text-on-primary rounded-xl transition-all active:scale-90"
+                                                className="p-4 bg-primary text-on-primary hover:scale-110 active:scale-95 rounded-2xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
                                             >
                                                 {actionLoading === profile.username ? (
                                                     <Loader2 size={18} className="animate-spin" />
                                                 ) : (
-                                                    <UserPlus size={18} />
+                                                    <UserPlus size={20} />
                                                 )}
                                             </button>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
                             ) : (

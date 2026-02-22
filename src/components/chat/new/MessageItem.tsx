@@ -65,8 +65,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, isOwn, onCont
             {/* Reply preview */}
             {message.reply_to_id && message.reply_message && (
                 <div className={clsx(
-                    "mb-1 rounded-lg px-3 py-1 text-xs border-l-2 flex flex-col max-w-full opacity-80 cursor-pointer hover:opacity-100 transition-opacity",
-                    isOwn ? "bg-primary-container/30 border-primary-container text-on-primary-container" : "bg-surface-variant/30 border-outline text-on-surface-variant"
+                    "mb-2 rounded-[1rem] px-3.5 py-2 text-xs border-l-[3px] flex flex-col max-w-full opacity-80 cursor-pointer hover:opacity-100 transition-all shadow-inner",
+                    isOwn ? "bg-white/20 border-white text-white" : "bg-white/5 border-primary/50 text-on-surface"
                 )}>
                     <span className="font-bold text-[10px] uppercase opacity-70 mb-0.5 flex items-center gap-1">
                         <Reply size={10} />
@@ -81,10 +81,10 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message, isOwn, onCont
             {/* Bubble */}
             <div
                 className={clsx(
-                    "px-4 py-2.5 relative overflow-hidden transition-all duration-200 group/bubble",
+                    "px-4 py-3 relative overflow-hidden transition-all duration-300 group/bubble",
                     isOwn
-                        ? "bg-primary text-on-primary rounded-[20px] rounded-tr-sm shadow-sm"
-                        : "bg-surface-container-high/60 backdrop-blur-md text-on-surface border border-outline-variant/10 rounded-[20px] rounded-tl-sm shadow-sm"
+                        ? "bg-gradient-to-br from-primary to-primary-container text-white rounded-[2rem] rounded-tr-[0.5rem] shadow-[0_5px_15px_rgba(var(--primary-rgb),0.3)] border border-white/20"
+                        : "liquid-glass rounded-[2rem] rounded-tl-[0.5rem] bg-white/5 backdrop-blur-xl text-on-surface border border-white/10 shadow-[0_5px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_5px_15px_rgba(255,255,255,0.02)]"
                 )}
             >
                 {/* Three dots button — INSIDE bubble, top-right/top-left corner */}

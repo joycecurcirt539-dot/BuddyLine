@@ -234,16 +234,21 @@ export const Profile = () => {
     };
 
     return (
-        <div className="w-full space-y-4 lg:space-y-6 mb-10">
+        <motion.div
+            className="w-full space-y-4 lg:space-y-6 mb-10"
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 26, mass: 1.1 }}
+        >
             {/* Profile Header */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 style={{ willChange: "transform, opacity" }}
-                className="bubble"
+                className="liquid-glass rounded-[3rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.2)] dark:shadow-[0_0_50px_rgba(255,255,255,0.05)] overflow-hidden"
             >
                 {/* Cover with Mesh-like Gradient */}
-                <div className="h-48 lg:h-72 relative overflow-hidden rounded-t-[40px]">
+                <div className="h-32 lg:h-48 relative overflow-hidden rounded-t-[2.5rem]">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary via-tertiary to-primary opacity-90 animate-gradient-xy" />
                     <div className="absolute inset-0 bg-[url('/sparkles.svg')] opacity-30 mix-blend-overlay animate-pulse" />
                     <div className="absolute inset-0 bg-black/10" />
@@ -251,8 +256,8 @@ export const Profile = () => {
                 </div>
 
                 {/* Profile Header Content */}
-                <div className="px-6 lg:px-12 pb-10 relative">
-                    <div className="flex flex-col lg:flex-row items-center lg:items-end gap-8 -mt-20 lg:-mt-28 mb-8">
+                <div className="px-4 lg:px-8 pb-6 relative">
+                    <div className="flex flex-col lg:flex-row items-center lg:items-end gap-6 -mt-16 lg:-mt-24 mb-6">
                         {/* Avatar Wrapper with Glow */}
                         <div
                             className={clsx(
@@ -265,10 +270,10 @@ export const Profile = () => {
                             <Avatar
                                 src={profile.avatar_url}
                                 alt={profile.username}
-                                size="2xl"
+                                size="xl"
                                 status={isUserOnline ? 'online' : 'offline'}
                                 className={clsx(
-                                    "ring-[12px] ring-surface-container-high/60 backdrop-blur-3xl shadow-2xl transition-all duration-700",
+                                    "ring-8 ring-surface-container-high/60 backdrop-blur-3xl shadow-2xl transition-all duration-700",
                                     editMode && "brightness-75 group-hover/avatar:brightness-50"
                                 )}
                             />
@@ -293,20 +298,20 @@ export const Profile = () => {
                         </div>
 
                         {/* Name & Username & Stats */}
-                        <div className="flex-1 flex flex-col gap-6 w-full">
-                            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-6">
+                        <div className="flex-1 flex flex-col gap-4 w-full">
+                            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4">
                                 <div className="text-center lg:text-left">
-                                    <h1 className="text-3xl lg:text-5xl font-black text-on-surface tracking-tighter leading-none mb-3 flex items-center justify-center lg:justify-start gap-3 italic uppercase">
+                                    <h1 className="text-2xl lg:text-4xl font-black text-on-surface tracking-tighter leading-none mb-2 flex items-center justify-center lg:justify-start gap-3 italic uppercase">
                                         {profile.full_name || profile.username}
                                         <UserBadge username={profile.username} isVerified={profile.is_verified} className="text-2xl" />
                                     </h1>
-                                    <div className="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
-                                        <p className="px-4 py-1.5 bg-primary/10 text-primary font-black text-xs uppercase tracking-[0.2em] rounded-full border border-primary/20 backdrop-blur-sm">
+                                    <div className="flex items-center justify-center lg:justify-start gap-3 flex-wrap">
+                                        <p className="px-4 py-1.5 bg-primary/20 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full border border-primary/30 backdrop-blur-md shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]">
                                             @{profile.username}
                                         </p>
-                                        <div className="flex items-center gap-2 px-4 py-1.5 bg-surface-container-low/40 rounded-full border border-outline-variant/10 backdrop-blur-sm">
+                                        <div className="flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/10 backdrop-blur-sm shadow-inner">
                                             <div className={clsx("w-2 h-2 rounded-full", isUserOnline ? "bg-primary shadow-[0_0_12px_currentColor] animate-pulse" : "bg-outline-variant")} />
-                                            <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">
+                                            <span className="text-[9px] font-black text-on-surface uppercase tracking-widest opacity-80">
                                                 {isUserOnline
                                                     ? t('chat.status.online')
                                                     : `${t('chat.status.last_seen')} ${formatLastSeen(profile.last_seen)}`}
@@ -319,34 +324,34 @@ export const Profile = () => {
                                     {isOwnProfile ? (
                                         <Button
                                             onClick={() => setEditMode(!editMode)}
-                                            className="px-8 py-3 rounded-2xl font-black shadow-xl shadow-primary/10 hover:scale-105 transition-all text-xs uppercase tracking-[0.2em]"
+                                            className="px-6 py-2.5 rounded-[1rem] font-black shadow-xl shadow-primary/10 hover:scale-105 transition-all text-[10px] uppercase tracking-[0.2em]"
                                         >
-                                            <Edit2 size={16} className="mr-2" />
+                                            <Edit2 size={14} className="mr-2" />
                                             {t('profile_page.edit_profile')}
                                         </Button>
                                     ) : (
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2">
                                             <Button
                                                 onClick={() => initiateCall(profile.id, 'audio')}
                                                 variant="secondary"
-                                                className="w-12 h-12 rounded-2xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all"
+                                                className="w-10 h-10 rounded-xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all border border-white/20 bg-white/5 backdrop-blur-md"
                                                 title={t('chat.actions.voice_call')}
                                             >
-                                                <Phone size={20} />
+                                                <Phone size={18} />
                                             </Button>
                                             <Button
                                                 onClick={() => initiateCall(profile.id, 'video')}
                                                 variant="secondary"
-                                                className="w-12 h-12 rounded-2xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all"
+                                                className="w-10 h-10 rounded-xl p-0 shadow-xl shadow-primary/5 hover:scale-110 transition-all border border-white/20 bg-white/5 backdrop-blur-md"
                                                 title={t('chat.actions.video_call')}
                                             >
-                                                <Video size={20} />
+                                                <Video size={18} />
                                             </Button>
                                             <Button
                                                 onClick={handleMessage}
-                                                className="px-10 py-3 rounded-2xl font-black shadow-2xl shadow-primary/20 hover:scale-105 transition-all text-sm uppercase tracking-[0.2em]"
+                                                className="px-6 py-2 rounded-xl font-black shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] bg-gradient-to-r from-primary to-primary-container hover:scale-[1.05] transition-all duration-300 text-xs uppercase tracking-[0.2em] border border-white/20"
                                             >
-                                                <MessageCircle size={20} className="mr-2" />
+                                                <MessageCircle size={18} className="mr-2" />
                                                 {t('friends_page.actions.direct_chat')}
                                             </Button>
                                         </div>
@@ -360,51 +365,51 @@ export const Profile = () => {
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="space-y-4 bg-surface-container-low/40 backdrop-blur-3xl p-6 rounded-[32px] border border-outline-variant/10"
+                                        className="space-y-4 bg-white/5 backdrop-blur-3xl p-5 lg:p-6 rounded-[2rem] border border-white/20 shadow-inner"
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2 ml-1">{t('profile_page.full_name')}</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2 ml-1">{t('profile_page.full_name')}</label>
                                                 <input
                                                     type="text"
                                                     value={fullName}
                                                     onChange={(e) => setFullName(e.target.value)}
-                                                    className="w-full px-5 py-3 bg-white/5 border border-outline/10 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface font-bold"
+                                                    className="w-full px-5 py-3.5 bg-black/20 backdrop-blur-md border border-white/10 rounded-[1.5rem] focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition-all text-on-surface font-black shadow-inner"
                                                     placeholder={t('profile_page.placeholder_name')}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2 ml-1">{t('profile_page.username')}</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2 ml-1">{t('profile_page.username')}</label>
                                                 <input
                                                     type="text"
                                                     value={newUsername}
                                                     onChange={(e) => setNewUsername(e.target.value)}
-                                                    className="w-full px-5 py-3 bg-white/5 border border-outline/10 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all text-on-surface font-bold"
+                                                    className="w-full px-5 py-3.5 bg-black/20 backdrop-blur-md border border-white/10 rounded-[1.5rem] focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition-all text-on-surface font-black shadow-inner"
                                                     placeholder={t('profile_page.placeholder_username')}
                                                 />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-black uppercase tracking-widest text-primary mb-2 ml-1">{t('profile_page.bio')}</label>
+                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2 ml-1">{t('profile_page.bio')}</label>
                                             <textarea
                                                 value={bio}
                                                 onChange={(e) => setBio(e.target.value)}
-                                                className="w-full px-5 py-3 bg-white/5 border border-outline/10 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-on-surface min-h-[100px]"
+                                                className="w-full px-5 py-3.5 bg-black/20 backdrop-blur-md border border-white/10 rounded-[1.5rem] focus:ring-2 focus:ring-primary/40 focus:border-primary/50 outline-none transition-all resize-none text-on-surface min-h-[100px] font-black shadow-inner"
                                                 placeholder={t('profile_page.placeholder_bio')}
                                             />
                                         </div>
-                                        <div className="flex gap-3 justify-end">
-                                            <Button onClick={() => setEditMode(false)} variant="secondary" className="px-6 py-2 rounded-xl text-xs uppercase tracking-widest border-outline/10">
+                                        <div className="flex gap-3 justify-end mt-6">
+                                            <Button onClick={() => setEditMode(false)} variant="secondary" className="px-6 py-2.5 rounded-[1.25rem] text-xs uppercase tracking-widest border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all">
                                                 {t('common.cancel')}
                                             </Button>
-                                            <Button onClick={handleSaveProfile} className="px-8 py-2 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-primary/20">
+                                            <Button onClick={handleSaveProfile} className="px-8 py-2.5 rounded-[1.25rem] text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] border border-white/20 transition-all duration-300">
                                                 {t('profile_page.save_changes')}
                                             </Button>
                                         </div>
                                     </motion.div>
                                 ) : (
-                                    <div className="bg-white/5 backdrop-blur-sm p-6 lg:p-8 rounded-[32px] border border-outline-variant/10 group-hover/bio:bg-white/10 transition-colors">
-                                        <p className="text-on-surface text-base lg:text-xl leading-relaxed italic font-medium">
+                                    <div className="liquid-glass bg-white/5 backdrop-blur-md p-5 lg:p-6 rounded-[2rem] border border-white/10 shadow-inner group-hover/bio:bg-white/10 transition-all duration-500">
+                                        <p className="text-on-surface text-sm lg:text-lg leading-relaxed italic font-black text-center lg:text-left">
                                             {profile.bio || t('profile_page.no_bio')}
                                         </p>
                                     </div>
@@ -437,7 +442,7 @@ export const Profile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 style={{ willChange: "transform, opacity" }}
-                className="bubble p-6 lg:p-8 bg-tertiary/5 border-tertiary/20 shadow-tertiary/10 relative overflow-hidden group"
+                className="liquid-glass p-5 lg:p-6 rounded-[2rem] border border-tertiary/30 shadow-[0_0_40px_rgba(0,0,0,0.15)] relative overflow-hidden group mb-6"
             >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-tertiary/10 rounded-full blur-[100px] -mr-32 -mt-32 animate-pulse" />
 
@@ -450,7 +455,7 @@ export const Profile = () => {
                         <Sparkles size={20} className="text-tertiary animate-pulse relative z-10" />
                     </div>
                     <div>
-                        <h3 className="text-base lg:text-lg font-black text-on-surface uppercase tracking-tighter italic">{t('profile_page.experimental.title')}</h3>
+                        <h3 className="text-sm lg:text-base font-black text-on-surface uppercase tracking-tighter italic">{t('profile_page.experimental.title')}</h3>
                         <p className="text-tertiary font-black text-[10px] uppercase tracking-widest opacity-80">{t('profile_page.experimental.subtitle')}</p>
                     </div>
                 </div>
@@ -477,9 +482,12 @@ export const Profile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 style={{ willChange: "transform, opacity" }}
-                className="bubble p-6 lg:p-10 mb-10"
+                className="liquid-glass p-5 lg:p-8 rounded-[2rem] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.1)] mb-6 relative overflow-hidden"
             >
-                <h2 className="text-xl lg:text-2xl font-black text-on-surface mb-6 uppercase tracking-tighter italic">{t('profile_page.legacy.title')}</h2>
+                <div className="absolute top-0 right-1/4 w-40 h-40 bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute bottom-0 left-1/4 w-40 h-40 bg-secondary/10 rounded-full blur-[80px] pointer-events-none" />
+
+                <h2 className="text-lg lg:text-xl font-black text-on-surface mb-8 uppercase tracking-tighter italic relative z-10">{t('profile_page.legacy.title')}</h2>
                 {posts.length === 0 ? (
                     <div className="text-center py-12 bg-white/40 dark:bg-white/5 rounded-[32px] border border-dashed border-outline-variant/10 group hover:border-primary/40 transition-all">
                         <p className="text-on-surface-variant text-base font-bold italic tracking-tight">{t('profile_page.legacy.empty_annals')}</p>
@@ -497,6 +505,6 @@ export const Profile = () => {
                     </div>
                 )}
             </motion.div>
-        </div>
+        </motion.div>
     );
 };

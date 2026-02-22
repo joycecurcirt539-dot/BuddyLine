@@ -60,22 +60,26 @@ export const InstallPrompt = () => {
         <AnimatePresence>
             {isVisible && (
                 <motion.div
-                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    initial={{ opacity: 0, y: 100, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 50, scale: 0.9 }}
+                    exit={{ opacity: 0, y: 100, scale: 0.8 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     className="fixed bottom-24 left-4 right-4 lg:left-auto lg:right-8 lg:w-96 z-[100]"
                 >
-                    <div className="bg-surface-container-high/90 backdrop-blur-2xl border border-primary/20 rounded-[32px] p-5 shadow-2xl shadow-primary/20 flex flex-col gap-4">
+                    <div className="liquid-glass border-white/20 p-6 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.4)] flex flex-col gap-6 rounded-[2.5rem]">
                         <div className="flex items-start justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
-                                    <Smartphone className="text-on-primary" size={24} />
+                            <div className="flex items-center gap-5">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-lg animate-pulse" />
+                                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-xl shadow-primary/30 relative z-10 border border-white/20">
+                                        <Smartphone className="text-on-primary" size={28} />
+                                    </div>
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-black text-on-surface uppercase tracking-tight leading-none mb-1">
+                                    <h3 className="font-black text-on-surface uppercase italic tracking-tight leading-none mb-1.5 text-lg">
                                         {t('sidebar.buddyline')}
                                     </h3>
-                                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest opacity-80">
+                                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] opacity-60 italic">
                                         {t('common.install_prompt_desc')}
                                     </p>
                                 </div>
@@ -90,14 +94,13 @@ export const InstallPrompt = () => {
                             </button>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                             <Button
                                 onClick={handleInstall}
-                                title={t('common.install')}
-                                aria-label={t('common.install')}
-                                className="flex-1 py-3 font-black uppercase tracking-widest text-xs rounded-2xl"
+                                variant="primary"
+                                className="flex-1 rounded-2xl"
                             >
-                                <Download size={16} className="mr-2" />
+                                <Download size={18} />
                                 {t('common.install')}
                             </Button>
                         </div>
