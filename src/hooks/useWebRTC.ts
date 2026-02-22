@@ -16,6 +16,8 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
     const localStream = useRef<MediaStream | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [connectionState, setConnectionState] = useState<RTCPeerConnectionState>('new');
+    const isNegotiating = useRef(false);
+    const senders = useRef<{ [key: string]: RTCRtpSender }>({});
 
     const cleanup = useCallback(() => {
         if (pc.current) {
@@ -49,48 +51,54 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
 
         peerConnection.onconnectionstatechange = () => {
             setConnectionState(peerConnection.connectionState);
-            if (peerConnection.connectionState === 'disconnected') {
-                // Potential network drop, try to restart ICE
-                peerConnection.restartIce();
+            if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+                cleanup();
+            }
+        };
+
+        peerConnection.onnegotiationneeded = async () => {
+            if (isNegotiating.current) return;
+            isNegotiating.current = true;
+            try {
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                if (callId && user && receiverId) {
+                    signalingService.send('OFFER', {
+                        call_id: callId,
+                        sender_id: user.id,
+                        receiver_id: receiverId,
+                        sdp: offer
+                    });
+                }
+            } catch (err) {
+                console.error('Negotiation failed:', err);
+            } finally {
+                isNegotiating.current = false;
             }
         };
 
         pc.current = peerConnection;
         return peerConnection;
-    }, [callId, user, receiverId]);
+    }, [callId, user, receiverId, cleanup]);
 
     const initiateOffer = useCallback(async () => {
-        if (!pc.current) createPeerConnection();
+        if (!pc.current) return;
 
-        if (localStream.current) {
+        // Tracks are now added via startLocalStream using the senders ref
+        // or during initial setup if localStream.current exists
+        if (localStream.current && Object.keys(senders.current).length === 0) {
             localStream.current.getTracks().forEach(track => {
-                pc.current!.addTrack(track, localStream.current!);
+                if (pc.current) {
+                    const sender = pc.current.addTrack(track, localStream.current!);
+                    senders.current[track.kind] = sender;
+                }
             });
         }
-
-        const offer = await pc.current!.createOffer();
-        await pc.current!.setLocalDescription(offer);
-
-        if (callId && user && receiverId) {
-            signalingService.send('OFFER', {
-                call_id: callId,
-                sender_id: user.id,
-                receiver_id: receiverId,
-                sdp: offer
-            });
-        }
-    }, [callId, user, receiverId, createPeerConnection]);
+    }, []);
 
     const handleOffer = useCallback(async (sdp: RTCSessionDescriptionInit) => {
         if (!pc.current) createPeerConnection();
         await pc.current!.setRemoteDescription(new RTCSessionDescription(sdp));
-
-        // Add local tracks if not added yet
-        if (localStream.current) {
-            localStream.current.getTracks().forEach(track => {
-                pc.current!.addTrack(track, localStream.current!);
-            });
-        }
 
         const answer = await pc.current!.createAnswer();
         await pc.current!.setLocalDescription(answer);
@@ -134,6 +142,10 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
                 case 'CALL_ACCEPT':
                     if (isCaller) initiateOffer();
                     break;
+                case 'CALL_END':
+                case 'CALL_DECLINE':
+                    cleanup();
+                    break;
             }
         };
 
@@ -141,11 +153,11 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
         return () => {
             signalingService.unsubscribe(listener);
         };
-    }, [callId, user, handleOffer, handleAnswer, handleIceCandidate, isCaller, initiateOffer]);
+    }, [callId, user, handleOffer, handleAnswer, handleIceCandidate, isCaller, initiateOffer, cleanup]);
 
     const startLocalStream = async (type: 'audio' | 'video' | 'screen') => {
         try {
-            let stream;
+            let stream: MediaStream;
             if (type === 'screen') {
                 stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
             } else {
@@ -154,6 +166,18 @@ export const useWebRTC = (callId: string | undefined, isCaller: boolean, receive
                     video: type === 'video'
                 });
             }
+
+            if (pc.current) {
+                stream.getTracks().forEach(track => {
+                    if (senders.current[track.kind]) {
+                        senders.current[track.kind].replaceTrack(track);
+                    } else {
+                        const sender = pc.current!.addTrack(track, stream);
+                        senders.current[track.kind] = sender;
+                    }
+                });
+            }
+
             localStream.current = stream;
             return stream;
         } catch (error) {
