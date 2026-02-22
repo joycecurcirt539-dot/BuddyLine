@@ -25,7 +25,7 @@ export const Layout = () => {
             <MiniGame isOpen={isGameOpen} onClose={() => setIsGameOpen(false)} />
 
             <div className={clsx(
-                "flex-1 lg:pl-20 h-full overflow-y-auto overflow-x-hidden flex flex-col",
+                "flex-1 lg:pl-28 h-full overflow-y-auto overflow-x-hidden flex flex-col",
                 (isChatOpen || isComposerOpen) ? "pb-0" : "pb-24 lg:pb-10",
                 isChatOpen ? "px-0 py-0" : "px-4 lg:px-8 py-4 lg:py-8"
             )}>
